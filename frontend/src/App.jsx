@@ -1,35 +1,18 @@
-import Records from "./pages/Records";
-import { useDispatch, useSelector } from "react-redux";
-import { useEffect } from "react";
-// import { fetchUserInfo } from "./slices/authSlice";
-// import LoginFinal from "./pages/Login";
-import Loader from "./components/utils/Loader";
+// App.jsx
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import ContractsPage from "./pages/ContractsPage";
+import CreateContractPage from "./pages/CreateContractPage";
 import MainLayout from "./layout/MainLayout";
-import { useLocation } from "react-router-dom";
 
-const App = () => {
-  // const { userFetched, loginLoader, user } = useSelector(
-  //   (state: any) => state.authSlice
-  // );
-  const location = useLocation();
-
-  const dispatch = useDispatch();
-  const urlParams = new URLSearchParams(location.search);
-  const params = Object.fromEntries(urlParams.entries());
-
-
-
-  const renderChildren = () => {
-    return <Records />;
-  };
-
-  // useEffect(() => {
-  //   if (!params?.reset_token) {
-  //     dispatch(fetchUserInfo());
-  //   }
-  // }, [dispatch, params?.reset_token]);
-
-  return <MainLayout>{renderChildren()}</MainLayout>;
-};
-
-export default App;
+export default function App() {
+  return (
+    <BrowserRouter>
+    <MainLayout>
+      <Routes>
+        <Route path="/" element={<ContractsPage />} />
+        <Route path="/contracts/new" element={<CreateContractPage />} />
+      </Routes>
+    </MainLayout>
+    </BrowserRouter>
+  );
+}
