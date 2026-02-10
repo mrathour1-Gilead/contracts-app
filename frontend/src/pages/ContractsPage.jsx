@@ -1,4 +1,5 @@
 import { Table, Button, Space, Input, Card } from "antd";
+import { fetchContracts } from "../store/contracts/contractsThunks";
 import {
   PlusOutlined,
   SearchOutlined,
@@ -8,10 +9,19 @@ import {
 import { useNavigate } from "react-router-dom";
 
 import { columns } from "../components/Columns";
-import { dataSource } from "../components/data";
+import { useDispatch, useSelector } from "react-redux";
+import { useEffect } from "react";
 
 export default function ContractsPage() {
   const navigate = useNavigate();
+  const contracts = useSelector((state) => state.contracts.list);
+  const loading = useSelector((state) => state.contracts.loading.list);
+
+  const dispatch = useDispatch();
+
+    useEffect(() => {
+    dispatch(fetchContracts());
+  }, [dispatch]);
 
   return (
     <Card>
@@ -48,10 +58,10 @@ export default function ContractsPage() {
       {/* Table */}
       <Table
         columns={columns}
-        dataSource={dataSource}
+        dataSource={contracts}
+        loading={loading}
         pagination={{ pageSize: 8 }}
       />
     </Card>
   );
 }
- 

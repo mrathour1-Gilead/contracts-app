@@ -47,11 +47,11 @@ export const columns = [
     render: (owner) => (
       <Space>
         <img
-          src={owner.avatar}
-          alt={owner.name}
+          src={owner?.avatar}
+          alt={owner?.name}
           style={{ width: 24, height: 24, borderRadius: "50%" }}
         />
-        {owner.name}
+        {owner?.name}
       </Space>
     ),
   },
