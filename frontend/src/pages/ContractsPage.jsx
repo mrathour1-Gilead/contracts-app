@@ -1,4 +1,4 @@
-import { Table, Button, Space, Input, Card } from "antd";
+import { Table, Button, Space, Input, Card, ConfigProvider } from "antd";
 import { fetchContracts } from "../store/contracts/contractsThunks";
 import {
   PlusOutlined,
@@ -19,7 +19,7 @@ export default function ContractsPage() {
 
   const dispatch = useDispatch();
 
-    useEffect(() => {
+  useEffect(() => {
     dispatch(fetchContracts());
   }, [dispatch]);
 
@@ -55,13 +55,25 @@ export default function ContractsPage() {
         </Space>
       </div>
 
-      {/* Table */}
-      <Table
-        columns={columns}
-        dataSource={contracts}
-        loading={loading}
-        pagination={{ pageSize: 8 }}
-      />
+      <ConfigProvider
+        theme={{
+          components: {
+            Table: {
+              headerBg: "#306e9a",
+              headerColor: "#ffffff",
+              headerSortHoverBg: "#1f2937",
+              headerSortActiveBg: "#1f2937",
+            },
+          },
+        }}
+      >
+        <Table
+          columns={columns}
+          dataSource={contracts}
+          loading={loading}
+          pagination={{ pageSize: 8 }}
+        />
+      </ConfigProvider>
     </Card>
   );
 }

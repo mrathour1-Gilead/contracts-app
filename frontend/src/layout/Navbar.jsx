@@ -14,7 +14,7 @@ const Navbar = memo(() => {
         padding: "0 32px",
         display: "flex",
         alignItems: "center",
-        background: "linear-gradient(90deg, #7a0019, #b11226)", // optional
+        background: "linear-gradient(90deg, #08306b, #08306b)", // optional
         boxShadow: "0 2px 8px rgba(0,0,0,0.15)",
       }}
     >

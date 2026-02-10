@@ -48,6 +48,7 @@ export default function CreateContractPage() {
             mode="inline"
             selectedKeys={[active]}
             onClick={(e) => setActive(e.key)}
+            // style={{backgroundColor: }}
             items={sections.map((s) => ({
               ...s,
               disabled: !created && s.key !== "cmo",

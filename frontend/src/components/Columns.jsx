@@ -2,23 +2,41 @@
 import { Tag, Button, Space, Dropdown } from "antd";
 import { DownOutlined } from "@ant-design/icons";
 
+
 export const columns = [
-  {
-    title: "Contract Name",
-    dataIndex: "contractName",
-    key: "contractName",
+   {
+    title: "CMO Name",
+    dataIndex: "cmoName",
+    key: "cmoName",
+  },
+   {
+    title: "CMO Parent",
+    dataIndex: "cmoParent",
+    key: "cmoParent",
+    sorter: true,
+    render: (text) => <strong>{text}</strong>,
+  },
+   {
+    title: "2025 Spend (M$)",
+    dataIndex: "spend2025",
+    key: "spend2025",
     sorter: true,
     render: (text) => <strong>{text}</strong>,
   },
   {
-    title: "CMO",
-    dataIndex: "cmo",
-    key: "cmo",
+    title: "Territory",
+    dataIndex: "territory",
+    key: "territory",
   },
-  {
-    title: "Type",
-    dataIndex: "type",
-    key: "type",
+   {
+    title: "Supplier Relationship Owner",
+    dataIndex: "relationshipOwner",
+    key: "relationshipOwner",
+  },
+    {
+    title: "Location (Facility)",
+    dataIndex: "location",
+    key: "location",
   },
   {
     title: "Status",
@@ -31,29 +49,8 @@ export const columns = [
         Draft: "default",
         Archived: "gray",
       };
-      return <Tag color={colorMap[status]}>{status}</Tag>;
+      return <Tag color={colorMap["Active"]}>Active</Tag>;
     },
-  },
-  {
-    title: "Effective Date",
-    dataIndex: "effectiveDate",
-    key: "effectiveDate",
-    sorter: true,
-  },
-  {
-    title: "Owner",
-    dataIndex: "owner",
-    key: "owner",
-    render: (owner) => (
-      <Space>
-        <img
-          src={owner?.avatar}
-          alt={owner?.name}
-          style={{ width: 24, height: 24, borderRadius: "50%" }}
-        />
-        {owner?.name}
-      </Space>
-    ),
   },
   {
     title: "Actions",
@@ -78,5 +75,4 @@ export const columns = [
       </Space>
     ),
   },
-];
- 
+]; 
