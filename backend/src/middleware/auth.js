@@ -1,5 +1,4 @@
 import { verifyToken } from "../utils/jwt.js";
-import { adminEmails } from "../utils/helpers.js";
 
 export const returnLoginInfo = (email) => {
   const lowerCaseEmail = email.toLowerCase();
