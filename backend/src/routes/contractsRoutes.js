@@ -8,7 +8,7 @@ import { asyncHandler } from "../utils/safe.js";
 
 const router = express.Router();
 
-router.get("/items", asyncHandler(async (req, res) => {
+router.get("/fetchList", asyncHandler(async (req, res) => {
   const user = req.user;
   try {
     const result = await db.send(
@@ -32,15 +32,16 @@ router.post("/create", asyncHandler(async (req, res) => {
     id: uuid(),
     timestamp: now,
     lastModifiedAt: now,
-    sfa_id: await nextSfaId(),
+    cnt_id: await nextSfaId(),
     status: req.body.method === "SAVE" ? "Draft" : "Completed",
     submittedAt: req.body.method === "SAVE" ? null : now,
-    created_by: req.user.email,
-    updated_by: req.user.email,
-    submitted_by: req.body.method === "SAVE" ? null : req.user.email,
+    // created_by: req.user.email,
+    // updated_by: req.user.email,
+    // submitted_by: req.body.method === "SAVE" ? null : req.user.email,
   };
   delete item.method;
   delete item.errmsg;
+  console.log("req.body", item)
 
   await db.send(new PutCommand({ TableName: ITEM_TABLE, Item: item }));
   res.status(201).json({ id: item.id, message: "Created" });

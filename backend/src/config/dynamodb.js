@@ -8,7 +8,7 @@ dotenv.config();
 const region = process.env.AWS_REGION || "us-west-2";
 // Configure to bypass SSL verification for corporate proxies
 const httpsAgent = new https.Agent({
-  rejectUnauthorized: true, // Disable SSL certificate validation
+  rejectUnauthorized: false, // Disable SSL certificate validation
 });
 
 const client = new DynamoDBClient({
@@ -28,5 +28,5 @@ export const db = DynamoDBDocumentClient.from(client, {
 });
 
 export const USERS_TABLE = process.env.USER_TABLE || 'sfa_user';
-export const COUNTER_TABLE = process.env.COUNTER_TABLE || 'sfa_counter';
-export const ITEM_TABLE = process.env.ITEM_TABLE || 'sfa_items';
+export const COUNTER_TABLE = process.env.COUNTER_TABLE || 'CONTRACTS_COUNTER';
+export const ITEM_TABLE = process.env.ITEM_TABLE || 'CONTRACTS_ITEMS';

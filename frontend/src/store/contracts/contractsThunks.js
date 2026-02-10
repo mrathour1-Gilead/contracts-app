@@ -1,12 +1,16 @@
-// store/contracts/contractsThunks.js
 import { createAsyncThunk } from "@reduxjs/toolkit";
+import apiClient from "../../api/apiClient";
 
-// LIST
+/**
+ * LIST contracts
+ * GET /contracts
+ */
 export const fetchContracts = createAsyncThunk(
   "contracts/fetchList",
   async () => {
     await new Promise((res) => setTimeout(res, 600));
-    return [
+    return {
+      data : [
       {
         id: "CNT-001",
         contractName: "Lonza Biologics Master Service Agreement",
@@ -43,27 +47,47 @@ export const fetchContracts = createAsyncThunk(
         effectiveDate: "2019-11-20",
         owner: "Anita Verma",
       },
-    ];
+    ],
+    }
   },
 );
 
+// export const fetchContracts = createAsyncThunk(
+//   "api/contracts/fetchList",
+//   async (_, { rejectWithValue }) => {
+//     try {
+//       const response = await apiClient.get("/api/contracts/fetchList");
+//       return response.data; // expecting array
+//     } catch (err) {
+//       return rejectWithValue(err.response?.data || err.message);
+//     }
+//   }
+// );
 // CREATE
 export const createContract = createAsyncThunk(
-  "contracts/create",
-  async (payload) => {
-    // 🔁 backend later
-    return {
-      id: Date.now().toString(), // mock ID
-      ...payload,
-    };
-  },
+  "api/contracts/create",
+  async (payload, { rejectWithValue }) => {
+    try {
+      const response = await apiClient.post("/api/contracts/create", payload);
+      return response.data; // expecting created contract with id
+    } catch (err) {
+      return rejectWithValue(err.response?.data || err.message);
+    }
+  }
 );
 
-// UPDATE (section-wise)
+/**
+ * UPDATE contract (section-wise)
+ * PUT /contracts/:id
+ */
 export const updateContract = createAsyncThunk(
-  "contracts/update",
-  async ({ id, data }) => {
-    // 🔁 backend later
-    return { id, data };
-  },
+  "api/contracts/update",
+  async ({ id, data }, { rejectWithValue }) => {
+    try {
+      const response = await apiClient.put(`/api/contracts/update/${id}`, data);
+      return response.data; // updated contract or partial
+    } catch (err) {
+      return rejectWithValue(err.response?.data || err.message);
+    }
+  }
 );

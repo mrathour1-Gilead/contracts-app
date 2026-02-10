@@ -3,7 +3,7 @@ import cors from "cors";
 import rateLimit from "express-rate-limit";
 // import authRoutes from "./routes/authRoutes.js";
 import resetRoutes from "./routes/resetRoutes.js";
-import sfaRoutes from "./routes/sfaRoutes.js";
+import contractsRoutes from "./routes/contractsRoutes.js";
 // import { authMiddleware } from "./middleware/auth.js";
 
 const app = express();
@@ -41,7 +41,7 @@ app.disable("etag");
 
 // app.use("/api/auth", authRoutes);
 app.use("/api/reset", resetRoutes);
-app.use("/api/contracts", sfaRoutes);
+app.use("/api/contracts", contractsRoutes);
 
 app.get("/api/health", (req, res) => {
   res.status(200).send("OK");

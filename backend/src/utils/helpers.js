@@ -5,12 +5,12 @@ import { v4 as uuid } from "uuid";
 export const nextSfaId = async () => {
   const res = await db.send(new UpdateCommand({
     TableName: COUNTER_TABLE,
-    Key: { entity: "Contract" },
+    Key: { entity: "CNT" },
     UpdateExpression: "SET current_value = if_not_exists(current_value, :x) + :y",
     ExpressionAttributeValues: { ":x": 0, ":y": 1 },
     ReturnValues: "UPDATED_NEW"
   }));
-  return `Contract${String(res.Attributes.current_value).padStart(3,"0")}`;
+  return `CNT${String(res.Attributes.current_value).padStart(3,"0")}`;
 };
 
 export const generateResetToken = async (email) => {

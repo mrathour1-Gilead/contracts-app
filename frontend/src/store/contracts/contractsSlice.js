@@ -38,11 +38,12 @@ const contractsSlice = createSlice({
       })
       .addCase(fetchContracts.fulfilled, (state, action) => {
         state.loading.list = false;
-        state.list = action.payload;
+        state.list = action.payload.data || [];
       })
       .addCase(fetchContracts.rejected, (state, action) => {
         state.loading.list = false;
         state.error = action.error.message;
+        state.list = [];
       })
 
       // CREATE
@@ -58,6 +59,7 @@ const contractsSlice = createSlice({
         state.loading.create = false;
         state.error = action.error.message;
       })
+      
 
       // UPDATE
       .addCase(updateContract.pending, (state) => {
