@@ -1,0 +1,115 @@
+threshold: medium
+
+fileignoreconfig:
+  - filename: README.md
+    checksum: 30625b010a08b7157d1798815d141d202cb25429c340d0c3148b66ceab633fdf
+    ignore_detectors: [filecontent, filesize]
+
+  - filename: backend/package-lock.json
+    checksum: f3a5c47026a680b251b297ad72ef8f215c480d4aa2f0f4c9bc745e9696108a8f
+    ignore_detectors: [filecontent, filesize]
+
+  - filename: frontend/package-lock.json
+    checksum: ae30a42b739c6cd78b941fde374d654f2a10605d3d253cf27439b267cb6379ac
+    ignore_detectors: [filecontent, filesize]
+
+  - filename: backend/src/config/dynamodb.js
+    checksum: f69ec7dc9deceae860b17d6694a781ab935342312af740eec064b45bf8f04e5d
+    ignore_detectors: [filecontent, filesize]
+
+  - filename: backend/src/routes/authRoutes.js
+    checksum: aaf7a1b1d20509cd722f380517de4157e7ab082e0416aa2beb185057de8e9e24
+    ignore_detectors: [filecontent, filesize]
+
+  - filename: backend/src/routes/resetRoutes.js
+    checksum: 9d84f0be678e221e3561529550b8e1907a50e20f613d9d9501659c9c25ae93a4
+    ignore_detectors: [filecontent, filesize]
+
+  - filename: backend/src/routes/sfaRoutes.js
+    checksum: c7a21855119c3b84e8b8d869e656ed5503374f9db744895f88dfae1cb1ba8076
+    ignore_detectors: [filecontent, filesize]
+
+  - filename: backend/src/utils/helpers.js
+    checksum: 771401bc88bbd7974dde3063b7fe0f7e41be9fc2b9cd058a0ee5a30a0c9518bb
+    ignore_detectors: [filecontent, filesize]
+
+  - filename: backend/src/utils/jwt.js
+    checksum: 2c671931ff9ae3d19a1d4a6fdd769df218ff43241fa03197b5b5ee6af0baf70c
+    ignore_detectors: [filecontent, filesize]
+
+  - filename: backend/src/utils/password.js
+    checksum: e52ee490f306f6b74cea5611480c40800608062193840b9c4f002f4390d110b7
+    ignore_detectors: [filecontent, filesize]
+
+  - filename: frontend/public/png/navbarBGold.png
+    checksum: 81c063d935ecc89ddddea721ae3089081a906eb3f147896a7aefe9e52dead94c
+    ignore_detectors: [filecontent, filesize]
+
+  - filename: frontend/src/components/SFAFields/Fields.tsx
+    checksum: adeb1ac835bb67fa89e3562c873413237b74db154cc9219ddec345f348520743
+    ignore_detectors: [filecontent, filesize]
+
+  - filename: frontend/src/components/dataDisplay/Chip.tsx
+    checksum: da0cc6037cee494a8a33fb787d424c159ba5c414f73acfed7dd446b38628b5b8
+    ignore_detectors: [filecontent, filesize]
+
+  - filename: frontend/src/components/form/Select.tsx
+    checksum: 3c759b402e450ebf50b8932e575e5a1fbd0ac38a13c56294d0625123c232cf62
+    ignore_detectors: [filecontent, filesize]
+
+  - filename: frontend/src/http/axios.ts
+    checksum: 21f4c5df0b55a0732dd6662560fb5f7cada2c6aa2e747d32d85cd7c1631f886d
+    ignore_detectors: [filecontent, filesize]
+
+  - filename: frontend/src/http/endpoints.ts
+    checksum: d1ff8d02e3015cc8bbf9897da0904c41d01160fee384ba88845849f736e7dc27
+    ignore_detectors: [filecontent, filesize]
+
+  - filename: frontend/src/main.tsx
+    checksum: 30c3a75b7bf8db6d92891175942909532a7740bdd739449402d1eda05e089f8e
+    ignore_detectors: [filecontent, filesize]
+
+  - filename: frontend/src/pages/Login.tsx
+    checksum: 6a64f9bd74b59acb7e419aa10e750af391f9e8f0ade3e1002df52910b9dc0278
+    ignore_detectors: [filecontent, filesize]
+
+  - filename: frontend/src/pages/Records.tsx
+    checksum: 45ab005c7f9dbbb2ba4ee6d68b1f12d357192406cba6fa7a8cf69c48b1d75fe9
+    ignore_detectors: [filecontent, filesize]
+
+  - filename: frontend/src/pages/ResetPassword.tsx
+    checksum: d3517118e2e5e8f6f5e45f1213dcf619d3114dbd5af8e83085e489bd13b129df
+    ignore_detectors: [filecontent, filesize]
+
+  - filename: frontend/src/slices/authSlice.ts
+    checksum: 82a5d270404d4a8433e17b784fc59667ed6cee90b8ead0d087eaa1ce10eb7d4b
+    ignore_detectors: [filecontent, filesize]
+
+  - filename: frontend/src/slices/sfaSlice.ts
+    checksum: d1e754d0f53f5e486ad28ad9edd7f2e5698f6ea716e5e0511fd9b8db6451b9f8
+    ignore_detectors: [filecontent, filesize]
+
+  - filename: frontend/src/utils/columnsUtils.tsx
+    checksum: 54952e19cc45c1d50fab95b5290169ff08ebe4425124390cdd8b03b90be43d53
+    ignore_detectors: [filecontent, filesize]
+
+  - filename: frontend/src/utils/exportDataUtils.tsx
+    checksum: d746693aba058c5e3f6103ea36826419bf5b225c232c9e904f7428ca4a19c6f1
+    ignore_detectors: [filecontent, filesize]
+
+  - filename: frontend/src/utils/initialValueHelper.ts
+    checksum: 1d94305900a098bbfdb2e511cfa7c3685cc22ddc67b92c88a0bd1537e5119ef5
+    ignore_detectors: [filecontent, filesize]
+
+  - filename: frontend/src/vite-env.d.ts
+    checksum: c4ad2e62d336ab400ac43f0d59274e605dbc02afb728cd938202b5bb109a8e75
+    ignore_detectors: [filecontent, filesize]
+
+  - filename: frontend/tsconfig.app.tsbuildinfo
+    checksum: d936eb9399fe5dc9ac35c45311e77a9c2608c627821f99b2d37eb541d02499b9
+    ignore_detectors: [filecontent, filesize]
+
+allowed_patterns:
+  - secrets?
+
+version: "1.0"
