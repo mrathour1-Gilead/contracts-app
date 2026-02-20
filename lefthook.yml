@@ -1,4 +1,0 @@
----
-remote:
-  git_url: git@github.com:Gilead-CPE/git-hooks
-  ref: v1.0.6

@@ -1,0 +1,119 @@
+/* Ant Design Table Header Customization */
+.ant-table-thead > tr > th {
+  background: #306e9a !important;
+  color: white !important;
+  font-weight: 700 !important;
+  font-size: 11px !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.05em !important;
+  border-bottom: none !important;
+  box-shadow: none !important;
+  border-right: none !important;
+}
+
+.ant-table-thead > tr > th::before {
+  display: none !important;
+}
+
+.ant-table-thead > tr > th .ant-table-column-sorters {
+  color: white !important;
+}
+
+.ant-table-thead > tr > th .ant-table-column-sorter {
+  color: rgba(255, 255, 255, 0.7) !important;
+}
+
+.ant-table-thead > tr > th .ant-table-column-sorter-up.active,
+.ant-table-thead
+  > tr
+  > th
+  .ant-table-column-sorter-down.active {
+  color: #fde047 !important;
+}
+
+/* Table row hover effect */
+.ant-table-tbody > tr.ant-table-row:hover > td {
+  background-color: rgba(36, 83, 113, 0.05) !important;
+}
+
+/* Alternating row colors */
+.ant-table-tbody > tr:nth-child(even) > td {
+  background-color: #f3f4f6;
+}
+
+.ant-table-tbody > tr:nth-child(odd) > td {
+  background-color: white;
+}
+
+.ant-table-body {
+  min-height: 300px !important;
+}
+.ant-table-expanded-row-fixed {
+  min-height: 300px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Pagination styling */
+.ant-pagination-item-active {
+  background-color: #306e9a !important;
+  border-color: #306e9a !important;
+}
+
+.ant-pagination-item-active a {
+  color: white !important;
+}
+
+.ant-pagination-item:hover {
+  border-color: #306e9a !important;
+}
+
+.ant-pagination-item:hover a {
+  color: #306e9a !important;
+}
+
+/* Button styling to match brand */
+.ant-btn-primary {
+  background: #306e9a !important;
+  border: none !important;
+}
+
+.ant-btn-primary:hover {
+  background: #265778 !important;
+}
+
+/* Vertical Stepper Collapse Animation Optimization */
+.vertical-stepper-container {
+  transition: width 300ms cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: width;
+}
+
+.vertical-stepper-container.is-transitioning {
+  will-change: width;
+}
+
+/* Prevent layout shift during collapse */
+.stepper-layout-container {
+  contain: layout;
+  isolation: isolate;
+}
+
+.stepper-content-area {
+  transition: all 300ms cubic-bezier(0.4, 0, 0.2, 1);
+  flex: 1;
+  min-width: 0;
+}
+
+/* Smooth text fade during collapse */
+.stepper-label-text {
+  transition: opacity 200ms ease-in-out, width 300ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Hardware acceleration for smoother animations */
+.vertical-stepper-container,
+.stepper-content-area {
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  perspective: 1000px;
+}
