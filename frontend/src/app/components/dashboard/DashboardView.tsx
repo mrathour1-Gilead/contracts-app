@@ -93,15 +93,12 @@ export const DashboardView = memo(
 
     const columns = getContractColumns(actionHandlers);
 
-    useEffect(() => {
-      dispatch(fetchContracts({}));
-    }, [dispatch]);
-
 
     // Filter contracts based on search text
     const filteredContracts: any[] = keepPrimitiveKeyValues(contractLists)
 
     const onReload = () => {
+      if(loading.list) return;
       setSearchText("")
     }
 
@@ -132,6 +129,7 @@ export const DashboardView = memo(
                 allowClear
                 style={{ width: 360 }}
                 className="shadow-sm"
+                disabled={loading.list}
               />
 
               {/* Reload button */}
