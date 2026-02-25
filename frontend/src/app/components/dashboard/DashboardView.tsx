@@ -1,26 +1,24 @@
-import { memo, useEffect, useRef, useState } from "react";
-import { Table, Button, Tooltip, Input } from "antd";
+import { memo, useEffect, useRef, useState } from "react"
+import { Table, Button, Tooltip, Input } from "antd"
 import {
   PlusOutlined,
   CloudUploadOutlined,
   ReloadOutlined,
   SearchOutlined,
-} from "@ant-design/icons";
-import type {
-  TableActionHandlers,
-} from "../../types";
+} from "@ant-design/icons"
+
 import { Contract } from "@/app/store/contracts/contracts.types"
-import { getContractColumns } from "../../config/tableColumns";
-import { TABLE_CONFIG, BRAND_COLORS } from "../../constants";
-import { useAppSelector, useAppDispatch } from "@/app/store/hooks";
-import { fetchContracts } from "@/app/store/contracts/contractsThunks";
-import { resetPagination } from "@/app/store/contracts/contractsSlice";
+import { getContractColumns } from "../../config/tableColumns"
+import { TABLE_CONFIG, BRAND_COLORS } from "../../constants"
+import { useAppSelector, useAppDispatch } from "@/app/store/hooks"
+import { fetchContracts } from "@/app/store/contracts/contractsThunks"
+import { resetPagination } from "@/app/store/contracts/contractsSlice"
 
 interface DashboardViewProps {
-  onAddContract: () => void;
-  onRowClick: (contract: Contract) => void;
-  onViewContract: (contract: Contract) => void;
-  onEditContract: (contract: Contract) => void;
+  onAddContract: () => void
+  onRowClick: (contract: Contract) => void
+  onViewContract: (contract: Contract) => void
+  onEditContract: (contract: Contract) => void
 }
 
 export const DashboardView = memo(
@@ -30,12 +28,33 @@ export const DashboardView = memo(
     onViewContract,
     onEditContract,
   }: DashboardViewProps) => {
-    const [searchText, setSearchText] = useState("");
+    const dispatch = useAppDispatch()
+
+    const { contractLists, loading, totalCount, page, lastKeyMap } =
+      useAppSelector((state) => state.contracts)
+
+    const [searchText, setSearchText] = useState("")
+    const [searchUsed, setSearchUsed] = useState(false)
+
+    // 🔑 refs (NO state)
     const debounceTimer = useRef<number | null>(null)
-    const dispatch = useAppDispatch();
-    const { contractLists, loading, totalCount, page } = useAppSelector((state) => state.contracts);
+    const skipNextSearchEffect = useRef(true)
+
 
     useEffect(() => {
+      console.log("11111")
+      dispatch(resetPagination())
+      dispatch(fetchContracts({ page: 1, search: "" }))
+    }, [])
+
+
+    useEffect(() => {
+      if(!searchUsed) return
+      if (skipNextSearchEffect.current) {
+        skipNextSearchEffect.current = false
+        return
+      }
+
       if (debounceTimer.current) {
         clearTimeout(debounceTimer.current)
       }
@@ -45,62 +64,41 @@ export const DashboardView = memo(
         dispatch(fetchContracts({ page: 1, search: searchText }))
       }, 750)
 
-
       return () => {
         if (debounceTimer.current) {
           clearTimeout(debounceTimer.current)
         }
       }
-    }, [searchText, dispatch])
+    }, [searchText])
 
-    const onViewClick = (itemData: Contract) => {
-      const data = contractLists.find((item: Contract) => item.id === itemData.id);
 
+    const onReload = () => {
+      if (loading.list) return
+
+      // prevent debounce-triggered fetch
+      skipNextSearchEffect.current = true
+
+      setSearchText("")
+      setSearchUsed(false)
+      dispatch(resetPagination())
+      dispatch(fetchContracts({ page: 1, search: "" }))
+    }
+
+    const onViewClick = (record: Contract) => {
+      const data = contractLists.find((i) => i.id === record.id)
       if (data) {
         onRowClick(data)
         onViewContract(data)
       }
     }
-    const actionHandlers: TableActionHandlers = {
+
+    const actionHandlers = {
       onView: onViewClick,
       onEdit: onEditContract,
-    };
-
-    type Primitive = string | number | boolean | null;
-    type TableRow = Record<string, Primitive>;
-    const keepPrimitiveKeyValues = (
-      records: Contract[]
-    ): Record<string, Contract>[] => {
-      const array = Array.isArray(records) ? records : [records];
-      return array.map((record) =>
-        Object.entries(record).reduce<Record<string, Contract>>(
-          (acc, [key, value]) => {
-            if (
-              value === null ||
-              typeof value === "string" ||
-              typeof value === "number" ||
-              typeof value === "boolean"
-            ) {
-              acc[key] = value;
-            }
-            return acc;
-          },
-          {}
-        )
-      );
-    };
-
-
-    const columns = getContractColumns(actionHandlers);
-
-
-    // Filter contracts based on search text
-    const filteredContracts: any[] = keepPrimitiveKeyValues(contractLists)
-
-    const onReload = () => {
-      if(loading.list) return;
-      setSearchText("")
     }
+
+    const columns = getContractColumns(actionHandlers)
+
 
     return (
       <div className="bg-white border border-gray-100 overflow-hidden mt-3">
@@ -108,86 +106,64 @@ export const DashboardView = memo(
           <div className="flex items-center justify-between mb-4">
             <div className="flex-1">
               <h2 className="text-xl font-bold text-gray-900 mb-2">
-                Contracts Summery
+                Contracts Summary
               </h2>
               <p className="text-sm text-gray-600">
-                Provides visibility into approved contract
-                rates, validity periods, and site coverage.
+                Provides visibility into approved contract rates,
+                validity periods, and site coverage.
               </p>
             </div>
+
             <div className="flex gap-4 items-center">
-              {/* Search input box */}
               <Input
                 placeholder="Search contracts..."
                 prefix={
-                  <SearchOutlined
-                    style={{ color: BRAND_COLORS.primary }}
-                  />
+                  <SearchOutlined style={{ color: BRAND_COLORS.primary }} />
                 }
                 value={searchText}
-                onChange={(e) => setSearchText(e.target.value)}
+                onChange={(e) => {
+                  setSearchUsed(true)
+                  setSearchText(e.target.value)
+                }}
                 allowClear
                 style={{ width: 360 }}
-                className="shadow-sm"
                 disabled={loading.list}
               />
 
-              {/* Reload button */}
               <Tooltip title="Reload">
                 <Button
                   type="text"
                   icon={
                     <ReloadOutlined
                       spin={loading.list}
-                      style={{
-                        fontSize: "16px",
-                        color: BRAND_COLORS.primary,
-                      }}
+                      style={{ color: BRAND_COLORS.primary }}
                     />
                   }
                   onClick={onReload}
-                  size="middle"
-                  className="flex items-center justify-center"
-                  style={{
-                    padding: "4px 8px",
-                  }}
                 />
               </Tooltip>
 
-              {/* Bulk Upload button */}
               <Button
                 type="default"
-                icon={
-                  <CloudUploadOutlined
-                    style={{
-                      color: BRAND_COLORS.primary,
-                    }}
-                  />
-                }
-                size="middle"
-                className="shadow-lg font-semibold"
-                style={{
-                  color: BRAND_COLORS.primary,
-                }}
+                icon={<CloudUploadOutlined />}
+                style={{ color: BRAND_COLORS.primary }}
               >
                 Bulk Upload
               </Button>
 
-              {/* Add New Contract button */}
               <Button
                 type="primary"
                 icon={<PlusOutlined />}
                 onClick={onAddContract}
-                size="middle"
-                className="shadow-lg font-semibold"
               >
                 Add New Contract
               </Button>
             </div>
           </div>
+
           <Table
             columns={columns}
-            dataSource={filteredContracts}
+            dataSource={contractLists}
             rowKey="id"
             loading={loading.list}
             pagination={{
@@ -197,8 +173,10 @@ export const DashboardView = memo(
               showSizeChanger: false,
               showTotal: (total, range) =>
                 `Showing ${range[0]}-${range[1]} of ${total} items`,
-              onChange: (page) => {
-                dispatch(fetchContracts({ page, search: searchText }))
+              onChange: (nextPage) => {
+                if (lastKeyMap[nextPage] !== undefined) {
+                  dispatch(fetchContracts({ page: nextPage, search: searchText }))
+                }
               },
             }}
             onRow={(record) => ({
@@ -216,8 +194,8 @@ export const DashboardView = memo(
           />
         </div>
       </div>
-    );
-  },
-);
+    )
+  }
+)
 
-DashboardView.displayName = "DashboardView";
+DashboardView.displayName = "DashboardView"
