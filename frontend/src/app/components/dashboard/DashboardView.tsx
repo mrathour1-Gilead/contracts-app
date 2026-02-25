@@ -127,7 +127,7 @@ export const DashboardView = memo(
                 }}
                 allowClear
                 style={{ width: 360 }}
-                disabled={loading.list}
+                readOnly={loading.list}
               />
 
               <Tooltip title="Reload">
