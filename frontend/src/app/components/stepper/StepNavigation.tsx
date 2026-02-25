@@ -20,6 +20,8 @@ interface StepNavigationProps {
   onNext: () => void;
   onSave: () => void;
   onSaveLater: () => void;
+  viewMode?: boolean;
+  createUpdateLoader: boolean;
 }
 
 export const StepNavigation = memo(({
@@ -31,7 +33,41 @@ export const StepNavigation = memo(({
   onNext,
   onSave,
   onSaveLater,
+  createUpdateLoader,
+  viewMode,
 }: StepNavigationProps) => {
+  if (viewMode) {
+    return (
+      <div className="flex justify-between mt-3">
+        <div className="flex gap-3">
+          <Button
+            icon={<ArrowLeftOutlined />}
+            onClick={onPrevious}
+            disabled={isFirstStep}
+            size="middle"
+            className="font-semibold"
+          >
+            Previous
+          </Button>
+        </div>
+
+        <div className="flex gap-3">
+          <Button
+            type="primary"
+            icon={<ArrowRightOutlined />}
+            onClick={onNext}
+            size="middle"
+            className="font-semibold"
+            iconPlacement="end"
+            disabled={isLastStep}
+          >
+            Next
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="flex justify-between mt-3">
       <div className="flex gap-3">
@@ -64,6 +100,7 @@ export const StepNavigation = memo(({
             size="middle"
             className="font-semibold"
             iconPlacement="end"
+            loading={createUpdateLoader}
           >
             {isFirstStep ? "Create" : "Save and Continue"}
           </Button>

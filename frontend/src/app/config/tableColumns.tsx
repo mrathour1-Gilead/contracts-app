@@ -5,12 +5,14 @@
 import { Button, Tag } from "antd";
 import { EyeOutlined, EditOutlined } from "@ant-design/icons";
 import type { TableColumnsType } from "antd";
-import type { Contract, TableActionHandlers } from "../types";
+import type { TableActionHandlers } from "../types";
+import type { Contract } from  "@/app/store/contracts/contracts.types"
 import { getProgressColor, formatProgress } from "../utils";
 import { BRAND_COLORS } from "../constants";
 
 /**
  * Generate table columns with action handlers
+ *
  */
 export const getContractColumns = (
   handlers: TableActionHandlers
@@ -52,7 +54,7 @@ export const getContractColumns = (
     dataIndex: "supplierEntity2",
     key: "supplierEntity2",
     title: "Supplier Entity 2",
-    sorter: (a, b) => a.supplierEntity2.localeCompare(b.supplierEntity2),
+    // sorter: (a, b) => a.supplierEntity2?.localeCompare(b?.supplierEntity2),
     width: 180,
   },
   {
@@ -80,7 +82,7 @@ export const getContractColumns = (
     dataIndex: "progress",
     key: "progress",
     title: "Progress",
-    sorter: (a, b) => a.progress - b.progress,
+    // sorter: (a, b) => a.progress - b.progress,
     width: 200,
     render: (progress: number) => (
       <div className="flex items-center gap-3">
@@ -100,7 +102,7 @@ export const getContractColumns = (
     dataIndex: "status",
     key: "status",
     title: "Status",
-    sorter: (a, b) => a.status.localeCompare(b.status),
+    // sorter: (a, b) => a.status && b.status ? a.status.localeCompare(b.status) : null,
     width: 100,
     render: (status: string) => (
       <Tag

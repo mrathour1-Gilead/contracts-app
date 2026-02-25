@@ -1,43 +1,17 @@
 import { Input, Select, Card } from 'antd';
 import type { TableColumnsType } from 'antd';
-import { useState, useCallback, useMemo } from 'react';
+import { useState, useCallback, useMemo, useEffect } from 'react';
 import { FormTable, FormFieldRow } from '../FormTable';
 
-export function Comments() {
+interface CommentsProps {
+  onChange?: (data: any) => void;
+}
+
+export function Comments({ onChange }: CommentsProps) {
   const [dataSource, setDataSource] = useState<FormFieldRow[]>([
     {
-      key: 'generalComments',
-      field: 'General Comments',
-      value: '',
-      termDetail: '',
-      sectionInContract: '',
-      furtherDetails: '',
-      meetsBaseline: 'Yes',
-      baselineTerms: '',
-    },
-    {
-      key: 'riskAssessmentNotes',
-      field: 'Risk Assessment Notes',
-      value: '',
-      termDetail: '',
-      sectionInContract: '',
-      furtherDetails: '',
-      meetsBaseline: 'Yes',
-      baselineTerms: '',
-    },
-    {
-      key: 'specialInstructions',
-      field: 'Special Instructions',
-      value: '',
-      termDetail: '',
-      sectionInContract: '',
-      furtherDetails: '',
-      meetsBaseline: 'Yes',
-      baselineTerms: '',
-    },
-    {
-      key: 'internalNotes',
-      field: 'Internal Notes',
+      key: 'additionalComments',
+      field: 'Additional Comments',
       value: '',
       termDetail: '',
       sectionInContract: '',
@@ -150,6 +124,12 @@ export function Comments() {
       ),
     },
   ], [handleValueChange]);
+
+  useEffect(() => {
+    if (onChange) {
+      onChange(dataSource);
+    }
+  }, [dataSource, onChange]);
 
   return (
     <Card title="Comments" style={{ height: "100%" }}>

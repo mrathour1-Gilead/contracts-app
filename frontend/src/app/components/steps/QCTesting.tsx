@@ -1,13 +1,17 @@
 import { Input, InputNumber, Select, Card } from 'antd';
 import type { TableColumnsType } from 'antd';
-import { useState, useCallback, useMemo } from 'react';
+import { useState, useCallback, useMemo, useEffect } from 'react';
 import { FormTable, FormFieldRow } from '../FormTable';
 
-export function QCTesting() {
+interface QCTestingProps {
+  onChange?: (data: any) => void;
+}
+
+export function QCTesting({ onChange }: QCTestingProps) {
   const [dataSource, setDataSource] = useState<FormFieldRow[]>([
     {
-      key: 'testingProtocol',
-      field: 'Testing Protocol',
+      key: 'includedInPrice',
+      field: 'Included in price',
       value: '',
       termDetail: '',
       sectionInContract: '',
@@ -16,8 +20,8 @@ export function QCTesting() {
       baselineTerms: '',
     },
     {
-      key: 'releaseTestingLocation',
-      field: 'Release Testing Location',
+      key: 'notIncludedInPrice',
+      field: 'Not included in price',
       value: '',
       termDetail: '',
       sectionInContract: '',
@@ -26,8 +30,8 @@ export function QCTesting() {
       baselineTerms: '',
     },
     {
-      key: 'testingTurnaround',
-      field: 'Testing Turnaround (Days)',
+      key: 'otherDetails',
+      field: 'Other details',
       value: '',
       termDetail: '',
       sectionInContract: '',
@@ -36,58 +40,8 @@ export function QCTesting() {
       baselineTerms: '',
     },
     {
-      key: 'stabilityTestingRequired',
-      field: 'Stability Testing Required',
-      value: 'no',
-      termDetail: '',
-      sectionInContract: '',
-      furtherDetails: '',
-      meetsBaseline: 'Yes',
-      baselineTerms: '',
-    },
-    {
-      key: 'stabilityProtocol',
-      field: 'Stability Protocol',
-      value: '',
-      termDetail: '',
-      sectionInContract: '',
-      furtherDetails: '',
-      meetsBaseline: 'Yes',
-      baselineTerms: '',
-    },
-    {
-      key: 'certificateOfAnalysisRequired',
-      field: 'Certificate of Analysis Required',
-      value: 'no',
-      termDetail: '',
-      sectionInContract: '',
-      furtherDetails: '',
-      meetsBaseline: 'Yes',
-      baselineTerms: '',
-    },
-    {
-      key: 'methodTransferRequired',
-      field: 'Method Transfer Required',
-      value: 'no',
-      termDetail: '',
-      sectionInContract: '',
-      furtherDetails: '',
-      meetsBaseline: 'Yes',
-      baselineTerms: '',
-    },
-    {
-      key: 'oosProtocol',
-      field: 'Out of Specification (OOS) Protocol',
-      value: '',
-      termDetail: '',
-      sectionInContract: '',
-      furtherDetails: '',
-      meetsBaseline: 'Yes',
-      baselineTerms: '',
-    },
-    {
-      key: 'retainSampleDuration',
-      field: 'Retain Sample Duration (Months)',
+      key: 'supplyDeliveryPenalty',
+      field: 'Supply delivery penalty',
       value: '',
       termDetail: '',
       sectionInContract: '',
@@ -121,91 +75,13 @@ export function QCTesting() {
       key: 'value',
       width: 220,
       render: (value: string, record: FormFieldRow) => {
-        if (record.key === 'testingProtocol') {
+        if (record.key === 'includedInPrice' || record.key === 'notIncludedInPrice' || 
+            record.key === 'otherDetails' || record.key === 'supplyDeliveryPenalty') {
           return (
-            <Select
-              value={value || undefined}
-              onChange={(newValue) => handleValueChange(record.key, 'value', newValue)}
-              placeholder="Select protocol"
-              className="w-full"
-              options={[
-                { value: 'usp', label: 'USP' },
-                { value: 'ich', label: 'ICH' },
-                { value: 'client', label: 'Client Specific' },
-                { value: 'custom', label: 'Custom Protocol' },
-              ]}
-            />
-          );
-        }
-        if (record.key === 'releaseTestingLocation') {
-          return (
-            <Select
-              value={value || undefined}
-              onChange={(newValue) => handleValueChange(record.key, 'value', newValue)}
-              placeholder="Select location"
-              className="w-full"
-              options={[
-                { value: 'cmo', label: 'CMO QC Lab' },
-                { value: 'client', label: 'Client QC Lab' },
-                { value: 'third', label: 'Third Party Lab' },
-                { value: 'dual', label: 'Dual Testing' },
-              ]}
-            />
-          );
-        }
-        if (record.key === 'stabilityProtocol') {
-          return (
-            <Select
-              value={value || undefined}
-              onChange={(newValue) => handleValueChange(record.key, 'value', newValue)}
-              placeholder="Select protocol"
-              className="w-full"
-              options={[
-                { value: 'ich', label: 'ICH Guideline' },
-                { value: 'accelerated', label: 'Accelerated' },
-                { value: 'longterm', label: 'Long Term' },
-                { value: 'both', label: 'Both' },
-              ]}
-            />
-          );
-        }
-        if (record.key === 'oosProtocol') {
-          return (
-            <Select
-              value={value || undefined}
-              onChange={(newValue) => handleValueChange(record.key, 'value', newValue)}
-              placeholder="Select protocol"
-              className="w-full"
-              options={[
-                { value: 'standard', label: 'Standard SOP' },
-                { value: 'client', label: 'Client Specific' },
-                { value: 'regulatory', label: 'Regulatory Guideline' },
-              ]}
-            />
-          );
-        }
-        if (record.key === 'stabilityTestingRequired' || record.key === 'certificateOfAnalysisRequired' || 
-            record.key === 'methodTransferRequired') {
-          return (
-            <Select
+            <Input
               value={value}
-              onChange={(newValue) => handleValueChange(record.key, 'value', newValue)}
-              className="w-full"
-              options={[
-                { value: 'yes', label: 'Yes' },
-                { value: 'no', label: 'No' },
-              ]}
-            />
-          );
-        }
-        if (record.key === 'testingTurnaround' || record.key === 'retainSampleDuration') {
-          return (
-            <InputNumber
-              value={value ? Number(value) : undefined}
-              onChange={(newValue) => handleValueChange(record.key, 'value', String(newValue || ''))}
+              onChange={(e) => handleValueChange(record.key, 'value', e.target.value)}
               placeholder={`Enter ${record.field.toLowerCase()}`}
-              className="w-full"
-              controls={false}
             />
           );
         }
@@ -289,6 +165,12 @@ export function QCTesting() {
       ),
     },
   ], [handleValueChange]);
+
+  useEffect(() => {
+    if (onChange) {
+      onChange(dataSource);
+    }
+  }, [dataSource, onChange]);
 
   return (
     <Card title="QC Testing" style={{ height: "100%" }}>

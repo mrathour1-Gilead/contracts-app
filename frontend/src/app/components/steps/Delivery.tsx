@@ -1,13 +1,17 @@
 import { Input, InputNumber, Select, Card } from 'antd';
 import type { TableColumnsType } from 'antd';
-import { useState, useCallback, useMemo } from 'react';
+import { useState, useCallback, useMemo, useEffect } from 'react';
 import { FormTable, FormFieldRow } from '../FormTable';
 
-export function Delivery() {
+interface DeliveryProps {
+  onChange?: (data: any) => void;
+}
+
+export function Delivery({ onChange }: DeliveryProps) {
   const [dataSource, setDataSource] = useState<FormFieldRow[]>([
     {
-      key: 'gileadToSupplierIncoterms',
-      field: 'Gilead to Supplier - Incoterms',
+      key: 'continuousImprovement',
+      field: 'Continuous improvement',
       value: '',
       termDetail: '',
       sectionInContract: '',
@@ -16,8 +20,8 @@ export function Delivery() {
       baselineTerms: '',
     },
     {
-      key: 'gileadToSupplierLocation',
-      field: 'Gilead to Supplier - Location',
+      key: 'poDeadlineToAcknowledgeBySupplier',
+      field: 'PO-Deadline to acknowledge by supplier',
       value: '',
       termDetail: '',
       sectionInContract: '',
@@ -26,72 +30,22 @@ export function Delivery() {
       baselineTerms: '',
     },
     {
-      key: 'gileadToSupplierLeadTime',
-      field: 'Gilead to Supplier - Lead Time (Days)',
+      key: 'specialField1',
+      field: 'Special Field 1',
       value: '',
       termDetail: '',
       sectionInContract: '',
-      furtherDetails: '',
+      furtherDetails: 'Define Here',
       meetsBaseline: 'Yes',
       baselineTerms: '',
     },
     {
-      key: 'supplierToGileadIncoterms',
-      field: 'Supplier to Gilead - Incoterms',
+      key: 'specialField2',
+      field: 'Special Field 2',
       value: '',
       termDetail: '',
       sectionInContract: '',
-      furtherDetails: '',
-      meetsBaseline: 'Yes',
-      baselineTerms: '',
-    },
-    {
-      key: 'supplierToGileadLocation',
-      field: 'Supplier to Gilead - Location',
-      value: '',
-      termDetail: '',
-      sectionInContract: '',
-      furtherDetails: '',
-      meetsBaseline: 'Yes',
-      baselineTerms: '',
-    },
-    {
-      key: 'supplierToGileadLeadTime',
-      field: 'Supplier to Gilead - Lead Time (Days)',
-      value: '',
-      termDetail: '',
-      sectionInContract: '',
-      furtherDetails: '',
-      meetsBaseline: 'Yes',
-      baselineTerms: '',
-    },
-    {
-      key: 'transportMode',
-      field: 'Transport Mode',
-      value: '',
-      termDetail: '',
-      sectionInContract: '',
-      furtherDetails: '',
-      meetsBaseline: 'Yes',
-      baselineTerms: '',
-    },
-    {
-      key: 'packagingRequirements',
-      field: 'Packaging Requirements',
-      value: '',
-      termDetail: '',
-      sectionInContract: '',
-      furtherDetails: '',
-      meetsBaseline: 'Yes',
-      baselineTerms: '',
-    },
-    {
-      key: 'deliverySchedule',
-      field: 'Delivery Schedule',
-      value: '',
-      termDetail: '',
-      sectionInContract: '',
-      furtherDetails: '',
+      furtherDetails: 'Define Here',
       meetsBaseline: 'Yes',
       baselineTerms: '',
     },
@@ -260,6 +214,12 @@ export function Delivery() {
       ),
     },
   ], [handleValueChange]);
+
+  useEffect(() => {
+    if (onChange) {
+      onChange(dataSource);
+    }
+  }, [dataSource, onChange]);
 
   return (
     <Card title="Delivery" style={{ height: "100%" }}>

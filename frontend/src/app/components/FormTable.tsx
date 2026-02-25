@@ -11,6 +11,9 @@ export interface FormFieldRow {
   furtherDetails: string;
   meetsBaseline: string;
   baselineTerms: string;
+  required: boolean;
+  error: boolean;
+  sno: number;
 }
 
 interface FormTableProps<T = FormFieldRow>
@@ -56,7 +59,7 @@ export function FormTable<T = FormFieldRow>({
       <div className="form-table">
         <Table
           pagination={false}
-          scroll={{ x: "max-content" }}
+          scroll={{ x: "max-content", y: "calc(100vh - 430px)" }}
           sticky
           className={clsx("form-table-inner", className)}
           dataSource={dataSource}
@@ -80,6 +83,14 @@ export function FormTable<T = FormFieldRow>({
 
         .form-table .ant-table-tbody > tr > td {
           padding: 8px 12px;
+        }
+
+        /* ===============================
+           Hide scrollbar when not needed
+           =============================== */
+
+        .form-table .ant-table-body {
+          overflow: auto !important;
         }
 
         /* ===============================

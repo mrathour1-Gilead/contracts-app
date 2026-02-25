@@ -4,8 +4,9 @@
  */
 
 import { useState } from "react";
-import { ConfigProvider } from "antd";
-import type { ViewState, Contract } from "./types";
+import { ConfigProvider, App as ContractApp } from "antd";
+import type { ViewState } from "./types";
+import  { Contract } from  "@/app/store/contracts/contracts.types"
 import { useContracts, useStepNavigation } from "./hooks";
 import { WORKFLOW_STEPS, LOADING_DELAYS } from "./constants";
 import { antdTheme } from "./theme/antd-theme";
@@ -16,15 +17,9 @@ import { ErrorBoundary } from "./components/ErrorBoundary";
 
 export default function App() {
   const [viewState, setViewState] = useState<ViewState>("dashboard");
+  const [selectedContract, setSelectedContract] = useState<Contract | null>(null);
 
-  // Contract management
-  const {
-    contracts,
-    loading,
-    selectContract,
-    addContract,
-    reloadContracts,
-  } = useContracts();
+
 
   // Step navigation management
   const {
@@ -41,7 +36,7 @@ export default function App() {
   } = useStepNavigation({
     totalSteps: WORKFLOW_STEPS.length,
     onComplete: (data) => {
-      addContract(data);
+      // addContract(data);
       setViewState("dashboard");
     },
     onCancel: () => {
@@ -65,22 +60,20 @@ export default function App() {
     setViewState("dashboard");
   };
 
-  /**
-   * Handle contract row click
-   */
-  const handleRowClick = (contract: Contract) => {
-    selectContract(contract);
-    console.log("Selected contract:", contract);
+   const handleRowClick = (contract: Contract) => {
+    setSelectedContract(contract);
+    resetStepper(); // Reset to step 0
+    setViewState("stepper-view");
   };
 
   /**
    * Handle view contract action
    */
   const handleViewContract = (contract: Contract) => {
-    console.log("View contract:", contract);
-    // TODO: Implement view contract modal/page
+    setSelectedContract(contract);
+    resetStepper(); // Reset to step 0
+    setViewState("stepper-view");
   };
-
   /**
    * Handle edit contract action
    */
@@ -89,49 +82,58 @@ export default function App() {
     // TODO: Implement edit contract functionality
   };
 
-  /**
-   * Handle reload contracts
-   */
-  const handleReload = () => {
-    reloadContracts(LOADING_DELAYS.reload);
-  };
+
 
   return (
     <ErrorBoundary>
       <ConfigProvider theme={antdTheme}>
-        <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
-          {/* Header - Sticky at top for all views */}
-          <div className="shadow-sm sticky top-0 z-50">
-            <GileadHeader />
+        <ContractApp>
+          <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+            {/* Header - Sticky at top for all views */}
+            <div className="shadow-sm sticky top-0 z-50">
+              <GileadHeader />
+            </div>
+
+            {/* Main Content - Conditional rendering based on view state */}
+            {viewState === "dashboard" && (
+              <DashboardView
+                onAddContract={handleAddContract}
+                onRowClick={handleRowClick}
+                onViewContract={handleViewContract}
+                onEditContract={handleEditContract}
+              />
+            )}
+
+            {viewState === "stepper-form" && (
+              <StepperFormView
+                steps={WORKFLOW_STEPS}
+                currentStep={currentStep}
+                isFirstStep={isFirstStep}
+                isLastStep={isLastStep}
+                onBackToDashboard={handleBackToDashboard}
+                onPrevious={handlePrevious}
+                onNext={handleNext}
+                onSave={saveStepData}
+                onSaveLater={handleSaveLater}
+              />
+            )}
+            {viewState === "stepper-view" && (
+              <StepperFormView
+                steps={WORKFLOW_STEPS}
+                currentStep={currentStep}
+                isFirstStep={isFirstStep}
+                isLastStep={isLastStep}
+                onBackToDashboard={handleBackToDashboard}
+                onPrevious={handlePrevious}
+                onNext={handleNext}
+                onSave={() => {}}
+                onSaveLater={() => {}}
+                viewMode={true}
+                contractData={selectedContract}
+              />
+            )}
           </div>
-
-          {/* Main Content - Conditional rendering based on view state */}
-          {viewState === "dashboard" && (
-            <DashboardView
-              contracts={contracts}
-              loading={loading}
-              onAddContract={handleAddContract}
-              onReload={handleReload}
-              onRowClick={handleRowClick}
-              onViewContract={handleViewContract}
-              onEditContract={handleEditContract}
-            />
-          )}
-
-          {viewState === "stepper-form" && (
-            <StepperFormView
-              steps={WORKFLOW_STEPS}
-              currentStep={currentStep}
-              isFirstStep={isFirstStep}
-              isLastStep={isLastStep}
-              onBackToDashboard={handleBackToDashboard}
-              onPrevious={handlePrevious}
-              onNext={handleNext}
-              onSave={saveStepData}
-              onSaveLater={handleSaveLater}
-            />
-          )}
-        </div>
+        </ContractApp>
       </ConfigProvider>
     </ErrorBoundary>
   );

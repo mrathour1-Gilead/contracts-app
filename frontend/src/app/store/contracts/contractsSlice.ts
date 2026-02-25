@@ -1,0 +1,116 @@
+import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import {
+  fetchContracts,
+  createContract,
+  updateContract,
+} from "./contractsThunks";
+import type { Contract } from "./contracts.types";
+
+interface ContractsState {
+  contractLists: Contract[];
+  selectedContract: Contract | null;
+  lastKey: null | string,
+  totalCount: number;
+  page: number
+  lastKeyMap: Record<number, string | null>
+  loading: {
+    list: boolean;
+    createUpdateLoader: boolean;
+  };
+  error: string | null;
+}
+
+const initialState: ContractsState = {
+  contractLists: [],
+  lastKey : null,
+  selectedContract: null,
+  totalCount : 0,
+  page : 1,
+  lastKeyMap : { 1: null },
+  loading: {
+    list: false,
+    createUpdateLoader: false,
+  },
+  error: null,
+};
+
+const contractsSlice = createSlice({
+  name: "contracts",
+  initialState,
+  reducers: {
+    setSelectedContract(state, action: PayloadAction<Contract>) {
+      state.selectedContract = action.payload;
+    },
+    clearSelectedContract(state) {
+      state.selectedContract = null;
+    },
+    resetPagination(state) {
+    state.page = 1
+    state.lastKeyMap = { 1: null }
+  },
+  },
+  extraReducers: (builder) => {
+    builder
+      // LIST
+      .addCase(fetchContracts.pending, (state) => {
+        state.loading.list = true;
+      })
+      .addCase(fetchContracts.fulfilled, (state, action) => {
+        const {data, nextKey, totalCount, page } = action.payload;
+        state.loading.list = false;
+        state.contractLists = data.sort((a: Contract , b : Contract) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime());
+        state.totalCount = totalCount
+        state.lastKeyMap[page + 1] = nextKey
+        state.page = page ;
+      })
+      .addCase(fetchContracts.rejected, (state, action) => {
+        state.loading.list = false;
+        state.error = action.payload as string;
+      })
+
+      // CREATE
+      .addCase(createContract.pending, (state) => {
+        state.loading.createUpdateLoader = true;
+      })
+      .addCase(createContract.fulfilled, (state, action) => {
+        state.loading.createUpdateLoader = false;
+      })
+      .addCase(createContract.rejected, (state, action) => {
+        state.loading.createUpdateLoader = false;
+        state.error = action.payload as string;
+      })
+
+      // UPDATE
+      .addCase(updateContract.pending, (state) => {
+        state.loading.createUpdateLoader = true;
+      })
+      .addCase(updateContract.fulfilled, (state, action) => {
+        state.loading.createUpdateLoader = false;
+
+        const updated = action.payload;
+        const index = state.contractLists.findIndex(
+          (c) => c.id === updated.id
+        );
+
+        if (index !== -1) {
+          state.contractLists[index] = updated;
+        }
+
+        if (state.selectedContract?.id === updated.id) {
+          state.selectedContract = updated;
+        }
+      })
+      .addCase(updateContract.rejected, (state, action) => {
+        state.loading.createUpdateLoader = false;
+        state.error = action.payload as string;
+      });
+  },
+});
+
+export const {
+  setSelectedContract,
+  clearSelectedContract,
+  resetPagination,
+} = contractsSlice.actions;
+
+export default contractsSlice.reducer;

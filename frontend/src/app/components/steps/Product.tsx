@@ -1,9 +1,13 @@
 import { Input, InputNumber, Select, Card } from 'antd';
 import type { TableColumnsType } from 'antd';
-import { useState, useCallback, useMemo } from 'react';
+import { useState, useCallback, useMemo, useEffect } from 'react';
 import { FormTable, FormFieldRow } from '../FormTable';
 
-export function Product() {
+interface ProductProps {
+  onChange?: (data: any) => void;
+}
+
+export function Product({ onChange }: ProductProps) {
   const [dataSource, setDataSource] = useState<FormFieldRow[]>([
     {
       key: 'productName',
@@ -260,6 +264,12 @@ export function Product() {
       ),
     },
   ], [handleValueChange]);
+
+  useEffect(() => {
+    if (onChange) {
+      onChange(dataSource);
+    }
+  }, [dataSource, onChange]);
 
   return (
     <Card title="Product" style={{ height: "100%" }}>

@@ -1,23 +1,17 @@
 import { Input, InputNumber, Select, Card } from 'antd';
 import type { TableColumnsType } from 'antd';
-import { useState, useCallback, useMemo } from 'react';
+import { useState, useCallback, useMemo, useEffect } from 'react';
 import { FormTable, FormFieldRow } from '../FormTable';
 
-export function Performance() {
+interface PerformanceProps {
+  onChange?: (data: any) => void;
+}
+
+export function Performance({ onChange }: PerformanceProps) {
   const [dataSource, setDataSource] = useState<FormFieldRow[]>([
     {
-      key: 'kpiTrackingRequired',
-      field: 'KPI Tracking Required',
-      value: 'no',
-      termDetail: '',
-      sectionInContract: '',
-      furtherDetails: '',
-      meetsBaseline: 'Yes',
-      baselineTerms: '',
-    },
-    {
-      key: 'onTimeDeliveryTarget',
-      field: 'On-Time Delivery Target (%)',
+      key: 'performanceKpis',
+      field: 'Performance KPIs',
       value: '',
       termDetail: '',
       sectionInContract: '',
@@ -26,8 +20,8 @@ export function Performance() {
       baselineTerms: '',
     },
     {
-      key: 'qualityAcceptanceRate',
-      field: 'Quality Acceptance Rate (%)',
+      key: 'yieldIncreaseExpectation',
+      field: 'Yield increase expectation',
       value: '',
       termDetail: '',
       sectionInContract: '',
@@ -36,8 +30,8 @@ export function Performance() {
       baselineTerms: '',
     },
     {
-      key: 'performanceReviewFrequency',
-      field: 'Performance Review Frequency',
+      key: 'nonConformingPenalty',
+      field: 'Non-conforming penalty',
       value: '',
       termDetail: '',
       sectionInContract: '',
@@ -46,8 +40,8 @@ export function Performance() {
       baselineTerms: '',
     },
     {
-      key: 'yieldTarget',
-      field: 'Yield Target (%)',
+      key: 'performanceTarget',
+      field: 'Performance target',
       value: '',
       termDetail: '',
       sectionInContract: '',
@@ -56,39 +50,9 @@ export function Performance() {
       baselineTerms: '',
     },
     {
-      key: 'batchSuccessRate',
-      field: 'Batch Success Rate (%)',
+      key: 'meetingFrequency',
+      field: 'Meeting frequency',
       value: '',
-      termDetail: '',
-      sectionInContract: '',
-      furtherDetails: '',
-      meetsBaseline: 'Yes',
-      baselineTerms: '',
-    },
-    {
-      key: 'serviceLevelAgreement',
-      field: 'Service Level Agreement',
-      value: '',
-      termDetail: '',
-      sectionInContract: '',
-      furtherDetails: '',
-      meetsBaseline: 'Yes',
-      baselineTerms: '',
-    },
-    {
-      key: 'penaltiesForNonPerformance',
-      field: 'Penalties for Non-Performance',
-      value: 'no',
-      termDetail: '',
-      sectionInContract: '',
-      furtherDetails: '',
-      meetsBaseline: 'Yes',
-      baselineTerms: '',
-    },
-    {
-      key: 'performanceBonusApplicable',
-      field: 'Performance Bonus Applicable',
-      value: 'no',
       termDetail: '',
       sectionInContract: '',
       furtherDetails: '',
@@ -121,7 +85,7 @@ export function Performance() {
       key: 'value',
       width: 220,
       render: (value: string, record: FormFieldRow) => {
-        if (record.key === 'performanceReviewFrequency') {
+        if (record.key === 'meetingFrequency') {
           return (
             <Select
               value={value || undefined}
@@ -137,38 +101,24 @@ export function Performance() {
             />
           );
         }
-        if (record.key === 'serviceLevelAgreement') {
+        if (record.key === 'performanceKpis') {
           return (
             <Select
               value={value || undefined}
               onChange={(newValue) => handleValueChange(record.key, 'value', newValue)}
-              placeholder="Select SLA level"
+              placeholder="Select KPIs"
               className="w-full"
               options={[
-                { value: 'standard', label: 'Standard' },
-                { value: 'enhanced', label: 'Enhanced' },
-                { value: 'premium', label: 'Premium' },
+                { value: 'kpi1', label: 'KPI 1' },
+                { value: 'kpi2', label: 'KPI 2' },
+                { value: 'kpi3', label: 'KPI 3' },
                 { value: 'custom', label: 'Custom' },
               ]}
             />
           );
         }
-        if (record.key === 'kpiTrackingRequired' || record.key === 'penaltiesForNonPerformance' || 
-            record.key === 'performanceBonusApplicable') {
-          return (
-            <Select
-              value={value}
-              onChange={(newValue) => handleValueChange(record.key, 'value', newValue)}
-              className="w-full"
-              options={[
-                { value: 'yes', label: 'Yes' },
-                { value: 'no', label: 'No' },
-              ]}
-            />
-          );
-        }
-        if (record.key === 'onTimeDeliveryTarget' || record.key === 'qualityAcceptanceRate' || 
-            record.key === 'yieldTarget' || record.key === 'batchSuccessRate') {
+        if (record.key === 'yieldIncreaseExpectation' || record.key === 'nonConformingPenalty' || 
+            record.key === 'performanceTarget') {
           return (
             <InputNumber
               value={value ? Number(value) : undefined}
@@ -259,6 +209,12 @@ export function Performance() {
       ),
     },
   ], [handleValueChange]);
+
+  useEffect(() => {
+    if (onChange) {
+      onChange(dataSource);
+    }
+  }, [dataSource, onChange]);
 
   return (
     <Card title="Performance" style={{ height: "100%" }}>

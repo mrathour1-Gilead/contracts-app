@@ -5,6 +5,7 @@ import rateLimit from "express-rate-limit";
 import resetRoutes from "./routes/resetRoutes.js";
 import contractsRoutes from "./routes/contractsRoutes.js";
 // import { authMiddleware } from "./middleware/auth.js";
+import "./config/dynamodb.js"
 
 const app = express();
 app.use(cors());

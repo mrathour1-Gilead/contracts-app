@@ -2,12 +2,15 @@
  * Stepper form view component for contract creation workflow
  */
 
-import { memo } from "react";
+import { memo, useRef } from "react";
 import type { Step } from "../../types";
 import { VerticalStepper } from "../VerticalStepper";
 import { SecondaryActionBar } from "../SecondaryActionBar";
-import { StepContent } from "./StepContent";
+import { StepContent, type StepContentHandle } from "./StepContent";
 import { StepNavigation } from "./StepNavigation";
+import { createContract } from "../../store/contracts/contractsThunks";
+import { useAppSelector, useAppDispatch } from "@/app/store/hooks"
+import { App } from "antd";
 
 interface StepperFormViewProps {
   steps: readonly Step[];
@@ -19,6 +22,8 @@ interface StepperFormViewProps {
   onNext: () => void;
   onSave: () => void;
   onSaveLater: () => void;
+  viewMode?: boolean;
+  contractData?: any;
 }
 
 export const StepperFormView = memo(({
@@ -31,7 +36,34 @@ export const StepperFormView = memo(({
   onNext,
   onSave,
   onSaveLater,
+  viewMode,
+  contractData = {}
 }: StepperFormViewProps) => {
+  const stepContentRef = useRef<StepContentHandle>(null);
+  const dispatch = useAppDispatch();
+  const { message } = App.useApp();
+  const createUpdateLoader = useAppSelector(
+    (state) => state.contracts.loading.createUpdateLoader
+  );
+
+  const handleNext = async () => {
+    if (viewMode) {
+      onNext();
+      return;
+    }
+    if (stepContentRef.current?.validate) {
+      const isValid = stepContentRef.current.validate();
+      if (!isValid) {
+        return;
+      }
+    }
+    if (stepContentRef.current?.data?.step === 1) {
+      await dispatch(createContract(stepContentRef.current.data)).unwrap();
+      message.success("Contract saved successfully");
+    }
+    onNext();
+  };
+
   return (
     <>
       {/* Secondary Action Bar */}
@@ -51,7 +83,7 @@ export const StepperFormView = memo(({
           {/* Right Content Area */}
           <div className="stepper-content-area flex flex-col">
             {/* Step Content */}
-            <StepContent currentStep={currentStep} />
+           <StepContent ref={stepContentRef} currentStep={currentStep} viewMode={viewMode} contractData={contractData} />
 
             {/* Navigation Buttons */}
             <StepNavigation
@@ -60,9 +92,11 @@ export const StepperFormView = memo(({
               isFirstStep={isFirstStep}
               isLastStep={isLastStep}
               onPrevious={onPrevious}
-              onNext={onNext}
+              onNext={handleNext}
               onSave={onSave}
               onSaveLater={onSaveLater}
+              createUpdateLoader={createUpdateLoader}
+              viewMode={viewMode}
             />
           </div>
         </div>

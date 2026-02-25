@@ -2,24 +2,11 @@
  * Core type definitions for the Global Supply Chain Contracts Database
  */
 
-export interface Contract {
-  id: number;
-  cmoParent: string;
-  yearSpend: string;
-  cmoName: string;
-  signingEntity1: string;
-  supplierEntity2: string;
-  supplierEntity3: string;
-  location: string;
-  relationshipOwner: string;
-  territory: string;
-  status: ContractStatus;
-  progress: number;
-}
+import  { Contract } from  "@/app/store/contracts/contracts.types"
 
 export type ContractStatus = "Active" | "Inactive" | "Pending" | "Expired";
 
-export type ViewState = "dashboard" | "cmo-details" | "stepper-form";
+export type ViewState = "dashboard" | "cmo-details" | "stepper-form" | "stepper-view";
 
 export interface Step {
   id: number;
@@ -38,6 +25,35 @@ export interface CMOFormData {
   relationshipOwner?: string;
   territory?: string;
   [key: string]: string | undefined;
+}
+
+/**
+ * Complete CMO Details field structure with all table columns
+ */
+export interface CMODetailsField {
+  field: string;
+  value: string;
+  termDetail: string;
+  sectionInContract: string;
+  furtherDetails: string;
+  meetsBaseline: string;
+  baselineTerms: string;
+  sno: number ;
+}
+
+/**
+ * Complete CMO Details data structure
+ */
+export interface CMODetailsData {
+  cmoParent: CMODetailsField;
+  yearSpend: CMODetailsField;
+  cmoName: CMODetailsField;
+  signingEntity1: CMODetailsField;
+  supplierEntity2: CMODetailsField;
+  supplierEntity3: CMODetailsField;
+  location: CMODetailsField;
+  relationshipOwner: CMODetailsField;
+  territory: CMODetailsField;
 }
 
 export interface TableActionHandlers {

@@ -1,13 +1,17 @@
 import { Input, InputNumber, Select, Card } from 'antd';
 import type { TableColumnsType } from 'antd';
-import { useState, useCallback, useMemo } from 'react';
+import { useState, useCallback, useMemo, useEffect } from 'react';
 import { FormTable, FormFieldRow } from '../FormTable';
 
-export function Pricing() {
+interface PricingProps {
+  onChange?: (data: any) => void;
+}
+
+export function Pricing({ onChange }: PricingProps) {
   const [dataSource, setDataSource] = useState<FormFieldRow[]>([
     {
-      key: 'pricingModel',
-      field: 'Pricing Model',
+      key: 'pricing',
+      field: 'Pricing',
       value: '',
       termDetail: '',
       sectionInContract: '',
@@ -16,78 +20,8 @@ export function Pricing() {
       baselineTerms: '',
     },
     {
-      key: 'unitPrice',
-      field: 'Unit Price',
-      value: '',
-      termDetail: '',
-      sectionInContract: '',
-      furtherDetails: '',
-      meetsBaseline: 'Yes',
-      baselineTerms: '',
-    },
-    {
-      key: 'currency',
-      field: 'Currency',
-      value: '',
-      termDetail: '',
-      sectionInContract: '',
-      furtherDetails: '',
-      meetsBaseline: 'Yes',
-      baselineTerms: '',
-    },
-    {
-      key: 'priceEscalation',
-      field: 'Price Escalation',
-      value: 'no',
-      termDetail: '',
-      sectionInContract: '',
-      furtherDetails: '',
-      meetsBaseline: 'Yes',
-      baselineTerms: '',
-    },
-    {
-      key: 'escalationRate',
-      field: 'Escalation Rate (%)',
-      value: '',
-      termDetail: '',
-      sectionInContract: '',
-      furtherDetails: '',
-      meetsBaseline: 'Yes',
-      baselineTerms: '',
-    },
-    {
-      key: 'escalationFrequency',
-      field: 'Escalation Frequency',
-      value: '',
-      termDetail: '',
-      sectionInContract: '',
-      furtherDetails: '',
-      meetsBaseline: 'Yes',
-      baselineTerms: '',
-    },
-    {
-      key: 'volumeDiscount',
-      field: 'Volume Discount',
-      value: 'no',
-      termDetail: '',
-      sectionInContract: '',
-      furtherDetails: '',
-      meetsBaseline: 'Yes',
-      baselineTerms: '',
-    },
-    {
-      key: 'discountThreshold',
-      field: 'Discount Threshold',
-      value: '',
-      termDetail: '',
-      sectionInContract: '',
-      furtherDetails: '',
-      meetsBaseline: 'Yes',
-      baselineTerms: '',
-    },
-    {
-      key: 'discountRate',
-      field: 'Discount Rate (%)',
+      key: 'annualPricingAdjustments',
+      field: 'Annual pricing adjustments',
       value: '',
       termDetail: '',
       sectionInContract: '',
@@ -121,7 +55,7 @@ export function Pricing() {
       key: 'value',
       width: 220,
       render: (value: string, record: FormFieldRow) => {
-        if (record.key === 'pricingModel') {
+        if (record.key === 'pricing') {
           return (
             <Select
               value={value || undefined}
@@ -137,38 +71,7 @@ export function Pricing() {
             />
           );
         }
-        if (record.key === 'currency') {
-          return (
-            <Select
-              value={value || undefined}
-              onChange={(newValue) => handleValueChange(record.key, 'value', newValue)}
-              placeholder="Select currency"
-              className="w-full"
-              options={[
-                { value: 'usd', label: 'USD' },
-                { value: 'eur', label: 'EUR' },
-                { value: 'gbp', label: 'GBP' },
-                { value: 'jpy', label: 'JPY' },
-              ]}
-            />
-          );
-        }
-        if (record.key === 'escalationFrequency') {
-          return (
-            <Select
-              value={value || undefined}
-              onChange={(newValue) => handleValueChange(record.key, 'value', newValue)}
-              placeholder="Select frequency"
-              className="w-full"
-              options={[
-                { value: 'annually', label: 'Annually' },
-                { value: 'biannually', label: 'Bi-annually' },
-                { value: 'quarterly', label: 'Quarterly' },
-              ]}
-            />
-          );
-        }
-        if (record.key === 'priceEscalation' || record.key === 'volumeDiscount') {
+        if (record.key === 'annualPricingAdjustments') {
           return (
             <Select
               value={value}
@@ -178,19 +81,6 @@ export function Pricing() {
                 { value: 'yes', label: 'Yes' },
                 { value: 'no', label: 'No' },
               ]}
-            />
-          );
-        }
-        if (record.key === 'unitPrice' || record.key === 'escalationRate' || 
-            record.key === 'discountThreshold' || record.key === 'discountRate') {
-          return (
-            <InputNumber
-              value={value ? Number(value) : undefined}
-              onChange={(newValue) => handleValueChange(record.key, 'value', String(newValue || ''))}
-              placeholder={`Enter ${record.field.toLowerCase()}`}
-              className="w-full"
-              controls={false}
-              prefix={record.key === 'unitPrice' ? '$' : undefined}
             />
           );
         }
@@ -274,6 +164,12 @@ export function Pricing() {
       ),
     },
   ], [handleValueChange]);
+
+  useEffect(() => {
+    if (onChange) {
+      onChange(dataSource);
+    }
+  }, [dataSource, onChange]);
 
   return (
     <Card title="Pricing" style={{ height: "100%" }}>

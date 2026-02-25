@@ -1,13 +1,17 @@
 import { Input, InputNumber, Select, DatePicker, Card } from 'antd';
 import type { TableColumnsType } from 'antd';
-import { useState, useCallback, useMemo } from 'react';
+import { useState, useCallback, useMemo, useEffect } from 'react';
 import { FormTable, FormFieldRow } from '../FormTable';
 
-export function ForecastOrdering() {
+interface ForecastOrderingProps {
+  onChange?: (data: any) => void;
+}
+
+export function ForecastOrdering({ onChange }: ForecastOrderingProps) {
   const [dataSource, setDataSource] = useState<FormFieldRow[]>([
     {
       key: 'forecastFrequency',
-      field: 'Forecast Frequency',
+      field: 'Forecast-Frequency',
       value: '',
       termDetail: '',
       sectionInContract: '',
@@ -16,8 +20,8 @@ export function ForecastOrdering() {
       baselineTerms: '',
     },
     {
-      key: 'forecastHorizon',
-      field: 'Forecast Horizon (Months)',
+      key: 'forecastTimeHorizon',
+      field: 'Forecast-Time Horizon',
       value: '',
       termDetail: '',
       sectionInContract: '',
@@ -26,8 +30,8 @@ export function ForecastOrdering() {
       baselineTerms: '',
     },
     {
-      key: 'minimumOrderQuantity',
-      field: 'Minimum Order Quantity',
+      key: 'forecastFirmOrderPeriod',
+      field: 'Forecast-Firm Order Period (Binding)',
       value: '',
       termDetail: '',
       sectionInContract: '',
@@ -36,8 +40,8 @@ export function ForecastOrdering() {
       baselineTerms: '',
     },
     {
-      key: 'leadTime',
-      field: 'Lead Time (Days)',
+      key: 'forecastUpdateDeadline',
+      field: 'Forecast-Update Deadline (Day of Month, Quarterly?)',
       value: '',
       termDetail: '',
       sectionInContract: '',
@@ -46,8 +50,8 @@ export function ForecastOrdering() {
       baselineTerms: '',
     },
     {
-      key: 'orderFrequency',
-      field: 'Order Frequency',
+      key: 'forecastMoreDetails',
+      field: 'Forecast-More Details (If applicable)',
       value: '',
       termDetail: '',
       sectionInContract: '',
@@ -56,8 +60,8 @@ export function ForecastOrdering() {
       baselineTerms: '',
     },
     {
-      key: 'reorderPoint',
-      field: 'Reorder Point',
+      key: 'poOrderLeadTimeRequired',
+      field: 'PO-Order Lead Time Required',
       value: '',
       termDetail: '',
       sectionInContract: '',
@@ -66,8 +70,8 @@ export function ForecastOrdering() {
       baselineTerms: '',
     },
     {
-      key: 'safetyStock',
-      field: 'Safety Stock (Units)',
+      key: 'poFixedPOWindow',
+      field: 'PO-Fixed PO Window',
       value: '',
       termDetail: '',
       sectionInContract: '',
@@ -76,8 +80,8 @@ export function ForecastOrdering() {
       baselineTerms: '',
     },
     {
-      key: 'committedVolume',
-      field: 'Committed Volume',
+      key: 'poMinimumOrderQuantity',
+      field: 'PO-Minimum Order Quantity',
       value: '',
       termDetail: '',
       sectionInContract: '',
@@ -86,8 +90,18 @@ export function ForecastOrdering() {
       baselineTerms: '',
     },
     {
-      key: 'forecastSubmissionDeadline',
-      field: 'Forecast Submission Deadline',
+      key: 'poOtherDetails',
+      field: 'PO-Other Details (if applicable)',
+      value: '',
+      termDetail: '',
+      sectionInContract: '',
+      furtherDetails: '',
+      meetsBaseline: 'Yes',
+      baselineTerms: '',
+    },
+    {
+      key: 'contractVolumeByPartAnnual',
+      field: 'Contract Volume by Part (Annual)',
       value: '',
       termDetail: '',
       sectionInContract: '',
@@ -137,23 +151,7 @@ export function ForecastOrdering() {
             />
           );
         }
-        if (record.key === 'orderFrequency') {
-          return (
-            <Select
-              value={value || undefined}
-              onChange={(newValue) => handleValueChange(record.key, 'value', newValue)}
-              placeholder="Select frequency"
-              className="w-full"
-              options={[
-                { value: 'weekly', label: 'Weekly' },
-                { value: 'biweekly', label: 'Bi-weekly' },
-                { value: 'monthly', label: 'Monthly' },
-                { value: 'quarterly', label: 'Quarterly' },
-              ]}
-            />
-          );
-        }
-        if (record.key === 'forecastSubmissionDeadline') {
+        if (record.key === 'forecastUpdateDeadline') {
           return (
             <DatePicker
               className="w-full"
@@ -161,9 +159,7 @@ export function ForecastOrdering() {
             />
           );
         }
-        if (record.key === 'forecastHorizon' || record.key === 'minimumOrderQuantity' || 
-            record.key === 'leadTime' || record.key === 'reorderPoint' || 
-            record.key === 'safetyStock' || record.key === 'committedVolume') {
+        if (record.key === 'poMinimumOrderQuantity' || record.key === 'contractVolumeByPartAnnual') {
           return (
             <InputNumber
               value={value ? Number(value) : undefined}
@@ -255,8 +251,14 @@ export function ForecastOrdering() {
     },
   ], [handleValueChange]);
 
+  useEffect(() => {
+    if (onChange) {
+      onChange(dataSource);
+    }
+  }, [dataSource, onChange]);
+
   return (
-    <Card title="Forecast & Ordering" style={{ height: "100%" }}>
+    <Card title="Forecast & Ordering" className="h-full flex flex-col">
       <FormTable dataSource={dataSource} columns={columns} />
     </Card>
   );

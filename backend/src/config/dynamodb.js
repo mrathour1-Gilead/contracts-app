@@ -6,6 +6,7 @@ import dotenv from "dotenv";
 dotenv.config();
 
 const region = process.env.AWS_REGION || "us-west-2";
+const isLocal = process.env.AWS_REGION ? true : false;
 // Configure to bypass SSL verification for corporate proxies
 const httpsAgent = new https.Agent({
   rejectUnauthorized: false, // Disable SSL certificate validation
@@ -14,6 +15,13 @@ const httpsAgent = new https.Agent({
 const client = new DynamoDBClient({
   region,
   requestHandler: new NodeHttpHandler({ httpsAgent: httpsAgent }),
+    ...(isLocal && {
+    credentials: {
+      accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+      secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+      sessionToken: process.env.AWS_SESSION_TOKEN,
+    },
+  }),
 });
 
 // Document client provides simplified API (marshalling/unmarshalling)

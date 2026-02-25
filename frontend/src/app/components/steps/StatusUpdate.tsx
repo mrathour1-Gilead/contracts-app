@@ -1,13 +1,17 @@
 import { Input, Select, DatePicker, Card } from 'antd';
 import type { TableColumnsType } from 'antd';
-import { useState, useCallback, useMemo } from 'react';
+import { useState, useCallback, useMemo, useEffect } from 'react';
 import { FormTable, FormFieldRow } from '../FormTable';
 
-export function StatusUpdate() {
+interface StatusUpdateProps {
+  onChange?: (data: any) => void;
+}
+
+export function StatusUpdate({ onChange }: StatusUpdateProps) {
   const [dataSource, setDataSource] = useState<FormFieldRow[]>([
     {
-      key: 'updateName',
-      field: 'Update Name',
+      key: 'mostRecentContractUpdate',
+      field: 'Most recent contract update',
       value: '',
       termDetail: '',
       sectionInContract: '',
@@ -16,8 +20,8 @@ export function StatusUpdate() {
       baselineTerms: '',
     },
     {
-      key: 'updateDate',
-      field: 'Update Date',
+      key: 'contractsConsolidation',
+      field: 'Contracts consolidation',
       value: '',
       termDetail: '',
       sectionInContract: '',
@@ -26,29 +30,19 @@ export function StatusUpdate() {
       baselineTerms: '',
     },
     {
-      key: 'updateType',
-      field: 'Update Type',
+      key: 'templateMigrationStatus',
+      field: 'Template migration status',
+      value: 'No',
+      termDetail: '',
+      sectionInContract: '',
+      furtherDetails: '',
+      meetsBaseline: 'Yes',
+      baselineTerms: '',
+    },
+    {
+      key: 'qagLinkageInMSA',
+      field: 'QAG linkage in MSA',
       value: '',
-      termDetail: '',
-      sectionInContract: '',
-      furtherDetails: '',
-      meetsBaseline: 'Yes',
-      baselineTerms: '',
-    },
-    {
-      key: 'templateMigration',
-      field: 'Template Migration?',
-      value: 'no',
-      termDetail: '',
-      sectionInContract: '',
-      furtherDetails: '',
-      meetsBaseline: 'Yes',
-      baselineTerms: '',
-    },
-    {
-      key: 'qagLinkage',
-      field: 'QAG Linkage?',
-      value: 'no',
       termDetail: '',
       sectionInContract: '',
       furtherDetails: '',
@@ -58,37 +52,7 @@ export function StatusUpdate() {
     {
       key: 'qagApproval',
       field: 'QAG Approval?',
-      value: 'no',
-      termDetail: '',
-      sectionInContract: '',
-      furtherDetails: '',
-      meetsBaseline: 'Yes',
-      baselineTerms: '',
-    },
-    {
-      key: 'statusOwner',
-      field: 'Status Owner',
-      value: '',
-      termDetail: '',
-      sectionInContract: '',
-      furtherDetails: '',
-      meetsBaseline: 'Yes',
-      baselineTerms: '',
-    },
-    {
-      key: 'nextReviewDate',
-      field: 'Next Review Date',
-      value: '',
-      termDetail: '',
-      sectionInContract: '',
-      furtherDetails: '',
-      meetsBaseline: 'Yes',
-      baselineTerms: '',
-    },
-    {
-      key: 'reviewFrequency',
-      field: 'Review Frequency',
-      value: '',
+      value: 'No',
       termDetail: '',
       sectionInContract: '',
       furtherDetails: '',
@@ -121,56 +85,15 @@ export function StatusUpdate() {
       key: 'value',
       width: 220,
       render: (value: string, record: FormFieldRow) => {
-        if (record.key === 'updateDate' || record.key === 'nextReviewDate') {
-          return (
-            <DatePicker
-              className="w-full"
-              onChange={(date, dateString) => handleValueChange(record.key, 'value', dateString as string)}
-            />
-          );
-        }
-        if (record.key === 'updateType') {
-          return (
-            <Select
-              value={value || undefined}
-              onChange={(newValue) => handleValueChange(record.key, 'value', newValue)}
-              placeholder="Select type"
-              className="w-full"
-              options={[
-                { value: 'renewal', label: 'Contract Renewal' },
-                { value: 'amendment', label: 'Amendment' },
-                { value: 'termination', label: 'Termination Notice' },
-                { value: 'pricing', label: 'Pricing Update' },
-                { value: 'volume', label: 'Volume Change' },
-              ]}
-            />
-          );
-        }
-        if (record.key === 'reviewFrequency') {
-          return (
-            <Select
-              value={value || undefined}
-              onChange={(newValue) => handleValueChange(record.key, 'value', newValue)}
-              placeholder="Select frequency"
-              className="w-full"
-              options={[
-                { value: 'monthly', label: 'Monthly' },
-                { value: 'quarterly', label: 'Quarterly' },
-                { value: 'semi-annual', label: 'Semi-Annual' },
-                { value: 'annual', label: 'Annual' },
-              ]}
-            />
-          );
-        }
-        if (record.key === 'templateMigration' || record.key === 'qagLinkage' || record.key === 'qagApproval') {
+        if (record.key === 'templateMigrationStatus' || record.key === 'qagApproval') {
           return (
             <Select
               value={value}
               onChange={(newValue) => handleValueChange(record.key, 'value', newValue)}
               className="w-full"
               options={[
-                { value: 'yes', label: 'Yes' },
-                { value: 'no', label: 'No' },
+                { value: 'Yes', label: 'Yes' },
+                { value: 'No', label: 'No' },
               ]}
             />
           );
@@ -255,6 +178,12 @@ export function StatusUpdate() {
       ),
     },
   ], [handleValueChange]);
+
+  useEffect(() => {
+    if (onChange) {
+      onChange(dataSource);
+    }
+  }, [dataSource, onChange]);
 
   return (
     <Card title="Status Update" style={{ height: "100%" }}>

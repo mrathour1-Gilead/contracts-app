@@ -1,23 +1,17 @@
 import { Input, InputNumber, Select, DatePicker, Card } from 'antd';
 import type { TableColumnsType } from 'antd';
-import { useState, useCallback, useMemo } from 'react';
+import { useState, useCallback, useMemo, useEffect } from 'react';
 import { FormTable, FormFieldRow } from '../FormTable';
 
-export function SpecialFields() {
+interface SpecialFieldsProps {
+  onChange?: (data: any) => void;
+}
+
+export function SpecialFields({ onChange }: SpecialFieldsProps) {
   const [dataSource, setDataSource] = useState<FormFieldRow[]>([
     {
-      key: 'confidentialityAgreement',
-      field: 'Confidentiality Agreement',
-      value: 'no',
-      termDetail: '',
-      sectionInContract: '',
-      furtherDetails: '',
-      meetsBaseline: 'Yes',
-      baselineTerms: '',
-    },
-    {
-      key: 'ipRights',
-      field: 'IP Rights',
+      key: 'specialField3',
+      field: 'Special Field 3',
       value: '',
       termDetail: '',
       sectionInContract: '',
@@ -26,18 +20,8 @@ export function SpecialFields() {
       baselineTerms: '',
     },
     {
-      key: 'technologyTransferRequired',
-      field: 'Technology Transfer Required',
-      value: 'no',
-      termDetail: '',
-      sectionInContract: '',
-      furtherDetails: '',
-      meetsBaseline: 'Yes',
-      baselineTerms: '',
-    },
-    {
-      key: 'regulatoryFilingSupport',
-      field: 'Regulatory Filing Support',
+      key: 'specialField4',
+      field: 'Special Field 4',
       value: '',
       termDetail: '',
       sectionInContract: '',
@@ -46,48 +30,8 @@ export function SpecialFields() {
       baselineTerms: '',
     },
     {
-      key: 'insuranceRequirements',
-      field: 'Insurance Requirements',
-      value: '',
-      termDetail: '',
-      sectionInContract: '',
-      furtherDetails: '',
-      meetsBaseline: 'Yes',
-      baselineTerms: '',
-    },
-    {
-      key: 'insuranceCoverage',
-      field: 'Insurance Coverage (M$)',
-      value: '',
-      termDetail: '',
-      sectionInContract: '',
-      furtherDetails: '',
-      meetsBaseline: 'Yes',
-      baselineTerms: '',
-    },
-    {
-      key: 'forceMajeureClause',
-      field: 'Force Majeure Clause',
-      value: 'no',
-      termDetail: '',
-      sectionInContract: '',
-      furtherDetails: '',
-      meetsBaseline: 'Yes',
-      baselineTerms: '',
-    },
-    {
-      key: 'disputeResolution',
-      field: 'Dispute Resolution',
-      value: '',
-      termDetail: '',
-      sectionInContract: '',
-      furtherDetails: '',
-      meetsBaseline: 'Yes',
-      baselineTerms: '',
-    },
-    {
-      key: 'contractRenewalDate',
-      field: 'Contract Renewal Date',
+      key: 'specialField5',
+      field: 'Special Field 5',
       value: '',
       termDetail: '',
       sectionInContract: '',
@@ -297,6 +241,12 @@ export function SpecialFields() {
       ),
     },
   ], [handleValueChange]);
+
+  useEffect(() => {
+    if (onChange) {
+      onChange(dataSource);
+    }
+  }, [dataSource, onChange]);
 
   return (
     <Card title="Special Fields" style={{ height: "100%" }}>

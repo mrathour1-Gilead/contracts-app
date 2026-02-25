@@ -1,13 +1,17 @@
 import { Input, InputNumber, Select, Card } from 'antd';
 import type { TableColumnsType } from 'antd';
-import { useState, useCallback, useMemo } from 'react';
+import { useState, useCallback, useMemo, useEffect } from 'react';
 import { FormTable, FormFieldRow } from '../FormTable';
 
-export function RawMaterials() {
+interface RawMaterialsProps {
+  onChange?: (data: any) => void;
+}
+
+export function RawMaterials({ onChange }: RawMaterialsProps) {
   const [dataSource, setDataSource] = useState<FormFieldRow[]>([
     {
-      key: 'materialSource',
-      field: 'Material Source',
+      key: 'materialsStockpiles',
+      field: 'Materials Stockpiles-Components, exciptient and API furnished by Gilead',
       value: '',
       termDetail: '',
       sectionInContract: '',
@@ -16,8 +20,8 @@ export function RawMaterials() {
       baselineTerms: '',
     },
     {
-      key: 'apiSource',
-      field: 'API Source',
+      key: 'mabDsApiReimbursement',
+      field: 'mAb/DS/API reimbursement',
       value: '',
       termDetail: '',
       sectionInContract: '',
@@ -26,69 +30,9 @@ export function RawMaterials() {
       baselineTerms: '',
     },
     {
-      key: 'apiGrade',
-      field: 'API Grade',
+      key: 'mabDsApiLoss',
+      field: 'mAb/DS/API loss',
       value: '',
-      termDetail: '',
-      sectionInContract: '',
-      furtherDetails: '',
-      meetsBaseline: 'Yes',
-      baselineTerms: '',
-    },
-    {
-      key: 'excipientsSource',
-      field: 'Excipients Source',
-      value: '',
-      termDetail: '',
-      sectionInContract: '',
-      furtherDetails: '',
-      meetsBaseline: 'Yes',
-      baselineTerms: '',
-    },
-    {
-      key: 'materialTestingRequired',
-      field: 'Material Testing Required',
-      value: 'no',
-      termDetail: '',
-      sectionInContract: '',
-      furtherDetails: '',
-      meetsBaseline: 'Yes',
-      baselineTerms: '',
-    },
-    {
-      key: 'testingLocation',
-      field: 'Testing Location',
-      value: '',
-      termDetail: '',
-      sectionInContract: '',
-      furtherDetails: '',
-      meetsBaseline: 'Yes',
-      baselineTerms: '',
-    },
-    {
-      key: 'materialLeadTime',
-      field: 'Material Lead Time (Days)',
-      value: '',
-      termDetail: '',
-      sectionInContract: '',
-      furtherDetails: '',
-      meetsBaseline: 'Yes',
-      baselineTerms: '',
-    },
-    {
-      key: 'inventoryBuffer',
-      field: 'Inventory Buffer (Days)',
-      value: '',
-      termDetail: '',
-      sectionInContract: '',
-      furtherDetails: '',
-      meetsBaseline: 'Yes',
-      baselineTerms: '',
-    },
-    {
-      key: 'changeControlRequired',
-      field: 'Change Control Required',
-      value: 'no',
       termDetail: '',
       sectionInContract: '',
       furtherDetails: '',
@@ -288,6 +232,12 @@ export function RawMaterials() {
       ),
     },
   ], [handleValueChange]);
+
+  useEffect(() => {
+    if (onChange) {
+      onChange(dataSource);
+    }
+  }, [dataSource, onChange]);
 
   return (
     <Card title="Raw Materials" style={{ height: "100%" }}>

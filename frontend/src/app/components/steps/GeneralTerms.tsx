@@ -1,13 +1,17 @@
 import { Input, InputNumber, Select, DatePicker, Card } from 'antd';
 import type { TableColumnsType } from 'antd';
-import { useState, useCallback, useMemo } from 'react';
+import { useState, useCallback, useMemo, useEffect } from 'react';
 import { FormTable, FormFieldRow } from '../FormTable';
 
-export function GeneralTerms() {
+interface GeneralTermsProps {
+  onChange?: (data: any) => void;
+}
+
+export function GeneralTerms({ onChange }: GeneralTermsProps) {
   const [dataSource, setDataSource] = useState<FormFieldRow[]>([
     {
-      key: 'agreementType',
-      field: 'Agreement Type',
+      key: 'typeOfAgreement',
+      field: 'Type of Agreement',
       value: '',
       termDetail: '',
       sectionInContract: '',
@@ -27,7 +31,7 @@ export function GeneralTerms() {
     },
     {
       key: 'initialTerm',
-      field: 'Initial Term (Years)',
+      field: 'Initial Term',
       value: '',
       termDetail: '',
       sectionInContract: '',
@@ -36,8 +40,18 @@ export function GeneralTerms() {
       baselineTerms: '',
     },
     {
-      key: 'expirationDate',
-      field: 'Expiration Date',
+      key: 'expirationDateOfContract',
+      field: 'Expiration date of contract',
+      value: '',
+      termDetail: '',
+      sectionInContract: '',
+      furtherDetails: '',
+      meetsBaseline: 'Yes',
+      baselineTerms: '',
+    },
+    {
+      key: 'currentExpirationDate',
+      field: 'Current expiration date',
       value: '',
       termDetail: '',
       sectionInContract: '',
@@ -47,7 +61,7 @@ export function GeneralTerms() {
     },
     {
       key: 'notificationTime',
-      field: 'Notification Time (Days)',
+      field: 'Notification Time',
       value: '',
       termDetail: '',
       sectionInContract: '',
@@ -56,9 +70,9 @@ export function GeneralTerms() {
       baselineTerms: '',
     },
     {
-      key: 'autoRenew',
-      field: 'Auto Renew',
-      value: 'no',
+      key: 'autoRenewTerms',
+      field: 'Auto Renew Terms',
+      value: '',
       termDetail: '',
       sectionInContract: '',
       furtherDetails: '',
@@ -66,8 +80,8 @@ export function GeneralTerms() {
       baselineTerms: '',
     },
     {
-      key: 'renewActionDate',
-      field: 'Renew Action Date',
+      key: 'renewActionOrNotificationDate',
+      field: 'Renew Action or Notification Date',
       value: '',
       termDetail: '',
       sectionInContract: '',
@@ -77,17 +91,7 @@ export function GeneralTerms() {
     },
     {
       key: 'paymentTerms',
-      field: 'Payment Terms',
-      value: '',
-      termDetail: '',
-      sectionInContract: '',
-      furtherDetails: '',
-      meetsBaseline: 'Yes',
-      baselineTerms: '',
-    },
-    {
-      key: 'governingLaw',
-      field: 'Governing Law',
+      field: 'Payment terms',
       value: '',
       termDetail: '',
       sectionInContract: '',
@@ -121,26 +125,36 @@ export function GeneralTerms() {
       key: 'value',
       width: 220,
       render: (value: string, record: FormFieldRow) => {
-        if (record.key === 'effectiveDate' || record.key === 'expirationDate' || record.key === 'renewActionDate') {
+        // Date fields - use DatePicker but allow text input for "evergreen"
+        if (record.key === 'effectiveDate' || record.key === 'expirationDateOfContract' || 
+            record.key === 'currentExpirationDate' || record.key === 'renewActionOrNotificationDate') {
           return (
             <DatePicker
               className="w-full"
+              placeholder="Select date or type 'evergreen'"
               onChange={(date, dateString) => handleValueChange(record.key, 'value', dateString as string)}
+              onBlur={(e) => {
+                // Allow typing "evergreen" or other text
+                const inputValue = (e.target as HTMLInputElement).value;
+                if (inputValue && inputValue.toLowerCase() === 'evergreen') {
+                  handleValueChange(record.key, 'value', inputValue);
+                }
+              }}
             />
           );
         }
-        if (record.key === 'initialTerm' || record.key === 'notificationTime') {
+        // Notification Time - text input for days, months, or years
+        if (record.key === 'notificationTime') {
           return (
-            <InputNumber
-              value={value ? Number(value) : undefined}
-              onChange={(newValue) => handleValueChange(record.key, 'value', String(newValue || ''))}
-              placeholder={`Enter ${record.field.toLowerCase()}`}
-              className="w-full"
-              controls={false}
+            <Input
+              value={value}
+              onChange={(e) => handleValueChange(record.key, 'value', e.target.value)}
+              placeholder="In days, months, or years"
             />
           );
         }
-        if (record.key === 'agreementType') {
+        // Dropdown fields
+        if (record.key === 'typeOfAgreement') {
           return (
             <Select
               value={value || undefined}
@@ -152,6 +166,38 @@ export function GeneralTerms() {
                 { value: 'supply', label: 'Supply Agreement' },
                 { value: 'manufacturing', label: 'Manufacturing Agreement' },
                 { value: 'quality', label: 'Quality Agreement' },
+              ]}
+            />
+          );
+        }
+        if (record.key === 'initialTerm') {
+          return (
+            <Select
+              value={value || undefined}
+              onChange={(newValue) => handleValueChange(record.key, 'value', newValue)}
+              placeholder="Select initial term"
+              className="w-full"
+              options={[
+                { value: '1 year', label: '1 Year' },
+                { value: '2 years', label: '2 Years' },
+                { value: '3 years', label: '3 Years' },
+                { value: '5 years', label: '5 Years' },
+                { value: 'evergreen', label: 'Evergreen' },
+              ]}
+            />
+          );
+        }
+        if (record.key === 'autoRenewTerms') {
+          return (
+            <Select
+              value={value || undefined}
+              onChange={(newValue) => handleValueChange(record.key, 'value', newValue)}
+              placeholder="Select auto renew terms"
+              className="w-full"
+              options={[
+                { value: 'Yes - Auto renew', label: 'Yes - Auto renew' },
+                { value: 'No - Expires', label: 'No - Expires' },
+                { value: 'Requires notice', label: 'Requires notice' },
               ]}
             />
           );
@@ -168,35 +214,6 @@ export function GeneralTerms() {
                 { value: 'net45', label: 'Net 45 Days' },
                 { value: 'net60', label: 'Net 60 Days' },
                 { value: 'net90', label: 'Net 90 Days' },
-              ]}
-            />
-          );
-        }
-        if (record.key === 'governingLaw') {
-          return (
-            <Select
-              value={value || undefined}
-              onChange={(newValue) => handleValueChange(record.key, 'value', newValue)}
-              placeholder="Select jurisdiction"
-              className="w-full"
-              options={[
-                { value: 'delaware', label: 'Delaware, USA' },
-                { value: 'california', label: 'California, USA' },
-                { value: 'newyork', label: 'New York, USA' },
-                { value: 'uk', label: 'United Kingdom' },
-              ]}
-            />
-          );
-        }
-        if (record.key === 'autoRenew') {
-          return (
-            <Select
-              value={value}
-              onChange={(newValue) => handleValueChange(record.key, 'value', newValue)}
-              className="w-full"
-              options={[
-                { value: 'yes', label: 'Yes' },
-                { value: 'no', label: 'No' },
               ]}
             />
           );
@@ -281,6 +298,12 @@ export function GeneralTerms() {
       ),
     },
   ], [handleValueChange]);
+
+  useEffect(() => {
+    if (onChange) {
+      onChange(dataSource);
+    }
+  }, [dataSource, onChange]);
 
   return (
     <Card title="General Terms" style={{ height: "100%" }}>

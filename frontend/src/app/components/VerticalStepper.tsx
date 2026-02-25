@@ -57,7 +57,6 @@ export function VerticalStepper({
   const handleToggle = () => {
     setIsTransitioning(true);
     setIsCollapsed(!isCollapsed);
-    
     // Reset transitioning state after animation completes
     setTimeout(() => {
       setIsTransitioning(false);
@@ -66,7 +65,7 @@ export function VerticalStepper({
 
   return (
     <ConfigProvider theme={antdTheme}>
-      <div 
+      <div
         className={`vertical-stepper-container bg-white rounded-lg border border-gray-200 self-stretch flex flex-col ${
           isCollapsed ? 'w-16' : 'w-64'
         } ${isTransitioning ? 'is-transitioning' : ''}`}

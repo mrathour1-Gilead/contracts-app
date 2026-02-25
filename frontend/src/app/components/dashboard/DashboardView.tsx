@@ -1,8 +1,4 @@
-/**
- * Dashboard view component displaying contracts table and action buttons
- */
-
-import { memo, useState } from "react";
+import { memo, useEffect, useRef, useState } from "react";
 import { Table, Button, Tooltip, Input } from "antd";
 import {
   PlusOutlined,
@@ -11,17 +7,17 @@ import {
   SearchOutlined,
 } from "@ant-design/icons";
 import type {
-  Contract,
   TableActionHandlers,
 } from "../../types";
+import { Contract } from "@/app/store/contracts/contracts.types"
 import { getContractColumns } from "../../config/tableColumns";
 import { TABLE_CONFIG, BRAND_COLORS } from "../../constants";
+import { useAppSelector, useAppDispatch } from "@/app/store/hooks";
+import { fetchContracts } from "@/app/store/contracts/contractsThunks";
+import { resetPagination } from "@/app/store/contracts/contractsSlice";
 
 interface DashboardViewProps {
-  contracts: Contract[];
-  loading: boolean;
   onAddContract: () => void;
-  onReload: () => void;
   onRowClick: (contract: Contract) => void;
   onViewContract: (contract: Contract) => void;
   onEditContract: (contract: Contract) => void;
@@ -29,35 +25,85 @@ interface DashboardViewProps {
 
 export const DashboardView = memo(
   ({
-    contracts,
-    loading,
     onAddContract,
-    onReload,
     onRowClick,
     onViewContract,
     onEditContract,
   }: DashboardViewProps) => {
     const [searchText, setSearchText] = useState("");
+    const debounceTimer = useRef<number | null>(null)
+    const dispatch = useAppDispatch();
+    const { contractLists, loading, totalCount, page } = useAppSelector((state) => state.contracts);
 
+    useEffect(() => {
+      if (debounceTimer.current) {
+        clearTimeout(debounceTimer.current)
+      }
+
+      debounceTimer.current = window.setTimeout(() => {
+        dispatch(resetPagination())
+        dispatch(fetchContracts({ page: 1, search: searchText }))
+      }, 750)
+
+
+      return () => {
+        if (debounceTimer.current) {
+          clearTimeout(debounceTimer.current)
+        }
+      }
+    }, [searchText, dispatch])
+
+    const onViewClick = (itemData: Contract) => {
+      const data = contractLists.find((item: Contract) => item.id === itemData.id);
+
+      if (data) {
+        onRowClick(data)
+        onViewContract(data)
+      }
+    }
     const actionHandlers: TableActionHandlers = {
-      onView: onViewContract,
+      onView: onViewClick,
       onEdit: onEditContract,
     };
 
+    type Primitive = string | number | boolean | null;
+    type TableRow = Record<string, Primitive>;
+    const keepPrimitiveKeyValues = (
+      records: Contract[]
+    ): Record<string, Contract>[] => {
+      const array = Array.isArray(records) ? records : [records];
+      return array.map((record) =>
+        Object.entries(record).reduce<Record<string, Contract>>(
+          (acc, [key, value]) => {
+            if (
+              value === null ||
+              typeof value === "string" ||
+              typeof value === "number" ||
+              typeof value === "boolean"
+            ) {
+              acc[key] = value;
+            }
+            return acc;
+          },
+          {}
+        )
+      );
+    };
+
+
     const columns = getContractColumns(actionHandlers);
 
+    useEffect(() => {
+      dispatch(fetchContracts({}));
+    }, [dispatch]);
+
+
     // Filter contracts based on search text
-    const filteredContracts = contracts.filter((contract) => {
-      if (!searchText) return true;
-      const searchLower = searchText.toLowerCase();
-      return (
-        contract.cmoName?.toLowerCase().includes(searchLower) ||
-        contract.location
-          ?.toLowerCase()
-          .includes(searchLower) ||
-        contract.status?.toLowerCase().includes(searchLower)
-      );
-    });
+    const filteredContracts: any[] = keepPrimitiveKeyValues(contractLists)
+
+    const onReload = () => {
+      setSearchText("")
+    }
 
     return (
       <div className="bg-white border border-gray-100 overflow-hidden mt-3">
@@ -94,7 +140,7 @@ export const DashboardView = memo(
                   type="text"
                   icon={
                     <ReloadOutlined
-                      spin={loading}
+                      spin={loading.list}
                       style={{
                         fontSize: "16px",
                         color: BRAND_COLORS.primary,
@@ -145,15 +191,20 @@ export const DashboardView = memo(
             columns={columns}
             dataSource={filteredContracts}
             rowKey="id"
-            loading={loading}
+            loading={loading.list}
             pagination={{
+              current: page,
               pageSize: TABLE_CONFIG.defaultPageSize,
+              total: totalCount,
               showSizeChanger: false,
               showTotal: (total, range) =>
                 `Showing ${range[0]}-${range[1]} of ${total} items`,
+              onChange: (page) => {
+                dispatch(fetchContracts({ page, search: searchText }))
+              },
             }}
             onRow={(record) => ({
-              onClick: () => onRowClick(record),
+              onClick: () => onViewClick(record),
               className: "cursor-pointer hover:bg-[#306e9a]/5",
             })}
             scroll={{
