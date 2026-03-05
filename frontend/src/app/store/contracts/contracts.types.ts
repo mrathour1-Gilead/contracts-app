@@ -56,6 +56,13 @@ export interface Contract {
   updatedAt: string;
   status?: string;
   currentStep?: number,
+  autoRenewTerms: string;
+  typeOfAggrement: string;
+  currentExpirationDate: string;
+  notificationTime: string;
+  forecastTimeHorizon: string;
+  forecastBindingPeriod: string;
+  paymentTerms: string;
 }
 
 
