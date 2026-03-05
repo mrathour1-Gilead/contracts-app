@@ -86,19 +86,6 @@ const contractsSlice = createSlice({
       })
       .addCase(updateContract.fulfilled, (state, action) => {
         state.loading.createUpdateLoader = false;
-
-        const updated = action.payload;
-        const index = state.contractLists.findIndex(
-          (c) => c.id === updated.id
-        );
-
-        if (index !== -1) {
-          state.contractLists[index] = updated;
-        }
-
-        if (state.selectedContract?.id === updated.id) {
-          state.selectedContract = updated;
-        }
       })
       .addCase(updateContract.rejected, (state, action) => {
         state.loading.createUpdateLoader = false;

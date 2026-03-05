@@ -11,9 +11,24 @@ export interface FormFieldRow {
   furtherDetails: string;
   meetsBaseline: string;
   baselineTerms: string;
-  required: boolean;
+  required?: boolean;
   error: boolean;
   sno: number;
+  placeholder?: string;
+  options?: { value: string; label: string }[];
+  type?: "text" | "number" | "date";
+  step?: string;
+}
+
+export interface FormView {
+  key: string;
+  field: string;
+  value: string;
+  termDetail: string;
+  sectionInContract: string;
+  furtherDetails: string;
+  meetsBaseline: string;
+  baselineTerms: string;
 }
 
 interface FormTableProps<T = FormFieldRow>
@@ -60,6 +75,11 @@ export function FormTable<T = FormFieldRow>({
         <Table
           pagination={false}
           scroll={{ x: "max-content", y: "calc(100vh - 430px)" }}
+//           scroll={{
+//   x: "max-content",
+//   y: "calc(100vh - 350px)",
+// }}
+// style={{ maxHeight: "70vh" }}
           sticky
           className={clsx("form-table-inner", className)}
           dataSource={dataSource}

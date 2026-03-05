@@ -18,6 +18,7 @@ import { ErrorBoundary } from "./components/ErrorBoundary";
 export default function App() {
   const [viewState, setViewState] = useState<ViewState>("dashboard");
   const [selectedContract, setSelectedContract] = useState<Contract | null>(null);
+  const [isEdit, setIsEdit] = useState<boolean>(false);
 
 
 
@@ -32,6 +33,7 @@ export default function App() {
     handleSave: saveStepData,
     handleSaveLater,
     handleCancel,
+    handleCurrentStep,
     reset: resetStepper,
   } = useStepNavigation({
     totalSteps: WORKFLOW_STEPS.length,
@@ -50,6 +52,7 @@ export default function App() {
   const handleAddContract = () => {
     resetStepper();
     setViewState("stepper-form");
+    setIsEdit(false)
   };
 
   /**
@@ -58,28 +61,29 @@ export default function App() {
   const handleBackToDashboard = () => {
     handleCancel();
     setViewState("dashboard");
+    setIsEdit(false)
   };
 
-   const handleRowClick = (contract: Contract) => {
-    setSelectedContract(contract);
-    resetStepper(); // Reset to step 0
-    setViewState("stepper-view");
-  };
-
-  /**
+    /**
    * Handle view contract action
    */
   const handleViewContract = (contract: Contract) => {
     setSelectedContract(contract);
     resetStepper(); // Reset to step 0
     setViewState("stepper-view");
+    setIsEdit(false);
   };
   /**
    * Handle edit contract action
    */
   const handleEditContract = (contract: Contract) => {
-    console.log("Edit contract:", contract);
-    // TODO: Implement edit contract functionality
+    setSelectedContract(contract);
+    resetStepper(); // Reset to step 0
+    setViewState("stepper-form");
+    setIsEdit(true);
+    if(contract.currentStep && contract.currentStep > 0) {
+      handleCurrentStep(contract.currentStep)
+    }
   };
 
 
@@ -98,7 +102,6 @@ export default function App() {
             {viewState === "dashboard" && (
               <DashboardView
                 onAddContract={handleAddContract}
-                onRowClick={handleRowClick}
                 onViewContract={handleViewContract}
                 onEditContract={handleEditContract}
               />
@@ -115,6 +118,8 @@ export default function App() {
                 onNext={handleNext}
                 onSave={saveStepData}
                 onSaveLater={handleSaveLater}
+                contractData={selectedContract}
+                isEdit={isEdit}
               />
             )}
             {viewState === "stepper-view" && (

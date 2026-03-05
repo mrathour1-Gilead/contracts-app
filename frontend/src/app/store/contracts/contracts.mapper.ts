@@ -22,7 +22,7 @@ export function mapCMODetailsToContract(
   | "generalTerms"
   | "delivery"
   | "product"
-  | "forecastAndOrdering"
+  | "forecastOrdering"
   | "pricing"
   | "rawMaterials"
   | "qcTesting"
@@ -39,7 +39,7 @@ export function mapCMODetailsToContract(
     generalTerms: {},
     delivery: {},
     product: {},
-    forecastAndOrdering: {},
+    forecastOrdering: {},
     pricing: {},
     rawMaterials: {},
     qcTesting: {},
@@ -63,7 +63,7 @@ export function mapCMODetailsToContract(
     | "generalTerms"
     | "delivery"
     | "product"
-    | "forecastAndOrdering"
+    | "forecastOrdering"
     | "pricing"
     | "rawMaterials"
     | "qcTesting"

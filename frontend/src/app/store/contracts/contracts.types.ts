@@ -44,7 +44,7 @@ export interface Contract {
   generalTerms?: Record<string, unknown>;
   delivery?: Record<string, unknown>;
   product?: Record<string, unknown>;
-  forecastAndOrdering?: Record<string, unknown>;
+  forecastOrdering?: Record<string, unknown>;
   pricing?: Record<string, unknown>;
   rawMaterials?: Record<string, unknown>;
   qcTesting?: Record<string, unknown>;
@@ -55,6 +55,7 @@ export interface Contract {
   createdAt: string;
   updatedAt: string;
   status?: string;
+  currentStep?: number,
 }
 
 

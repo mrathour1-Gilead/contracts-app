@@ -1,247 +1,29 @@
-import { Input, InputNumber, Select, Card } from 'antd';
-import type { TableColumnsType } from 'antd';
-import { useState, useCallback, useMemo, useEffect } from 'react';
-import { FormTable, FormFieldRow } from '../FormTable';
+import { forwardRef } from "react";
+import { BaseFormStep } from "./base/BaseFormStep";
+import type { StepHandle } from "./types/StepHandle";
+import { convertFormRowsToData } from "../../utils/formFieldUtils";
+import { RAW_MATERIALS_DEFAULT_ROWS } from "./constants/defaultRows";
+import type { RawMaterialsData } from "../../types";
 
 interface RawMaterialsProps {
-  onChange?: (data: any) => void;
+  contractData?: any;
 }
 
-export function RawMaterials({ onChange }: RawMaterialsProps) {
-  const [dataSource, setDataSource] = useState<FormFieldRow[]>([
-    {
-      key: 'materialsStockpiles',
-      field: 'Materials Stockpiles-Components, exciptient and API furnished by Gilead',
-      value: '',
-      termDetail: '',
-      sectionInContract: '',
-      furtherDetails: '',
-      meetsBaseline: 'Yes',
-      baselineTerms: '',
-    },
-    {
-      key: 'mabDsApiReimbursement',
-      field: 'mAb/DS/API reimbursement',
-      value: '',
-      termDetail: '',
-      sectionInContract: '',
-      furtherDetails: '',
-      meetsBaseline: 'Yes',
-      baselineTerms: '',
-    },
-    {
-      key: 'mabDsApiLoss',
-      field: 'mAb/DS/API loss',
-      value: '',
-      termDetail: '',
-      sectionInContract: '',
-      furtherDetails: '',
-      meetsBaseline: 'Yes',
-      baselineTerms: '',
-    },
-  ]);
-
-  const handleValueChange = useCallback((key: string, field: keyof FormFieldRow, newValue: string) => {
-    setDataSource(prev =>
-      prev.map(row =>
-        row.key === key ? { ...row, [field]: newValue } : row
-      )
+export const RawMaterials = forwardRef<StepHandle, RawMaterialsProps>(
+  ({ contractData }, ref) => {
+    return (
+      <BaseFormStep
+        ref={ref}
+        title="Raw Materials"
+        defaultRows={RAW_MATERIALS_DEFAULT_ROWS}
+        existingRows={contractData?.rawMaterials}
+        transformData={(rows) => ({
+          rawMaterials: convertFormRowsToData<RawMaterialsData>(rows),
+          step: 11,
+        })}
+      />
     );
-  }, []);
+  }
+);
 
-  const columns: TableColumnsType<FormFieldRow> = useMemo(() => [
-    {
-      title: 'Field',
-      dataIndex: 'field',
-      key: 'field',
-      width: 220,
-      render: (text: string) => (
-        <span className="font-medium text-gray-900">{text}</span>
-      ),
-    },
-    {
-      title: 'Value',
-      dataIndex: 'value',
-      key: 'value',
-      width: 220,
-      render: (value: string, record: FormFieldRow) => {
-        if (record.key === 'materialSource') {
-          return (
-            <Select
-              value={value || undefined}
-              onChange={(newValue) => handleValueChange(record.key, 'value', newValue)}
-              placeholder="Select source"
-              className="w-full"
-              options={[
-                { value: 'cmo', label: 'CMO Provided' },
-                { value: 'client', label: 'Client Provided' },
-                { value: 'third', label: 'Third Party' },
-                { value: 'mixed', label: 'Mixed' },
-              ]}
-            />
-          );
-        }
-        if (record.key === 'apiGrade') {
-          return (
-            <Select
-              value={value || undefined}
-              onChange={(newValue) => handleValueChange(record.key, 'value', newValue)}
-              placeholder="Select grade"
-              className="w-full"
-              options={[
-                { value: 'usp', label: 'USP' },
-                { value: 'ep', label: 'EP' },
-                { value: 'jp', label: 'JP' },
-                { value: 'bp', label: 'BP' },
-              ]}
-            />
-          );
-        }
-        if (record.key === 'excipientsSource') {
-          return (
-            <Select
-              value={value || undefined}
-              onChange={(newValue) => handleValueChange(record.key, 'value', newValue)}
-              placeholder="Select source"
-              className="w-full"
-              options={[
-                { value: 'approved', label: 'Approved Vendor List' },
-                { value: 'qualified', label: 'Qualified Supplier' },
-                { value: 'client', label: 'Client Specified' },
-                { value: 'cmo', label: 'CMO Standard' },
-              ]}
-            />
-          );
-        }
-        if (record.key === 'testingLocation') {
-          return (
-            <Select
-              value={value || undefined}
-              onChange={(newValue) => handleValueChange(record.key, 'value', newValue)}
-              placeholder="Select location"
-              className="w-full"
-              options={[
-                { value: 'cmo', label: 'CMO Lab' },
-                { value: 'client', label: 'Client Lab' },
-                { value: 'third', label: 'Third Party Lab' },
-              ]}
-            />
-          );
-        }
-        if (record.key === 'materialTestingRequired' || record.key === 'changeControlRequired') {
-          return (
-            <Select
-              value={value}
-              onChange={(newValue) => handleValueChange(record.key, 'value', newValue)}
-              className="w-full"
-              options={[
-                { value: 'yes', label: 'Yes' },
-                { value: 'no', label: 'No' },
-              ]}
-            />
-          );
-        }
-        if (record.key === 'materialLeadTime' || record.key === 'inventoryBuffer') {
-          return (
-            <InputNumber
-              value={value ? Number(value) : undefined}
-              onChange={(newValue) => handleValueChange(record.key, 'value', String(newValue || ''))}
-              placeholder={`Enter ${record.field.toLowerCase()}`}
-              className="w-full"
-              controls={false}
-            />
-          );
-        }
-        return (
-          <Input
-            value={value}
-            onChange={(e) => handleValueChange(record.key, 'value', e.target.value)}
-            placeholder={`Enter ${record.field.toLowerCase()}`}
-          />
-        );
-      },
-    },
-    {
-      title: 'Term Detail',
-      dataIndex: 'termDetail',
-      key: 'termDetail',
-      width: 180,
-      render: (value: string, record: FormFieldRow) => (
-        <Input
-          value={value}
-          onChange={(e) => handleValueChange(record.key, 'termDetail', e.target.value)}
-          placeholder="Enter term detail"
-        />
-      ),
-    },
-    {
-      title: 'Section in Contract',
-      dataIndex: 'sectionInContract',
-      key: 'sectionInContract',
-      width: 180,
-      render: (value: string, record: FormFieldRow) => (
-        <Input
-          value={value}
-          onChange={(e) => handleValueChange(record.key, 'sectionInContract', e.target.value)}
-          placeholder="Enter section"
-        />
-      ),
-    },
-    {
-      title: 'Further Details / Comments',
-      dataIndex: 'furtherDetails',
-      key: 'furtherDetails',
-      width: 220,
-      render: (value: string, record: FormFieldRow) => (
-        <Input.TextArea
-          value={value}
-          onChange={(e) => handleValueChange(record.key, 'furtherDetails', e.target.value)}
-          placeholder="Enter comments"
-          autoSize={{ minRows: 1, maxRows: 3 }}
-        />
-      ),
-    },
-    {
-      title: 'Meets Baseline',
-      dataIndex: 'meetsBaseline',
-      key: 'meetsBaseline',
-      width: 150,
-      render: (value: string, record: FormFieldRow) => (
-        <Select
-          value={value}
-          onChange={(newValue) => handleValueChange(record.key, 'meetsBaseline', newValue)}
-          className="w-full"
-          options={[
-            { value: 'Yes', label: 'Yes' },
-            { value: 'No', label: 'No' },
-          ]}
-        />
-      ),
-    },
-    {
-      title: 'Baseline Terms',
-      dataIndex: 'baselineTerms',
-      key: 'baselineTerms',
-      width: 180,
-      render: (value: string, record: FormFieldRow) => (
-        <Input
-          value={value}
-          onChange={(e) => handleValueChange(record.key, 'baselineTerms', e.target.value)}
-          placeholder="Enter baseline terms"
-        />
-      ),
-    },
-  ], [handleValueChange]);
-
-  useEffect(() => {
-    if (onChange) {
-      onChange(dataSource);
-    }
-  }, [dataSource, onChange]);
-
-  return (
-    <Card title="Raw Materials" style={{ height: "100%" }}>
-      <FormTable dataSource={dataSource} columns={columns} />
-    </Card>
-  );
-}
+RawMaterials.displayName = "RawMaterials";

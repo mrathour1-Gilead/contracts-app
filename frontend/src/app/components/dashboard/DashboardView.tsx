@@ -16,7 +16,6 @@ import { resetPagination } from "@/app/store/contracts/contractsSlice"
 
 interface DashboardViewProps {
   onAddContract: () => void
-  onRowClick: (contract: Contract) => void
   onViewContract: (contract: Contract) => void
   onEditContract: (contract: Contract) => void
 }
@@ -24,7 +23,6 @@ interface DashboardViewProps {
 export const DashboardView = memo(
   ({
     onAddContract,
-    onRowClick,
     onViewContract,
     onEditContract,
   }: DashboardViewProps) => {
@@ -42,7 +40,6 @@ export const DashboardView = memo(
 
 
     useEffect(() => {
-      console.log("11111")
       dispatch(resetPagination())
       dispatch(fetchContracts({ page: 1, search: "" }))
     }, [])
@@ -87,17 +84,24 @@ export const DashboardView = memo(
     const onViewClick = (record: Contract) => {
       const data = contractLists.find((i) => i.id === record.id)
       if (data) {
-        onRowClick(data)
         onViewContract(data)
+      }
+    }
+
+    const onEditClick = (record: Contract) => {
+      const data = contractLists.find((i) => i.id === record.id)
+      if (data) {
+        // onRowClick(data)
+        onEditContract(data)
       }
     }
 
     const actionHandlers = {
       onView: onViewClick,
-      onEdit: onEditContract,
+      onEdit: onEditClick,
     }
 
-    const columns = getContractColumns(actionHandlers)
+    const columns = getContractColumns(actionHandlers);
 
 
     return (

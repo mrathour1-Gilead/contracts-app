@@ -66,11 +66,12 @@ export const updateContract = createAsyncThunk<
   { rejectValue: string }
 >("api/contracts/update", async ({ id, data }, { rejectWithValue }) => {
   try {
-    const res = await apiClient.put(
-      `/contracts/update/${id}`,
-      data
-    );
-    return res.data;
+    // const res = await apiClient.put(
+    //   `/contracts/update/${id}`,
+    //   data
+    // );
+    // return res.data;
+    console.log("id, data", id, data)
   } catch (err: any) {
     return rejectWithValue(err.response?.data || err.message);
   }

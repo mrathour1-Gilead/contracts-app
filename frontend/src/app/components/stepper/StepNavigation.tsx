@@ -22,6 +22,7 @@ interface StepNavigationProps {
   onSaveLater: () => void;
   viewMode?: boolean;
   createUpdateLoader: boolean;
+  isEdit?: boolean;
 }
 
 export const StepNavigation = memo(({
@@ -35,6 +36,7 @@ export const StepNavigation = memo(({
   onSaveLater,
   createUpdateLoader,
   viewMode,
+  isEdit,
 }: StepNavigationProps) => {
   if (viewMode) {
     return (
@@ -102,7 +104,7 @@ export const StepNavigation = memo(({
             iconPlacement="end"
             loading={createUpdateLoader}
           >
-            {isFirstStep ? "Create" : "Save and Continue"}
+            {isFirstStep ? isEdit ? "Update" : "Create" : "Save and Continue"}
           </Button>
         </div>
       ) : (

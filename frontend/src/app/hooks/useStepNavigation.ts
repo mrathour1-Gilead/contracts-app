@@ -38,6 +38,10 @@ export const useStepNavigation = ({
     }
   }, [currentStep]);
 
+   const handleCurrentStep = useCallback((step : number) => {
+    setCurrentStep(step)
+  }, [currentStep]);
+
   /**
    * Jump to specific step
    */
@@ -111,5 +115,6 @@ export const useStepNavigation = ({
     handleSaveLater,
     handleCancel,
     reset,
+    handleCurrentStep
   };
 };

@@ -2,13 +2,13 @@
  * Stepper form view component for contract creation workflow
  */
 
-import { memo, useRef } from "react";
+import { memo, useEffect, useRef } from "react";
 import type { Step } from "../../types";
 import { VerticalStepper } from "../VerticalStepper";
 import { SecondaryActionBar } from "../SecondaryActionBar";
 import { StepContent, type StepContentHandle } from "./StepContent";
 import { StepNavigation } from "./StepNavigation";
-import { createContract } from "../../store/contracts/contractsThunks";
+import { createContract, updateContract } from "../../store/contracts/contractsThunks";
 import { useAppSelector, useAppDispatch } from "@/app/store/hooks"
 import { App } from "antd";
 
@@ -24,6 +24,7 @@ interface StepperFormViewProps {
   onSaveLater: () => void;
   viewMode?: boolean;
   contractData?: any;
+  isEdit?: boolean;
 }
 
 export const StepperFormView = memo(({
@@ -36,9 +37,10 @@ export const StepperFormView = memo(({
   onNext,
   onSave,
   onSaveLater,
-  viewMode,
-  contractData = {}
-}: StepperFormViewProps) => {
+  contractData = {},
+  isEdit = false,
+  viewMode = false,
+} : StepperFormViewProps) => {
   const stepContentRef = useRef<StepContentHandle>(null);
   const dispatch = useAppDispatch();
   const { message } = App.useApp();
@@ -57,9 +59,13 @@ export const StepperFormView = memo(({
         return;
       }
     }
-    if (stepContentRef.current?.data?.step === 1) {
+    if (stepContentRef.current?.data?.step === 1 && !isEdit) {
       await dispatch(createContract(stepContentRef.current.data)).unwrap();
       message.success("Contract saved successfully");
+    } else {
+      console.log("stepContentRef?.current?.data", stepContentRef?.current?.data, contractData?.id)
+      await dispatch(updateContract({data: stepContentRef?.current?.data, id: contractData?.id})).unwrap();
+      message.success("Contract updated successfully");
     }
     onNext();
   };
@@ -87,6 +93,7 @@ export const StepperFormView = memo(({
 
             {/* Navigation Buttons */}
             <StepNavigation
+              isEdit={isEdit}
               currentStep={currentStep}
               totalSteps={steps.length}
               isFirstStep={isFirstStep}
