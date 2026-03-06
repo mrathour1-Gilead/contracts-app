@@ -2,8 +2,8 @@ import axios, { AxiosError } from "axios";
 import { message } from "antd";
 
 const apiClient = axios.create({
-  baseURL: "http://localhost:8000/api",
-  // baseURL: "http://10.129.89.39:8000/api",
+  // baseURL: "http://localhost:8000/api",
+  baseURL: "http://10.129.89.39:8000/api",
   headers: {
     "Content-Type": "application/json",
   },
