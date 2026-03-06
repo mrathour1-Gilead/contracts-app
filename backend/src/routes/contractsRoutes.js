@@ -109,9 +109,9 @@ router.put(
       ...req.body,
       lastModifiedAt: now,
       status,
-      submittedAt: req.body.method === "SAVE" ? null : now,
-      updated_by: req.user.email,
-      submitted_by: req.body.method === "SAVE" ? null : req.user.email,
+      // submittedAt: req.body.method === "SAVE" ? null : now,
+      // updated_by: req.user.email,
+      // submitted_by: req.body.method === "SAVE" ? null : req.user.email,
       searchString: String(req.body.searchString || "")
           .toLowerCase()
           .replace(/[^a-z0-9\s]/g, " ")
