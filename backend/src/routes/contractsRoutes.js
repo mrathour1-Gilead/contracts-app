@@ -140,7 +140,7 @@ router.put(
       }),
     );
 
-    res.json({ message: "Updated" });
+    res.json({ id: req.params.id, message: "Updated" });
   }),
 );
 

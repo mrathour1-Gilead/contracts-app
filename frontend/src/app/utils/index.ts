@@ -3,4 +3,3 @@
  */
 
 export * from "./progressUtils";
-export * from "./logger";

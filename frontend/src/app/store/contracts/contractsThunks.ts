@@ -88,11 +88,12 @@ export const createContract = createAsyncThunk<
         ...generateInitialPayload(),
       };
 
-      return await saveContractAndRefresh(
+      const response = await saveContractAndRefresh(
         apiClient.post("/contracts/create", payload),
         dispatch,
         getState
       );
+      return response;
     } catch (err: any) {
       return rejectWithValue(
         err.response?.data || err.message || "Fail to save contract"
@@ -120,11 +121,12 @@ export const updateContract = createAsyncThunk<
         ...generateContractSearchFields(data, contracts.selectedContract || {}),
       };
 
-      return await saveContractAndRefresh(
+     const response =  await saveContractAndRefresh(
         apiClient.put(`/contracts/update/${id}`, payload),
         dispatch,
         getState
       );
+      return response;
     } catch (err: any) {
       return rejectWithValue(
         err.response?.data || err.message || "Fail to update contract"
