@@ -136,7 +136,7 @@ export const DashboardView = memo(
 
               <Tooltip title="Reload">
                 <Button
-                  type="text"
+                  // type="text"
                   icon={
                     <ReloadOutlined
                       spin={loading.list}

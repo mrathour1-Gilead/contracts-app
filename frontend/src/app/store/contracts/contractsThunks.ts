@@ -1,78 +1,134 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import apiClient from "../../api/apiClient";
-import type { Contract, CMODetails } from "./contracts.types";
-import { mapCMODetailsToContract } from "./contracts.mapper";
-import type { RootState } from  "../store"
+import type { Contract } from "./contracts.types";
+import {
+  generateContractSearchFields,
+  generateInitialPayload,
+} from "./contracts.mapper";
+import type { RootState } from "../store";
 
-// LIST
-// contractsThunks.ts
-export const fetchContracts = createAsyncThunk<
-  {
-    data: Contract[]
-    nextKey: string | null
-    page: number
-    totalCount: number
-  },
-  { page: number, search?: string },
-  { state: RootState }
->("contracts/fetchList", async ({ page, search }, { getState }) => {
-  const { contracts } = getState()
+/* ================================
+   Helper Function
+================================ */
 
-  const lastKey = contracts.lastKeyMap[page] ?? null
+const saveContractAndRefresh = async (
+  request: Promise<any>,
+  dispatch: any,
+  getState: () => RootState
+) => {
+  try {
+    const res = await request;
 
-  const res = await apiClient.get("/contracts/fetchList", {
-    params: {
-      lastKey,
-      search
-    },
-  })
+    const id = res.data.id;
 
-  return {
-    data: res.data.data,
-    nextKey: res.data.nextKey ?? null,
-    totalCount: res.data.totalCount,
-    page,
+    const { page } = getState().contracts;
+
+    await dispatch(fetchContracts({ page }));
+
+    return id;
+  } catch (err: any) {
+    throw err;
   }
-})
-
-type CreateContractPayload = {
-  cmoDetails: CMODetails;
 };
 
+/* ================================
+   FETCH CONTRACT LIST
+================================ */
+
+export const fetchContracts = createAsyncThunk<
+  {
+    data: Contract[];
+    nextKey: string | null;
+    page: number;
+    totalCount: number;
+  },
+  { page: number; search?: string },
+  { state: RootState; rejectValue: string }
+>("contracts/fetchList", async ({ page, search }, { getState, rejectWithValue }) => {
+  try {
+    const { contracts } = getState();
+
+    const lastKey = contracts.lastKeyMap[page] ?? null;
+
+    const res = await apiClient.get("/contracts/fetchList", {
+      params: {
+        lastKey,
+        search,
+      },
+    });
+
+    return {
+      data: res.data.data,
+      nextKey: res.data.nextKey ?? null,
+      totalCount: res.data.totalCount,
+      page,
+    };
+  } catch (err: any) {
+    return rejectWithValue(err.response?.data || err.message || "Failed to fetch contracts");
+  }
+});
+
+/* ================================
+   CREATE CONTRACT
+================================ */
+
 export const createContract = createAsyncThunk<
-  Contract,
-  CreateContractPayload,
-  { rejectValue: string }
->("api/contracts/create", async ({ cmoDetails }, { rejectWithValue }) => {
-  try {
-    // Flatten cmoDetails into top-level fields
-    const payloadData: Partial<Contract> = mapCMODetailsToContract(cmoDetails)
-    console.log("payloadData", payloadData)
-    const res = await apiClient.post(
-      "/contracts/create",
-      payloadData
-    );
+  string,
+  Partial<Contract>,
+  { state: RootState; rejectValue: string }
+>(
+  "api/contracts/create",
+  async (data, { dispatch, getState, rejectWithValue }) => {
+    try {
+      const { contracts } = getState();
 
-    return res.data;
-  } catch (err: any) {
-    return rejectWithValue(err.response?.data || err.message || "Fail to save contract");
+      const payload = {
+        ...data,
+        ...generateContractSearchFields(data, contracts.selectedContract || {}),
+        ...generateInitialPayload(),
+      };
+
+      return await saveContractAndRefresh(
+        apiClient.post("/contracts/create", payload),
+        dispatch,
+        getState
+      );
+    } catch (err: any) {
+      return rejectWithValue(
+        err.response?.data || err.message || "Fail to save contract"
+      );
+    }
   }
-});
+);
 
-// UPDATE
+/* ================================
+   UPDATE CONTRACT
+================================ */
+
 export const updateContract = createAsyncThunk<
-  Contract,
+  string,
   { id: string; data: Partial<Contract> },
-  { rejectValue: string }
->("api/contracts/update", async ({ id, data }, { rejectWithValue }) => {
-  try {
-    // const res = await apiClient.put(
-    //   `/contracts/update/${id}`,
-    //   data
-    // );
-    // return res.data;
-    console.log("id, data", id, data)
-  } catch (err: any) {
-    return rejectWithValue(err.response?.data || err.message);
+  { state: RootState; rejectValue: string }
+>(
+  "api/contracts/update",
+  async ({ id, data }, { dispatch, getState, rejectWithValue }) => {
+    try {
+      const { contracts } = getState();
+
+      const payload = {
+        ...data,
+        ...generateContractSearchFields(data, contracts.selectedContract || {}),
+      };
+
+      return await saveContractAndRefresh(
+        apiClient.put(`/contracts/update/${id}`, payload),
+        dispatch,
+        getState
+      );
+    } catch (err: any) {
+      return rejectWithValue(
+        err.response?.data || err.message || "Fail to update contract"
+      );
+    }
   }
-});
+);

@@ -32,10 +32,10 @@ export const getContractColumns = (
     width: 200,
   },
   {
-    dataIndex: "typeOfAggrement",
-    key: "typeOfAggrement",
-    title: "Type Of Aggrement",
-    sorter: (a, b) => a.typeOfAggrement.localeCompare(b.typeOfAggrement),
+    dataIndex: "typeOfAgreement",
+    key: "typeOfAgrement",
+    title: "Type Of Agreement",
+    sorter: (a, b) => a.typeOfAgreement.localeCompare(b.typeOfAgreement),
     width: 160,
   },
   {

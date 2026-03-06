@@ -4,7 +4,7 @@ import { CommonDataView } from "./CommonDataView";
 interface CommonStepViewProps {
   contractData?: Contract;
   title: string;
-  dataKey: keyof Contract;
+  dataKey: string;
 }
 
 export function CommonStepView({

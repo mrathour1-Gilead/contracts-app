@@ -20,7 +20,6 @@ interface StepperFormViewProps {
   onBackToDashboard: () => void;
   onPrevious: () => void;
   onNext: () => void;
-  onSave: () => void;
   onSaveLater: () => void;
   viewMode?: boolean;
   contractData?: any;
@@ -35,12 +34,11 @@ export const StepperFormView = memo(({
   onBackToDashboard,
   onPrevious,
   onNext,
-  onSave,
   onSaveLater,
   contractData = {},
   isEdit = false,
   viewMode = false,
-} : StepperFormViewProps) => {
+}: StepperFormViewProps) => {
   const stepContentRef = useRef<StepContentHandle>(null);
   const dispatch = useAppDispatch();
   const { message } = App.useApp();
@@ -59,16 +57,37 @@ export const StepperFormView = memo(({
         return;
       }
     }
-    if (stepContentRef.current?.data?.step === 1 && !isEdit) {
-      await dispatch(createContract(stepContentRef.current.data)).unwrap();
+    const data = structuredClone(stepContentRef?.current?.data || {});
+    const step = data.step
+    delete data.step
+    data.currentStep = step;
+    if (step === 1 && !isEdit) {
+      await dispatch(createContract(data)).unwrap();
       message.success("Contract saved successfully");
     } else {
-      console.log("stepContentRef?.current?.data", stepContentRef?.current?.data, contractData?.id)
-      await dispatch(updateContract({data: stepContentRef?.current?.data, id: contractData?.id})).unwrap();
+      await dispatch(updateContract({ data: data, id: contractData?.id })).unwrap();
       message.success("Contract updated successfully");
     }
     onNext();
   };
+
+   const handleSaveLater = async () => {
+    if (stepContentRef.current?.validate) {
+      const isValid = stepContentRef.current.validate();
+      if (!isValid) {
+        return;
+      }
+    }
+    const data = structuredClone(stepContentRef?.current?.data || {});
+    const step = data.step
+    delete data.step
+    data.currentStep = step;
+    await dispatch(updateContract({ data: data, id: contractData?.id })).unwrap();
+    message.success("Contract updated successfully");
+    onSaveLater()
+
+  };
+
 
   return (
     <>
@@ -89,7 +108,7 @@ export const StepperFormView = memo(({
           {/* Right Content Area */}
           <div className="stepper-content-area flex flex-col">
             {/* Step Content */}
-           <StepContent ref={stepContentRef} currentStep={currentStep} viewMode={viewMode} contractData={contractData} />
+            <StepContent ref={stepContentRef} currentStep={currentStep} viewMode={viewMode} contractData={contractData} />
 
             {/* Navigation Buttons */}
             <StepNavigation
@@ -100,8 +119,7 @@ export const StepperFormView = memo(({
               isLastStep={isLastStep}
               onPrevious={onPrevious}
               onNext={handleNext}
-              onSave={onSave}
-              onSaveLater={onSaveLater}
+              onSaveLater={handleSaveLater}
               createUpdateLoader={createUpdateLoader}
               viewMode={viewMode}
             />

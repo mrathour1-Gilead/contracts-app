@@ -8,11 +8,11 @@ import type { Contract } from "./contracts.types";
 
 interface ContractsState {
   contractLists: Contract[];
-  selectedContract: Contract | null;
-  lastKey: null | string,
+  selectedContract: Contract | null | undefined;
+  lastKey: null | string;
   totalCount: number;
-  page: number
-  lastKeyMap: Record<number, string | null>
+  page: number;
+  lastKeyMap: Record<number, string | null>;
   loading: {
     list: boolean;
     createUpdateLoader: boolean;
@@ -22,11 +22,11 @@ interface ContractsState {
 
 const initialState: ContractsState = {
   contractLists: [],
-  lastKey : null,
+  lastKey: null,
   selectedContract: null,
-  totalCount : 0,
-  page : 1,
-  lastKeyMap : { 1: null },
+  totalCount: 0,
+  page: 1,
+  lastKeyMap: { 1: null },
   loading: {
     list: false,
     createUpdateLoader: false,
@@ -38,16 +38,16 @@ const contractsSlice = createSlice({
   name: "contracts",
   initialState,
   reducers: {
-    setSelectedContract(state, action: PayloadAction<Contract>) {
-      state.selectedContract = action.payload;
+    setSelectedContract(state, action: PayloadAction<Contract | null>) {
+      state.selectedContract = action?.payload;
     },
     clearSelectedContract(state) {
       state.selectedContract = null;
     },
     resetPagination(state) {
-    state.page = 1
-    state.lastKeyMap = { 1: null }
-  },
+      state.page = 1;
+      state.lastKeyMap = { 1: null };
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -56,12 +56,15 @@ const contractsSlice = createSlice({
         state.loading.list = true;
       })
       .addCase(fetchContracts.fulfilled, (state, action) => {
-        const {data, nextKey, totalCount, page } = action.payload;
+        const { data, nextKey, totalCount, page } = action.payload;
         state.loading.list = false;
-        state.contractLists = data.sort((a: Contract , b : Contract) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime());
-        state.totalCount = totalCount
-        state.lastKeyMap[page + 1] = nextKey
-        state.page = page ;
+        state.contractLists = data.sort(
+          (a: Contract, b: Contract) =>
+            new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime(),
+        );
+        state.totalCount = totalCount;
+        state.lastKeyMap[page + 1] = nextKey;
+        state.page = page;
       })
       .addCase(fetchContracts.rejected, (state, action) => {
         state.loading.list = false;
@@ -74,6 +77,15 @@ const contractsSlice = createSlice({
       })
       .addCase(createContract.fulfilled, (state, action) => {
         state.loading.createUpdateLoader = false;
+        const id = action.payload;
+
+        const updatedContract = state.contractLists.find(
+          (contract) => contract.id === id,
+        );
+
+        if (updatedContract) {
+          state.selectedContract = updatedContract;
+        }
       })
       .addCase(createContract.rejected, (state, action) => {
         state.loading.createUpdateLoader = false;
@@ -86,6 +98,15 @@ const contractsSlice = createSlice({
       })
       .addCase(updateContract.fulfilled, (state, action) => {
         state.loading.createUpdateLoader = false;
+        const id = action.payload;
+
+        const updatedContract = state.contractLists.find(
+          (contract) => contract.id === id,
+        );
+
+        if (updatedContract) {
+          state.selectedContract = updatedContract;
+        }
       })
       .addCase(updateContract.rejected, (state, action) => {
         state.loading.createUpdateLoader = false;
@@ -94,10 +115,7 @@ const contractsSlice = createSlice({
   },
 });
 
-export const {
-  setSelectedContract,
-  clearSelectedContract,
-  resetPagination,
-} = contractsSlice.actions;
+export const { setSelectedContract, clearSelectedContract, resetPagination } =
+  contractsSlice.actions;
 
 export default contractsSlice.reducer;

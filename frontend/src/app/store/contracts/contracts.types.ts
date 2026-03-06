@@ -1,5 +1,9 @@
 export type MeetsBaseline = "Yes" | "No";
 
+/* =====================================================
+   CMO DETAILS (FORM STRUCTURE)
+===================================================== */
+
 export interface CMODetailItem {
   value: string | number;
   termDetail?: string;
@@ -19,27 +23,45 @@ export interface CMODetails {
   relationshipOwner?: CMODetailItem;
 }
 
+/* =====================================================
+   STATUS UPDATE
+===================================================== */
+
 export interface StatusUpdate {
   status: string;
   lastUpdatedBy: string;
   lastUpdatedAt: string;
 }
 
+/* =====================================================
+   CONTRACT (DB MODEL)
+===================================================== */
+
 export interface Contract {
   id: string;
   cnt_id: string;
 
-  // CMO columns
-  cmoParent: string;
+  /* ---- flattened searchable fields ---- */
+
   cmoName: string;
-  yearSpend: number;
-  signingEntity1: string;
-  supplierEntity2?: string;
-  location: string;
-  territory: string;
   relationshipOwner: string;
+
+  autoRenewTerms: string;
+  typeOfAgreement: string;
+  currentExpirationDate: string;
+  notificationTime: string;
+
+  forecastTimeHorizon: string;
+  forecastBindingPeriod: string;
+
+  paymentTerms: string;
+
   searchString: string;
+
+  /* ---- section data ---- */
+
   cmoDetails: CMODetails;
+
   statusUpdate?: StatusUpdate;
   generalTerms?: Record<string, unknown>;
   delivery?: Record<string, unknown>;
@@ -52,40 +74,50 @@ export interface Contract {
   governance?: Record<string, unknown>;
   comments?: Record<string, unknown>;
   specialFields?: Record<string, unknown>;
+
+  /* ---- metadata ---- */
+
   createdAt: string;
   updatedAt: string;
+
   status?: string;
-  currentStep?: number,
-  autoRenewTerms: string;
-  typeOfAggrement: string;
-  currentExpirationDate: string;
-  notificationTime: string;
-  forecastTimeHorizon: string;
-  forecastBindingPeriod: string;
-  paymentTerms: string;
+  currentStep?: number;
 }
 
+/* =====================================================
+   CONTRACT VIEW (TABLE UI)
+===================================================== */
 
 export interface ContractView {
   id: string;
   cnt_id: string;
 
-  // CMO columns
-  cmoParent: string;
+  /* searchable fields */
+
   cmoName: string;
-  yearSpend: number;
-  signingEntity1: string;
-  supplierEntity2?: string;
-  location: string;
-  territory: string;
   relationshipOwner: string;
+
+  autoRenewTerms: string;
+  typeOfAgreement: string;
+  currentExpirationDate: string;
+  notificationTime: string;
+
+  forecastTimeHorizon: string;
+  forecastBindingPeriod: string;
+
+  paymentTerms: string;
+
   searchString: string;
+
+  /* sections */
+
   cmoDetails: CMODetails;
+
   statusUpdate?: StatusUpdate;
   generalTerms?: Record<string, unknown>;
   delivery?: Record<string, unknown>;
   product?: Record<string, unknown>;
-  forecastAndOrdering?: Record<string, unknown>;
+  forecastOrdering?: Record<string, unknown>;
   pricing?: Record<string, unknown>;
   rawMaterials?: Record<string, unknown>;
   qcTesting?: Record<string, unknown>;
@@ -93,6 +125,7 @@ export interface ContractView {
   governance?: Record<string, unknown>;
   comments?: Record<string, unknown>;
   specialFields?: Record<string, unknown>;
+
   createdAt: string;
   updatedAt: string;
   status: string;

@@ -5,14 +5,14 @@ interface SecondaryActionBarProps {
   backText?: string;
 }
 
-export function SecondaryActionBar({ 
-  onBackClick, 
-  backText = "Back to Dashboard" 
+export function SecondaryActionBar({
+  onBackClick,
+  backText = "Back to Dashboard"
 }: SecondaryActionBarProps) {
   return (
-    <div 
-      className="sticky z-40 bg-white border-b border-[#E5E7EB]" 
-      style={{ 
+    <div
+      className="sticky z-40 bg-white border-b border-[#E5E7EB]"
+      style={{
         top: 'calc(56px + 32px + 1px)', // logo height + py-4*2 + border
         height: '48px',
         boxShadow: '0 1px 2px 0 rgba(0, 0, 0, 0.05)'

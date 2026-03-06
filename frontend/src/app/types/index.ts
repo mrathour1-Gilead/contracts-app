@@ -181,7 +181,7 @@ export interface GeneralTermsData {
 export interface ForecastOrderingData {
   forecastFrequency: CommonFieldData;
   forecastTimeHorizon: CommonFieldData;
-  forecastFirmOrderPeriod: CommonFieldData;
+  forecastBindingPeriod: CommonFieldData;
   forecastUpdateDeadline: CommonFieldData;
   forecastMoreDetails: CommonFieldData;
   poOrderLeadTimeRequired: CommonFieldData;
@@ -196,7 +196,7 @@ export interface ForecastOrderingData {
  */
 export interface TableActionHandlers {
   onView: (contract: Contract) => void;
-  onEdit: (contract: Contract, isEdit: boolean) => void;
+  onEdit: (contract: Contract) => void;
 }
 
 /**

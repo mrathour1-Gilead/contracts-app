@@ -7,17 +7,24 @@ import { useState } from "react";
 import { ConfigProvider, App as ContractApp } from "antd";
 import type { ViewState } from "./types";
 import  { Contract } from  "@/app/store/contracts/contracts.types"
-import { useContracts, useStepNavigation } from "./hooks";
+import { useStepNavigation } from "./hooks";
 import { WORKFLOW_STEPS, LOADING_DELAYS } from "./constants";
 import { antdTheme } from "./theme/antd-theme";
 import { GileadHeader } from "./components/GileadHeader";
 import { DashboardView } from "./components/dashboard/DashboardView";
 import { StepperFormView } from "./components/stepper/StepperFormView";
 import { ErrorBoundary } from "./components/ErrorBoundary";
+import { setSelectedContract } from "@/app/store/contracts/contractsSlice"
+import { useAppSelector, useAppDispatch } from "@/app/store/hooks"
+
+
 
 export default function App() {
+
+  const dispatch = useAppDispatch()
+  const { selectedContract } =
+        useAppSelector((state) => state.contracts)
   const [viewState, setViewState] = useState<ViewState>("dashboard");
-  const [selectedContract, setSelectedContract] = useState<Contract | null>(null);
   const [isEdit, setIsEdit] = useState<boolean>(false);
 
 
@@ -25,24 +32,19 @@ export default function App() {
   // Step navigation management
   const {
     currentStep,
-    formData,
     isFirstStep,
     isLastStep,
     handleNext,
     handlePrevious,
-    handleSave: saveStepData,
     handleSaveLater,
     handleCancel,
     handleCurrentStep,
     reset: resetStepper,
   } = useStepNavigation({
     totalSteps: WORKFLOW_STEPS.length,
-    onComplete: (data) => {
-      // addContract(data);
-      setViewState("dashboard");
-    },
     onCancel: () => {
       setViewState("dashboard");
+      dispatch(setSelectedContract(null));
     },
   });
 
@@ -68,7 +70,7 @@ export default function App() {
    * Handle view contract action
    */
   const handleViewContract = (contract: Contract) => {
-    setSelectedContract(contract);
+    dispatch(setSelectedContract(contract));
     resetStepper(); // Reset to step 0
     setViewState("stepper-view");
     setIsEdit(false);
@@ -77,11 +79,11 @@ export default function App() {
    * Handle edit contract action
    */
   const handleEditContract = (contract: Contract) => {
-    setSelectedContract(contract);
+    dispatch(setSelectedContract(contract));
     resetStepper(); // Reset to step 0
     setViewState("stepper-form");
     setIsEdit(true);
-    if(contract.currentStep && contract.currentStep > 0) {
+    if(contract.currentStep && contract.currentStep > 0 && WORKFLOW_STEPS.length > contract.currentStep ) {
       handleCurrentStep(contract.currentStep)
     }
   };
@@ -116,7 +118,6 @@ export default function App() {
                 onBackToDashboard={handleBackToDashboard}
                 onPrevious={handlePrevious}
                 onNext={handleNext}
-                onSave={saveStepData}
                 onSaveLater={handleSaveLater}
                 contractData={selectedContract}
                 isEdit={isEdit}
@@ -131,7 +132,6 @@ export default function App() {
                 onBackToDashboard={handleBackToDashboard}
                 onPrevious={handlePrevious}
                 onNext={handleNext}
-                onSave={() => {}}
                 onSaveLater={() => {}}
                 viewMode={true}
                 contractData={selectedContract}

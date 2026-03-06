@@ -1,5 +1,6 @@
 import { Input, Select, Card, App, InputNumber, DatePicker } from "antd";
 import type { TableColumnsType } from "antd";
+import dayjs from "dayjs"
 import {
   useState,
   useCallback,
@@ -8,8 +9,8 @@ import {
   useEffect,
   forwardRef,
 } from "react";
-import { FormTable, FormFieldRow } from "../../FormTable";
-import type { StepHandle } from "../types/StepHandle";
+import { FormTable, FormFieldRow } from "../FormTable";
+import type { StepHandle } from "./types/StepHandle";
 interface BaseFormStepProps {
   title: string;
   defaultRows: FormFieldRow[];
@@ -94,7 +95,7 @@ export const BaseFormStep = forwardRef<StepHandle, BaseFormStepProps>(
                 <InputNumber
                   value={value ? Number(value) : undefined}
                   className="w-full"
-                  controls={false}
+                  // controls={false}
                   placeholder={record.placeholder}
                   onChange={(v) =>
                     handleValueChange(
@@ -110,6 +111,7 @@ export const BaseFormStep = forwardRef<StepHandle, BaseFormStepProps>(
             if (record.type === "date") {
               return (
                 <DatePicker
+                value={value ? dayjs(value) : undefined}
                   className="w-full"
                   onChange={(date, dateString) =>
                     handleValueChange(
@@ -249,7 +251,7 @@ export const BaseFormStep = forwardRef<StepHandle, BaseFormStepProps>(
         .map((row) => row.field);
       if (missingFields.length > 0) {
         notification.error({
-          message: `${title} – Validation Error`,
+          title: `${title} – Validation Error`,
           description: (
             <ul style={{ paddingLeft: 16 }}>
               {missingFields.map((field) => (
@@ -277,4 +279,3 @@ export const BaseFormStep = forwardRef<StepHandle, BaseFormStepProps>(
   }
 );
 BaseFormStep.displayName = "BaseFormStep";
- 

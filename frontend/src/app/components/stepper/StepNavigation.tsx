@@ -18,7 +18,6 @@ interface StepNavigationProps {
   isLastStep: boolean;
   onPrevious: () => void;
   onNext: () => void;
-  onSave: () => void;
   onSaveLater: () => void;
   viewMode?: boolean;
   createUpdateLoader: boolean;
@@ -32,7 +31,6 @@ export const StepNavigation = memo(({
   isLastStep,
   onPrevious,
   onNext,
-  onSave,
   onSaveLater,
   createUpdateLoader,
   viewMode,
@@ -91,6 +89,10 @@ export const StepNavigation = memo(({
               onClick={onSaveLater}
               size="middle"
               className="font-semibold"
+              loading={createUpdateLoader}
+              disabled={createUpdateLoader}
+
+
             >
               Save for Later
             </Button>
@@ -103,6 +105,8 @@ export const StepNavigation = memo(({
             className="font-semibold"
             iconPlacement="end"
             loading={createUpdateLoader}
+            disabled={createUpdateLoader}
+
           >
             {isFirstStep ? isEdit ? "Update" : "Create" : "Save and Continue"}
           </Button>
@@ -111,9 +115,11 @@ export const StepNavigation = memo(({
         <Button
           type="primary"
           icon={<SaveOutlined />}
-          onClick={onSave}
+          onClick={onSaveLater}
           size="middle"
           className="font-semibold"
+          loading={createUpdateLoader}
+          disabled={createUpdateLoader}
           style={{
             background: BRAND_COLORS.success,
             borderColor: BRAND_COLORS.successBorder,

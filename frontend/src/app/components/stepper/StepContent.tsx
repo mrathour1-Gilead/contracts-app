@@ -1,5 +1,6 @@
 import { forwardRef } from "react";
-import { STEP_COMPONENTS } from "./StepContent.config";
+import { STEP_CONFIG } from "../steps/stepConfig";
+import { DynamicStep } from "../steps/DynamicStep";
 import { CommonStepView } from "../steps/CommonStepView";
 
 interface StepContentProps {
@@ -15,20 +16,25 @@ export interface StepContentHandle {
 
 export const StepContent = forwardRef<StepContentHandle, StepContentProps>(
   ({ currentStep, viewMode, contractData }, ref) => {
-    const step = STEP_COMPONENTS[currentStep] ?? STEP_COMPONENTS[0];
+    const step = STEP_CONFIG[currentStep] ?? STEP_CONFIG[0];
 
     if (viewMode) {
       return (
         <CommonStepView
           title={step.title}
-          dataKey={step.dataKey}
+          dataKey={step.key}
           contractData={contractData}
         />
       );
     }
 
-    const EditComponent = step.edit;
-    return <EditComponent ref={ref as any} contractData={contractData} />;
+    return (
+      <DynamicStep
+        ref={ref as any}
+        stepKey={step.key}
+        contractData={contractData}
+      />
+    );
   }
 );
 

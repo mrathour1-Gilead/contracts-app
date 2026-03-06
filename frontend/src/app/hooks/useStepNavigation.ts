@@ -4,17 +4,14 @@
 
 import { useState, useCallback } from "react";
 import type { CMOFormData } from "../types";
-import { logger } from "../utils/logger";
 
 interface UseStepNavigationProps {
   totalSteps: number;
-  onComplete?: (data: CMOFormData) => void;
   onCancel?: () => void;
 }
 
 export const useStepNavigation = ({
   totalSteps,
-  onComplete,
   onCancel,
 }: UseStepNavigationProps) => {
   const [currentStep, setCurrentStep] = useState(0);
@@ -51,41 +48,22 @@ export const useStepNavigation = ({
     }
   }, [totalSteps]);
 
-  /**
-   * Update form data
-   */
-  const updateFormData = useCallback((data: Partial<CMOFormData>) => {
-    setFormData((prev) => ({ ...prev, ...data }));
-  }, []);
 
-  /**
-   * Save and complete the workflow
-   */
-  const handleSave = useCallback(() => {
-    if (onComplete) {
-      onComplete(formData);
-    }
-    setCurrentStep(0);
-    setFormData({});
-  }, [formData, onComplete]);
 
   /**
    * Save for later (partial completion)
    */
   const handleSaveLater = useCallback(() => {
-    // In a real app, this would save to backend/local storage
-    logger.info("Saving progress for later", { currentStep, formData });
     if (onCancel) {
       onCancel();
     }
-  }, [formData, onCancel, currentStep]);
+  }, [onCancel]);
 
   /**
    * Cancel and reset
    */
   const handleCancel = useCallback(() => {
     setCurrentStep(0);
-    setFormData({});
     if (onCancel) {
       onCancel();
     }
@@ -96,7 +74,6 @@ export const useStepNavigation = ({
    */
   const reset = useCallback(() => {
     setCurrentStep(0);
-    setFormData({});
   }, []);
 
   const isFirstStep = currentStep === 0;
@@ -110,8 +87,6 @@ export const useStepNavigation = ({
     handleNext,
     handlePrevious,
     goToStep,
-    updateFormData,
-    handleSave,
     handleSaveLater,
     handleCancel,
     reset,
