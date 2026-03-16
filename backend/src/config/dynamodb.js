@@ -38,3 +38,4 @@ export const db = DynamoDBDocumentClient.from(client, {
 export const USERS_TABLE = process.env.USER_TABLE || 'sfa_user';
 export const COUNTER_TABLE = process.env.COUNTER_TABLE || 'CONTRACTS_COUNTER';
 export const ITEM_TABLE = process.env.ITEM_TABLE || 'CONTRACTS_ITEMS';
+export const AUDIT_TABLE = process.env.AUDIT_TABLE || 'CONTRACTS_AUDIT';

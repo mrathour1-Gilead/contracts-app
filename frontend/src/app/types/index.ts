@@ -197,6 +197,7 @@ export interface ForecastOrderingData {
 export interface TableActionHandlers {
   onView: (contract: Contract) => void;
   onEdit: (contract: Contract) => void;
+  showAuditLogClick: (contract: Contract) => void;
 }
 
 /**

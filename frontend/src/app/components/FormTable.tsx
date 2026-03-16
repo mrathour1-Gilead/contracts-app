@@ -75,11 +75,11 @@ export function FormTable<T = FormFieldRow>({
         <Table
           pagination={false}
           scroll={{ x: "max-content", y: "calc(100vh - 430px)" }}
-//           scroll={{
-//   x: "max-content",
-//   y: "calc(100vh - 350px)",
-// }}
-// style={{ maxHeight: "70vh" }}
+          //           scroll={{
+          //   x: "max-content",
+          //   y: "calc(100vh - 350px)",
+          // }}
+          // style={{ maxHeight: "70vh" }}
           sticky
           className={clsx("form-table-inner", className)}
           dataSource={dataSource}
@@ -111,7 +111,15 @@ export function FormTable<T = FormFieldRow>({
 
         .form-table .ant-table-body {
           overflow: auto !important;
+          min-height: 400px !important;
         }
+
+      .form-table  .ant-table-expanded-row-fixed {
+          min-height: 400px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+}
 
         /* ===============================
            Disable row focus / hover color

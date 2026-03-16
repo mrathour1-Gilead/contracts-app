@@ -2,7 +2,7 @@ import { UpdateCommand, GetCommand } from "@aws-sdk/lib-dynamodb";
 import { db, USERS_TABLE, COUNTER_TABLE } from "../config/dynamodb.js";
 import { v4 as uuid } from "uuid";
 
-export const nextSfaId = async () => {
+export const nextContractId = async () => {
   const res = await db.send(new UpdateCommand({
     TableName: COUNTER_TABLE,
     Key: { entity: "CNT" },

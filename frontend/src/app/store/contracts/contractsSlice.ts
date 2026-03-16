@@ -3,11 +3,13 @@ import {
   fetchContracts,
   createContract,
   updateContract,
+  fetchContractAuditLogs,
 } from "./contractsThunks";
-import type { Contract } from "./contracts.types";
+import type { AuditLog, Contract } from "./contracts.types";
 
 interface ContractsState {
   contractLists: Contract[];
+  auditLogs: AuditLog[];
   selectedContract: Contract | null | undefined;
   lastKey: null | string;
   totalCount: number;
@@ -16,12 +18,14 @@ interface ContractsState {
   loading: {
     list: boolean;
     createUpdateLoader: boolean;
+    auditLogs: boolean;
   };
   error: string | null;
 }
 
 const initialState: ContractsState = {
   contractLists: [],
+  auditLogs: [],
   lastKey: null,
   selectedContract: null,
   totalCount: 0,
@@ -30,6 +34,7 @@ const initialState: ContractsState = {
   loading: {
     list: false,
     createUpdateLoader: false,
+    auditLogs: true,
   },
   error: null,
 };
@@ -42,6 +47,11 @@ const contractsSlice = createSlice({
       state.selectedContract = action?.payload;
     },
     clearSelectedContract(state) {
+      state.selectedContract = null;
+    },
+    clearAuditLogs(state) {
+      state.auditLogs = [];
+      state.loading.auditLogs = true;
       state.selectedContract = null;
     },
     resetPagination(state) {
@@ -111,11 +121,25 @@ const contractsSlice = createSlice({
       .addCase(updateContract.rejected, (state, action) => {
         state.loading.createUpdateLoader = false;
         state.error = action.payload as string;
+      })
+      .addCase(fetchContractAuditLogs.pending, (state) => {
+        state.loading.auditLogs = true;
+      })
+      .addCase(fetchContractAuditLogs.fulfilled, (state, action) => {
+        state.loading.auditLogs = false;
+
+        state.auditLogs = action.payload.data.sort(
+          (a: AuditLog, b: AuditLog) => a.version - b.version,
+        );
+      })
+      .addCase(fetchContractAuditLogs.rejected, (state, action) => {
+        state.loading.auditLogs = false;
+        state.error = action.payload as string;
       });
   },
 });
 
-export const { setSelectedContract, clearSelectedContract, resetPagination } =
+export const { setSelectedContract, clearSelectedContract, resetPagination, clearAuditLogs } =
   contractsSlice.actions;
 
 export default contractsSlice.reducer;

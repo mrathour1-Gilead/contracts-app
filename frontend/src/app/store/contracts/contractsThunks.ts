@@ -134,3 +134,17 @@ export const updateContract = createAsyncThunk<
     }
   }
 );
+
+export const fetchContractAuditLogs = createAsyncThunk(
+  "contracts/fetchAuditLogs",
+  async (id: string, { rejectWithValue }) => {
+    try {
+      const res = await apiClient.get(`/contracts/auditlogs/${id}`);
+      return {
+        data: res.data.data,
+      };
+    } catch (err: any) {
+      return rejectWithValue(err.message);
+    }
+  }
+);

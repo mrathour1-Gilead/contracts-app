@@ -6,7 +6,7 @@
 import { useState } from "react";
 import { ConfigProvider, App as ContractApp } from "antd";
 import type { ViewState } from "./types";
-import  { Contract } from  "@/app/store/contracts/contracts.types"
+import { Contract } from "@/app/store/contracts/contracts.types"
 import { useStepNavigation } from "./hooks";
 import { WORKFLOW_STEPS, LOADING_DELAYS } from "./constants";
 import { antdTheme } from "./theme/antd-theme";
@@ -14,8 +14,9 @@ import { GileadHeader } from "./components/GileadHeader";
 import { DashboardView } from "./components/dashboard/DashboardView";
 import { StepperFormView } from "./components/stepper/StepperFormView";
 import { ErrorBoundary } from "./components/ErrorBoundary";
-import { setSelectedContract } from "@/app/store/contracts/contractsSlice"
+import { clearAuditLogs, setSelectedContract } from "@/app/store/contracts/contractsSlice"
 import { useAppSelector, useAppDispatch } from "@/app/store/hooks"
+import AuditLogDrawer from "./components/AuditLogDrawer";
 
 
 
@@ -23,9 +24,10 @@ export default function App() {
 
   const dispatch = useAppDispatch()
   const { selectedContract } =
-        useAppSelector((state) => state.contracts)
+    useAppSelector((state) => state.contracts)
   const [viewState, setViewState] = useState<ViewState>("dashboard");
   const [isEdit, setIsEdit] = useState<boolean>(false);
+  const [openAudit, setOpenAudit] = useState<boolean>(false);
 
 
 
@@ -66,9 +68,9 @@ export default function App() {
     setIsEdit(false)
   };
 
-    /**
-   * Handle view contract action
-   */
+  /**
+ * Handle view contract action
+ */
   const handleViewContract = (contract: Contract) => {
     dispatch(setSelectedContract(contract));
     resetStepper(); // Reset to step 0
@@ -83,11 +85,10 @@ export default function App() {
     resetStepper(); // Reset to step 0
     setViewState("stepper-form");
     setIsEdit(true);
-    if(contract.currentStep && contract.currentStep > 0 && WORKFLOW_STEPS.length > contract.currentStep ) {
+    if (contract.currentStep && contract.currentStep > 0 && WORKFLOW_STEPS.length > contract.currentStep) {
       handleCurrentStep(contract.currentStep)
     }
   };
-
 
 
   return (
@@ -106,6 +107,10 @@ export default function App() {
                 onAddContract={handleAddContract}
                 onViewContract={handleViewContract}
                 onEditContract={handleEditContract}
+                showAuditLog={(contract) => {
+                  dispatch(setSelectedContract(contract));
+                  setOpenAudit(true);
+                }}
               />
             )}
 
@@ -132,12 +137,18 @@ export default function App() {
                 onBackToDashboard={handleBackToDashboard}
                 onPrevious={handlePrevious}
                 onNext={handleNext}
-                onSaveLater={() => {}}
+                onSaveLater={() => { }}
                 viewMode={true}
                 contractData={selectedContract}
               />
             )}
           </div>
+          {openAudit && selectedContract && (
+            <AuditLogDrawer contractId={selectedContract.id} onClose={() => {
+              setOpenAudit(false);
+              dispatch(clearAuditLogs())
+            }} />
+          )}
         </ContractApp>
       </ConfigProvider>
     </ErrorBoundary>

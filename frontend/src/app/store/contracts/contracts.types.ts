@@ -61,6 +61,7 @@ export interface Contract {
   /* ---- section data ---- */
 
   cmoDetails: CMODetails;
+  version: number;
 
   statusUpdate?: StatusUpdate;
   generalTerms?: Record<string, unknown>;
@@ -129,4 +130,18 @@ export interface ContractView {
   createdAt: string;
   updatedAt: string;
   status: string;
+}
+
+export interface AuditChange {
+  section: string;
+  field: string;
+  from: string | null;
+  to: string | null;
+}
+
+export interface AuditLog {
+  version: number;
+  user: string;
+  changed_at: string;
+  changes: AuditChange[];
 }

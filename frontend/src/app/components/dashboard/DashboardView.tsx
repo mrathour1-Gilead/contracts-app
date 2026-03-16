@@ -18,6 +18,7 @@ interface DashboardViewProps {
   onAddContract: () => void
   onViewContract: (contract: Contract) => void
   onEditContract: (contract: Contract) => void
+  showAuditLog: (contract: Contract) => void
 }
 
 export const DashboardView = memo(
@@ -25,6 +26,7 @@ export const DashboardView = memo(
     onAddContract,
     onViewContract,
     onEditContract,
+    showAuditLog,
   }: DashboardViewProps) => {
     const dispatch = useAppDispatch()
 
@@ -34,7 +36,6 @@ export const DashboardView = memo(
     const [searchText, setSearchText] = useState("")
     const [searchUsed, setSearchUsed] = useState(false)
 
-    // 🔑 refs (NO state)
     const debounceTimer = useRef<number | null>(null)
     const skipNextSearchEffect = useRef(true)
 
@@ -99,6 +100,7 @@ export const DashboardView = memo(
     const actionHandlers = {
       onView: onViewClick,
       onEdit: onEditClick,
+      showAuditLogClick: showAuditLog
     }
 
     const columns = getContractColumns(actionHandlers);

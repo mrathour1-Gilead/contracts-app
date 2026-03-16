@@ -24,6 +24,7 @@ export const DynamicStep = forwardRef<StepHandle, Props>(
         transformData={(rows) => ({
           [step.key]: convertFormRowsToData(rows),
           step: step.step,
+          section: step.key,
         })}
       />
     );

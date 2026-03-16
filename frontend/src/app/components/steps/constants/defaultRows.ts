@@ -302,3 +302,31 @@ export const FORECAST_ORDERING_DEFAULT_ROWS = buildRows([
   { key: "poOtherDetails", field: "PO - Other Details", sno: 9, placeholder: "Enter additional PO details" },
   { key: "contractVolumeByPartAnnual", field: "Contract Volume by Part (Annual)", sno: 10, type: "number", placeholder: "Enter annual contract volume" },
 ]);
+
+export const buildFieldMap = <
+  T extends readonly { key: string; field: string }[]
+>(
+  rows: T
+): Record<T[number]["key"], string> => {
+  return rows.reduce((acc, row) => {
+    acc[row.key as T[number]["key"]] = row.field;
+    return acc;
+  }, {} as Record<T[number]["key"], string>);
+};
+
+
+export const FIELD_LABEL_MAP = {
+  delivery: buildFieldMap(DELIVERY_DEFAULT_ROWS),
+  cmoDetails: buildFieldMap(CMO_DEFAULT_ROWS),
+  comments: buildFieldMap(COMMENTS_DEFAULT_ROWS),
+  statusUpdate: buildFieldMap(STATUS_UPDATE_DEFAULT_ROWS),
+  specialFields: buildFieldMap(SPECIAL_FIELDS_DEFAULT_ROWS),
+  rawMaterials: buildFieldMap(RAW_MATERIALS_DEFAULT_ROWS),
+  qcTesting: buildFieldMap(QC_TESTING_DEFAULT_ROWS),
+  product: buildFieldMap(PRODUCT_DEFAULT_ROWS),
+  pricing: buildFieldMap(PRICING_DEFAULT_ROWS),
+  performance: buildFieldMap(PERFORMANCE_DEFAULT_ROWS),
+  governance: buildFieldMap(GOVERNANCE_DEFAULT_ROWS),
+  generalTerms: buildFieldMap(GENERAL_TERMS_DEFAULT_ROWS),
+  forecastOrdering: buildFieldMap(FORECAST_ORDERING_DEFAULT_ROWS),
+};

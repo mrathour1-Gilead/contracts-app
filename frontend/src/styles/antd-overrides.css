@@ -45,15 +45,10 @@
   background-color: white;
 }
 
-.ant-table-body {
+/* .ant-table-body {
   min-height: 300px !important;
-}
-.ant-table-expanded-row-fixed {
-  min-height: 300px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
+} */
+
 
 /* Pagination styling */
 .ant-pagination-item-active {

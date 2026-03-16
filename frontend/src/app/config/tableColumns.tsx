@@ -3,12 +3,10 @@
  */
 
 import { Button, Tag } from "antd";
-import { EyeOutlined, EditOutlined } from "@ant-design/icons";
+import { EditTwoTone, EyeTwoTone } from "@ant-design/icons";
 import type { TableColumnsType } from "antd";
 import type { TableActionHandlers } from "../types";
 import type { Contract } from  "@/app/store/contracts/contracts.types"
-import { getProgressColor, formatProgress } from "../utils";
-import { BRAND_COLORS } from "../constants";
 
 /**
  * Generate table columns with action handlers
@@ -122,7 +120,7 @@ export const getContractColumns = (
     fixed: "right" as const,
     render: (_: unknown, record: Contract) => (
       <div className="flex items-center gap-2">
-        <Button
+        {/* <Button
           type="text"
           icon={<EyeOutlined />}
           onClick={(e) => {
@@ -131,10 +129,10 @@ export const getContractColumns = (
           }}
           className="text-[#306e9a] hover:text-[#265778] hover:bg-[#306e9a]/10"
           title="View"
-        />
+        /> */}
         <Button
           type="text"
-          icon={<EditOutlined />}
+          icon={<EditTwoTone twoToneColor="#306e9a" /> }
           onClick={(e) => {
             e.stopPropagation();
             handlers.onEdit(record);
@@ -142,6 +140,18 @@ export const getContractColumns = (
           className="text-[#306e9a] hover:text-[#265778] hover:bg-[#306e9a]/10"
           title="Edit"
         />
+        {record.version > 0 && (
+         <Button
+          type="text"
+          icon={<EyeTwoTone twoToneColor="#306e9a" />}
+          onClick={(e) => {
+            e.stopPropagation();
+            handlers.showAuditLogClick(record);
+          }}
+          className="text-[#306e9a] hover:text-[#265778] hover:bg-[#306e9a]/10"
+          title="View Logs"
+        />
+        )}
       </div>
     ),
   },

@@ -14,7 +14,6 @@ import {
   SPECIAL_FIELDS_DEFAULT_ROWS,
 } from "./constants/defaultRows";
 
-import { convertFormRowsToData } from "../utils/FormFieldUtils";
 
 export const STEP_CONFIG = [
   {

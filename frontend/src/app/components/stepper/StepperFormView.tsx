@@ -65,6 +65,7 @@ export const StepperFormView = memo(({
       await dispatch(createContract(data)).unwrap();
       message.success("Contract saved successfully");
     } else {
+      data.section = data.section
       await dispatch(updateContract({ data: data, id: contractData?.id })).unwrap();
       message.success("Contract updated successfully");
     }

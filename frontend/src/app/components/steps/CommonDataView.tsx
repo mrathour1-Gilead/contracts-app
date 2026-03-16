@@ -4,7 +4,7 @@ import { useMemo } from "react";
 import { FormTable, FormView } from "../FormTable";
 
 interface CommonDataViewProps {
-  data: FormView[];
+  data: any;
   title: string;
 }
 

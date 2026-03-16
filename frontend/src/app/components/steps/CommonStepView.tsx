@@ -1,8 +1,7 @@
-import { Contract } from "@/app/store/contracts/contracts.types";
 import { CommonDataView } from "./CommonDataView";
 
 interface CommonStepViewProps {
-  contractData?: Contract;
+  contractData?: any;
   title: string;
   dataKey: string;
 }
@@ -14,7 +13,7 @@ export function CommonStepView({
 }: CommonStepViewProps) {
   const data = Object.values(
     (contractData?.[dataKey]) || {}
-  ).sort((a, b) => a.sno - b.sno);
+  ).sort((a: any, b: any)  => a.sno - b.sno);
 
   return <CommonDataView data={data} title={title} />;
 }
