@@ -193,10 +193,10 @@ export const DashboardView = memo(
               x: TABLE_CONFIG.scrollX,
               y: TABLE_CONFIG.scrollY,
             }}
-            locale={{
-              emptyText:
-                "No contracts yet. Click 'Add New Contract' to get started.",
-            }}
+            // locale={{
+            //   emptyText:
+            //     "No contracts yet. Click 'Add New Contract' to get started.",
+            // }}
           />
         </div>
       </div>

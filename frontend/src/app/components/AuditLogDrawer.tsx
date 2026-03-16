@@ -31,7 +31,7 @@ const getInitials = (name: string) =>
 
 const renderWithTooltip = (value: string) => (
   <Tooltip title={value}>
-    <span className="cell-ellipsis">{value}</span>
+    <span>{value}</span>
   </Tooltip>
 );
 
@@ -57,25 +57,37 @@ const AuditLogDrawer = ({ onClose, contractId }: AuditLogDrawerProps) => {
       title: "Section",
       dataIndex: "section",
       ellipsis: true,
-      render: renderWithTooltip
+      render: renderWithTooltip,
+      width: 200
+
     },
     {
       title: "Field",
       dataIndex: "field",
       ellipsis: true,
-      render: renderWithTooltip
+      render: renderWithTooltip,
+      width: 200
+
     },
     {
       title: "From",
       dataIndex: "from",
       ellipsis: true,
-      render: renderWithTooltip
+      render: renderWithTooltip,
+      width: 200
+      // onCell: (record) => ({
+      //   style:  { backgroundColor: "#ffccc7" } ,
+      // })
     },
     {
       title: "To",
       dataIndex: "to",
       ellipsis: true,
-      render: renderWithTooltip
+      render: renderWithTooltip,
+      width: 200
+      //  onCell: (record) => ({
+      //   style:  { backgroundColor: "#d9f7be" } ,
+      // })
     }
   ];
 
@@ -87,7 +99,7 @@ const AuditLogDrawer = ({ onClose, contractId }: AuditLogDrawerProps) => {
         }
       }}
     >
-      <Drawer loading={loading.auditLogs} title="Amendment History" size={750} open onClose={onClose}>
+      <Drawer loading={loading.auditLogs} title="Amendment History" size={1000} open onClose={onClose}>
         {history.map((versionItem) => {
 
           const tableData: any[] = versionItem.changes.map((c, idx) => ({
@@ -135,12 +147,6 @@ const AuditLogDrawer = ({ onClose, contractId }: AuditLogDrawerProps) => {
         })}
 
         <style>{`
-          .cell-ellipsis {
-            display: block;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-          }
 
           .audit-logs .ant-table-thead > tr > th {
             background: #f8fafc;
