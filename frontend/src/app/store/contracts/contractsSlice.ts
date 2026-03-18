@@ -4,6 +4,7 @@ import {
   createContract,
   updateContract,
   fetchContractAuditLogs,
+  bulkUploadContracts,
 } from "./contractsThunks";
 import type { AuditLog, Contract } from "./contracts.types";
 
@@ -135,11 +136,25 @@ const contractsSlice = createSlice({
       .addCase(fetchContractAuditLogs.rejected, (state, action) => {
         state.loading.auditLogs = false;
         state.error = action.payload as string;
+      })
+      .addCase(bulkUploadContracts.pending, (state) => {
+        state.loading.createUpdateLoader = true;
+      })
+      .addCase(bulkUploadContracts.fulfilled, (state) => {
+        state.loading.createUpdateLoader = false;
+      })
+      .addCase(bulkUploadContracts.rejected, (state, action) => {
+        state.loading.createUpdateLoader = false;
+        state.error = action.payload as string;
       });
   },
 });
 
-export const { setSelectedContract, clearSelectedContract, resetPagination, clearAuditLogs } =
-  contractsSlice.actions;
+export const {
+  setSelectedContract,
+  clearSelectedContract,
+  resetPagination,
+  clearAuditLogs,
+} = contractsSlice.actions;
 
 export default contractsSlice.reducer;

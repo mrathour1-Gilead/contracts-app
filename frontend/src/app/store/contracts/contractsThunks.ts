@@ -1,39 +1,12 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import apiClient from "../../api/apiClient";
 import type { Contract } from "./contracts.types";
-import {
-  generateContractSearchFields,
-  generateInitialPayload,
-} from "./contracts.mapper";
+// import {
+//   generateContractSearchFields,
+//   generateInitialPayload,
+// } from "./contracts.mapper";
 import type { RootState } from "../store";
 
-/* ================================
-   Helper Function
-================================ */
-
-const saveContractAndRefresh = async (
-  request: Promise<any>,
-  dispatch: any,
-  getState: () => RootState
-) => {
-  try {
-    const res = await request;
-
-    const id = res.data.id;
-
-    const { page } = getState().contracts;
-
-    await dispatch(fetchContracts({ page }));
-
-    return id;
-  } catch (err: any) {
-    throw err;
-  }
-};
-
-/* ================================
-   FETCH CONTRACT LIST
-================================ */
 
 export const fetchContracts = createAsyncThunk<
   {
@@ -68,9 +41,27 @@ export const fetchContracts = createAsyncThunk<
   }
 });
 
-/* ================================
-   CREATE CONTRACT
-================================ */
+const saveContractAndRefresh = async (
+  request: Promise<any>,
+  dispatch: any,
+  getState: () => RootState
+) => {
+  try {
+    const res = await request;
+
+    const id = res.data.id;
+
+    const { page } = getState().contracts;
+
+    await dispatch(fetchContracts({ page }));
+
+    return id;
+  } catch (err: any) {
+    throw err;
+  }
+};
+
+
 
 export const createContract = createAsyncThunk<
   string,
@@ -84,8 +75,19 @@ export const createContract = createAsyncThunk<
 
       const payload = {
         ...data,
-        ...generateContractSearchFields(data, contracts.selectedContract || {}),
-        ...generateInitialPayload(),
+        statusUpdate: {},
+        generalTerms: {},
+        delivery: {},
+        product: {},
+        forecastOrdering: {},
+        pricing: {},
+        rawMaterials: {},
+        qcTesting: {},
+        performance: {},
+        governance: {},
+        comments: {},
+        specialFields: {},
+        // ...generateContractSearchFields(data, contracts.selectedContract || {}),
       };
 
       const response = await saveContractAndRefresh(
@@ -102,9 +104,6 @@ export const createContract = createAsyncThunk<
   }
 );
 
-/* ================================
-   UPDATE CONTRACT
-================================ */
 
 export const updateContract = createAsyncThunk<
   string,
@@ -114,15 +113,15 @@ export const updateContract = createAsyncThunk<
   "api/contracts/update",
   async ({ id, data }, { dispatch, getState, rejectWithValue }) => {
     try {
-      const { contracts } = getState();
+      // const { contracts } = getState();
 
-      const payload = {
-        ...data,
-        ...generateContractSearchFields(data, contracts.selectedContract || {}),
-      };
+      // const payload = {
+      //   ...data,
+      //   ...generateContractSearchFields(data, contracts.selectedContract || {}),
+      // };
 
      const response =  await saveContractAndRefresh(
-        apiClient.put(`/contracts/update/${id}`, payload),
+        apiClient.put(`/contracts/update/${id}`, data),
         dispatch,
         getState
       );
@@ -145,6 +144,28 @@ export const fetchContractAuditLogs = createAsyncThunk(
       };
     } catch (err: any) {
       return rejectWithValue(err.message);
+    }
+  }
+);
+
+export const bulkUploadContracts = createAsyncThunk<
+  void,
+  any[],
+  { state: RootState; rejectValue: string }
+>(
+  "api/contracts/bulkUpload",
+  async (data, { dispatch, getState, rejectWithValue }) => {
+    try {
+      const { page } = getState().contracts;
+
+      await apiClient.post("/contracts/bulk-upload", data);
+
+      await dispatch(fetchContracts({ page }));
+
+    } catch (err: any) {
+      return rejectWithValue(
+        err.response?.data || err.message || "Bulk upload failed"
+      );
     }
   }
 );

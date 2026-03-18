@@ -1,24 +1,36 @@
-export const generateAuditChanges = (oldSection = {}, newSection = {}, sectionName) => {
+const IGNORE_KEYS = ["sno"];
 
-  const changes = []
+export const generateAuditChanges = (oldSection = {}, newSection = {}, sectionName) => {
+  const changes = [];
 
   Object.keys(newSection).forEach((field) => {
+    const oldField = oldSection[field] || {};
+    const newField = newSection[field] || {};
 
-    const oldValue = oldSection[field]?.value ?? null
-    const newValue = newSection[field]?.value ?? null
+    const fieldDiff = {};
 
-    if (oldValue !== newValue) {
+    Object.keys(newField).forEach((key) => {
+      if (IGNORE_KEYS.includes(key)) return;
 
+      const oldValue = oldField[key] ?? null;
+      const newValue = newField[key] ?? null;
+
+      if (oldValue !== newValue) {
+        fieldDiff[key] = {
+          from: oldValue,
+          to: newValue,
+        };
+      }
+    });
+
+    if (Object.keys(fieldDiff).length > 0) {
       changes.push({
         section: sectionName,
         field,
-        from: oldValue,
-        to: newValue
-      })
-
+        changes: fieldDiff,
+      });
     }
+  });
 
-  })
-
-  return changes
-}
+  return changes;
+};

@@ -17,6 +17,7 @@ import { ErrorBoundary } from "./components/ErrorBoundary";
 import { clearAuditLogs, setSelectedContract } from "@/app/store/contracts/contractsSlice"
 import { useAppSelector, useAppDispatch } from "@/app/store/hooks"
 import AuditLogDrawer from "./components/AuditLogDrawer";
+import ExcelUpload from "./components/ExcelUpload";
 
 
 
@@ -28,6 +29,7 @@ export default function App() {
   const [viewState, setViewState] = useState<ViewState>("dashboard");
   const [isEdit, setIsEdit] = useState<boolean>(false);
   const [openAudit, setOpenAudit] = useState<boolean>(false);
+  const [openExcel, setOpenExcel] = useState<boolean>(false);
 
 
 
@@ -107,6 +109,7 @@ export default function App() {
                 onAddContract={handleAddContract}
                 onViewContract={handleViewContract}
                 onEditContract={handleEditContract}
+                setOpenExcel={() => setOpenExcel(true)}
                 showAuditLog={(contract) => {
                   dispatch(setSelectedContract(contract));
                   setOpenAudit(true);
@@ -147,6 +150,12 @@ export default function App() {
             <AuditLogDrawer contractId={selectedContract.id} onClose={() => {
               setOpenAudit(false);
               dispatch(clearAuditLogs())
+            }} />
+          )}
+             {openExcel && (
+            <ExcelUpload  onClose={() => {
+              setOpenExcel(false);
+              // dispatch(clearAuditLogs())
             }} />
           )}
         </ContractApp>

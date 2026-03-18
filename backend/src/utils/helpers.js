@@ -13,6 +13,33 @@ export const nextContractId = async () => {
   return `CNT${String(res.Attributes.current_value).padStart(3,"0")}`;
 };
 
+export const getNextContractIds = async (count) => {
+  const res = await db.send(
+    new UpdateCommand({
+      TableName: COUNTER_TABLE,
+      Key: { entity: "CNT" },
+      UpdateExpression:
+        "SET current_value = if_not_exists(current_value, :x) + :inc",
+      ExpressionAttributeValues: {
+        ":x": 0,
+        ":inc": count,
+      },
+      ReturnValues: "UPDATED_NEW",
+    })
+  );
+
+  const end = res.Attributes.current_value;
+  const start = end - count + 1;
+
+  const ids = [];
+
+  for (let i = start; i <= end; i++) {
+    ids.push(`CNT${String(i).padStart(3, "0")}`);
+  }
+
+  return ids;
+};
+
 export const generateResetToken = async (email) => {
   const token = uuid();
   const expire = Math.floor(Date.now()/1000)+86400;

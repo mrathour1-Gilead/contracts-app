@@ -19,6 +19,7 @@ interface DashboardViewProps {
   onViewContract: (contract: Contract) => void
   onEditContract: (contract: Contract) => void
   showAuditLog: (contract: Contract) => void
+  setOpenExcel: () => void;
 }
 
 export const DashboardView = memo(
@@ -27,6 +28,7 @@ export const DashboardView = memo(
     onViewContract,
     onEditContract,
     showAuditLog,
+    setOpenExcel
   }: DashboardViewProps) => {
     const dispatch = useAppDispatch()
 
@@ -152,6 +154,7 @@ export const DashboardView = memo(
               <Button
                 type="default"
                 icon={<CloudUploadOutlined />}
+                onClick={setOpenExcel}
                 style={{ color: BRAND_COLORS.primary }}
               >
                 Bulk Upload

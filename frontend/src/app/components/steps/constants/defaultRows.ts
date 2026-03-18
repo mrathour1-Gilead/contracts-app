@@ -330,3 +330,19 @@ export const FIELD_LABEL_MAP = {
   generalTerms: buildFieldMap(GENERAL_TERMS_DEFAULT_ROWS),
   forecastOrdering: buildFieldMap(FORECAST_ORDERING_DEFAULT_ROWS),
 };
+
+export const ALL_SECTIONS = {
+  cmoDetails: CMO_DEFAULT_ROWS,
+  delivery: DELIVERY_DEFAULT_ROWS,
+  comments: COMMENTS_DEFAULT_ROWS,
+  statusUpdate: STATUS_UPDATE_DEFAULT_ROWS,
+  specialFields: SPECIAL_FIELDS_DEFAULT_ROWS,
+  rawMaterials: RAW_MATERIALS_DEFAULT_ROWS,
+  qcTesting: QC_TESTING_DEFAULT_ROWS,
+  product: PRODUCT_DEFAULT_ROWS,
+  pricing: PRICING_DEFAULT_ROWS,
+  performance: PERFORMANCE_DEFAULT_ROWS,
+  governance: GOVERNANCE_DEFAULT_ROWS,
+  generalTerms: GENERAL_TERMS_DEFAULT_ROWS,
+  forecastOrdering: FORECAST_ORDERING_DEFAULT_ROWS,
+};

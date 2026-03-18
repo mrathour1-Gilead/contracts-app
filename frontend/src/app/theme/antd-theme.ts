@@ -29,9 +29,9 @@ export const antdTheme: ThemeConfig = {
       fontSize: 14,
     },
     Modal: {
-      borderRadius: 16,
-      headerBg: "#306e9a",
-      titleColor: "#ffffff",
+      borderRadius: 4,
+      // headerBg: "#306e9a",
+      // titleColor: "#ffffff",
       titleFontSize: 20,
       titleLineHeight: 1.4,
     },

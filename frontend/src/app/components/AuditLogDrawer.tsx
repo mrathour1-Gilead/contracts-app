@@ -5,19 +5,26 @@ import { useAppDispatch, useAppSelector } from "../store/hooks";
 import { fetchContractAuditLogs } from "../store/contracts/contractsThunks";
 import { STEP_CONFIG } from "./steps/stepConfig";
 import { FIELD_LABEL_MAP } from "./steps/constants/defaultRows";
-import { AuditLog } from "../store/contracts/contracts.types";
+
+const PROPERTY_LABEL_MAP: Record<string, string> = {
+  value: "Value",
+  meetsBaseline: "Meets Baseline",
+  baselineTerms: "Baseline Terms",
+  termDetail: "Term Detail",
+  sectionInContract: "Section In Contract",
+  furtherDetails: "Further Details",
+}
 
 interface AuditLogDrawerProps {
   onClose: () => void;
   contractId: string;
 }
 
-
 interface TableRow {
-  key: number;
+  key: string;
   sno: number;
-  section: string;
   field: string;
+  property: string;
   from: string;
   to: string;
 }
@@ -31,123 +38,155 @@ const getInitials = (name: string) =>
 
 const renderWithTooltip = (value: string) => (
   <Tooltip title={value}>
-    <span>{value}</span>
+    <span>{value || "-"}</span>
   </Tooltip>
 );
 
 const AuditLogDrawer = ({ onClose, contractId }: AuditLogDrawerProps) => {
-  const dispatch = useAppDispatch()
-  const { auditLogs, loading } = useAppSelector((state) => state.contracts)
+  const dispatch = useAppDispatch();
+  const { auditLogs, loading } = useAppSelector((state) => state.contracts);
 
   useEffect(() => {
-    dispatch(fetchContractAuditLogs(contractId));
-  }, [])
+    if (contractId) {
+      dispatch(fetchContractAuditLogs(contractId));
+    }
+  }, [contractId]);
 
+  const history: any = auditLogs; // ✅ already sorted from backend
 
-  const history: AuditLog[] = auditLogs
-
-  // sort versions ascending
   const columns: ColumnsType<TableRow> = [
     {
       title: "Sno",
       dataIndex: "sno",
-      width: 70
-    },
-    {
-      title: "Section",
-      dataIndex: "section",
-      ellipsis: true,
-      render: renderWithTooltip,
-      width: 200
-
+      width: 70,
     },
     {
       title: "Field",
       dataIndex: "field",
       ellipsis: true,
       render: renderWithTooltip,
-      width: 200
-
+      width: 220,
+    },
+    {
+      title: "Property",
+      dataIndex: "property",
+      ellipsis: true,
+      render: renderWithTooltip,
+      width: 160,
     },
     {
       title: "From",
       dataIndex: "from",
       ellipsis: true,
       render: renderWithTooltip,
-      width: 200
-      // onCell: (record) => ({
-      //   style:  { backgroundColor: "#ffccc7" } ,
-      // })
+      width: 220,
+      // onCell: () => ({
+      //   style: { backgroundColor: "#fff1f0" },
+      // }),
     },
     {
       title: "To",
       dataIndex: "to",
       ellipsis: true,
       render: renderWithTooltip,
-      width: 200
-      //  onCell: (record) => ({
-      //   style:  { backgroundColor: "#d9f7be" } ,
-      // })
-    }
+      width: 220,
+      // onCell: () => ({
+      //   style: { backgroundColor: "#f6ffed" },
+      // }),
+    },
   ];
 
   return (
     <ConfigProvider
       theme={{
         token: {
-          borderRadius: 4
-        }
+          borderRadius: 4,
+        },
       }}
     >
-      <Drawer loading={loading.auditLogs} title="Amendment History" size={1000} open onClose={onClose}>
-        {history.map((versionItem) => {
+      <Drawer
+        loading={loading.auditLogs}
+        title="Amendment History"
+        size="55%"
+        open
+        onClose={onClose}
+      >
+        {history.map((versionItem: any) => {
+          const sectionKey = versionItem.changes?.[0]?.section;
 
-          const tableData: any[] = versionItem.changes.map((c, idx) => ({
-            key: idx,
-            sno: idx + 1,
-            section: STEP_CONFIG.find((s) => s.key === c.section)?.title || c.section,
-            field:
-              FIELD_LABEL_MAP[c.section as keyof typeof FIELD_LABEL_MAP]?.[
-              c.field as string
-              ] || c.field,
-            from: c.from,
-            to: c.to
-          }));
+          const sectionLabel =
+            STEP_CONFIG.find((s) => s.key === sectionKey)?.title ||
+            sectionKey;
+
+          const tableData: any = versionItem.changes.flatMap((c: any, idx: any) =>
+            Object.keys(c.changes).map((key, subIdx) => {
+              const val = c.changes[key];
+
+              return {
+                key: `${idx}-${subIdx}`,
+                sno: idx + subIdx + 1,
+
+                field:
+                  FIELD_LABEL_MAP[
+                  c.section as keyof typeof FIELD_LABEL_MAP
+                  ]?.[c.field as string] || c.field,
+
+                property: PROPERTY_LABEL_MAP[key] || key,
+
+                from: val?.from ?? "",
+                to: val?.to ?? "",
+              };
+            })
+          );
 
           return (
-            <div key={versionItem.version} style={{ marginBottom: 24 }}>
-              {/* Header with Avatar */}
-              <Space align="start" style={{ marginBottom: 20 }}>
+            <div key={versionItem.version} style={{ marginBottom: 28 }}>
+              {/* Header */}
+              <Space align="start" style={{ marginBottom: 16 }}>
                 <Avatar style={{ backgroundColor: "#306e9a" }}>
                   {getInitials(versionItem.user)}
                 </Avatar>
 
                 <div>
-                  <div style={{ fontWeight: 600 }}>{versionItem.user}</div>
+                  <div style={{ fontWeight: 600 }}>
+                    {versionItem.user}
+                  </div>
 
                   <div style={{ color: "#888", fontSize: 13 }}>
                     Version {versionItem.version} •{" "}
-                    {new Date(versionItem.changed_at).toLocaleString()}
+                    {new Date(
+                      versionItem.changed_at
+                    ).toLocaleString()}
+                  </div>
+
+                  <div
+                    style={{
+                      color: "#306e9a",
+                      fontSize: 13,
+                      marginTop: 2,
+                      fontWeight: 500,
+                    }}
+                  >
+                    Section: {sectionLabel}
                   </div>
                 </div>
               </Space>
 
-              {/* Audit Table */}
+              {/* Table */}
               <div className="audit-logs">
                 <Table
                   columns={columns}
                   dataSource={tableData}
                   pagination={false}
                   size="small"
+                  rowKey="key"
                 />
               </div>
-
             </div>
           );
         })}
 
         <style>{`
-
           .audit-logs .ant-table-thead > tr > th {
             background: #f8fafc;
             font-weight: 600;

@@ -1,5 +1,3 @@
-import type { FormFieldRow } from "../components/FormTable";
-
 const commonValue = {
   value: "",
   termDetail: "",
