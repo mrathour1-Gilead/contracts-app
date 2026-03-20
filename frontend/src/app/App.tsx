@@ -4,16 +4,14 @@
  */
 
 import { useState } from "react";
-import { ConfigProvider, App as ContractApp } from "antd";
+import { App as ContractApp } from "antd";
 import type { ViewState } from "./types";
 import { Contract } from "@/app/store/contracts/contracts.types"
 import { useStepNavigation } from "./hooks";
 import { WORKFLOW_STEPS, LOADING_DELAYS } from "./constants";
-import { antdTheme } from "./theme/antd-theme";
 import { GileadHeader } from "./components/GileadHeader";
 import { DashboardView } from "./components/dashboard/DashboardView";
 import { StepperFormView } from "./components/stepper/StepperFormView";
-import { ErrorBoundary } from "./components/ErrorBoundary";
 import { clearAuditLogs, setSelectedContract } from "@/app/store/contracts/contractsSlice"
 import { useAppSelector, useAppDispatch } from "@/app/store/hooks"
 import AuditLogDrawer from "./components/AuditLogDrawer";
@@ -94,8 +92,6 @@ export default function App() {
 
 
   return (
-    <ErrorBoundary>
-      <ConfigProvider theme={antdTheme}>
         <ContractApp>
           <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
             {/* Header - Sticky at top for all views */}
@@ -159,7 +155,5 @@ export default function App() {
             }} />
           )}
         </ContractApp>
-      </ConfigProvider>
-    </ErrorBoundary>
   );
 }

@@ -1,10 +1,9 @@
 import express from "express";
 import cors from "cors";
 import rateLimit from "express-rate-limit";
-// import authRoutes from "./routes/authRoutes.js";
-import resetRoutes from "./routes/resetRoutes.js";
+import authRoutes from "./routes/authRoutes.js";
 import contractsRoutes from "./routes/contractsRoutes.js";
-// import { authMiddleware } from "./middleware/auth.js";
+import { authMiddleware } from "./middleware/auth.js";
 import "./config/dynamodb.js"
 
 const app = express();
@@ -40,9 +39,8 @@ app.use((req, res, next) => {
 
 app.disable("etag");
 
-// app.use("/api/auth", authRoutes);
-app.use("/api/reset", resetRoutes);
-app.use("/api/contracts", contractsRoutes);
+app.use("/api/auth", authRoutes);
+app.use("/api/contracts", authMiddleware, contractsRoutes);
 
 app.get("/api/health", (req, res) => {
   res.status(200).send("OK");
@@ -56,4 +54,4 @@ app.use((err, req, res, next) => {
   });
 });
 
-app.listen(8000, () => console.log("🚀 Server running on http://localhost:8000"));
+app.listen(8000, () => console.log("Server running on http://localhost:8000"));

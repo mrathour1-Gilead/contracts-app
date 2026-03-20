@@ -65,6 +65,7 @@ export const bulkUploadContracts = async (data) => {
       cnt_id: cntIds[index],
       createdAt: now,
       updatedAt: now,
+      currentStep: 0,
       version: 0,
       searchString: buildSearchString(flat),
     };
@@ -193,6 +194,7 @@ export const createContract = async (body) => {
     createdAt: now,
     updatedAt: now,
     version: 0,
+    currentStep: 0,
     searchString: buildSearchString(flat),
   };
 

@@ -1,10 +1,12 @@
 // store/store.js
 import { configureStore } from "@reduxjs/toolkit";
-import contractsReducer from "./contracts/contractsSlice";
+import contractsSlice from "./contracts/contractsSlice";
+import authSlice from "./auth/authSlice";
 
 export const store = configureStore({
   reducer: {
-    contracts: contractsReducer,
+    contracts: contractsSlice,
+    auth: authSlice,
   },
 });
 

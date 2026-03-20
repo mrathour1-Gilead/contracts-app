@@ -1,14 +1,40 @@
+import { LogoutOutlined, UserOutlined } from "@ant-design/icons";
+import { logout } from "../store/auth/authSlice";
+import { useAppDispatch, useAppSelector } from "../store/hooks";
 import gileadLogo from "/png/logo.png";
+import { Dropdown, MenuProps } from "antd";
 
-interface GileadHeaderProps {
-  userName?: string;
-  currentTime?: string;
-}
 
 export function GileadHeader({
-  userName = "Abhishek",
-  currentTime = "10:26 AM",
-}: GileadHeaderProps) {
+}) {
+  const dispatch = useAppDispatch();
+  const currentTime = new Date().toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" });
+  const { user } = useAppSelector((state) => state.auth);
+  const displayName = user?.name || "User";
+
+  console.log("ussseerrr", user)
+
+  const handleLogout = () => {
+    dispatch(logout());
+  };
+
+  const menuItems: MenuProps["items"] = [
+    {
+      key: "profile",
+      icon: <UserOutlined />,
+      label: "Profile",
+    },
+    {
+      type: "divider",
+    },
+    {
+      key: "logout",
+      icon: <LogoutOutlined />,
+      label: "Logout",
+      onClick: handleLogout,
+    },
+  ];
+
   return (
     <div className="bg-white border-b border-gray-200">
       <div className="px-2 py-2">
@@ -29,15 +55,17 @@ export function GileadHeader({
           <div className="flex items-center gap-4">
             <div className="text-right">
               <div className="text-sm font-semibold text-gray-900">
-                {userName}
+                {displayName}
               </div>
               <div className="text-xs text-gray-500 mt-0.5">
                 {currentTime}
               </div>
             </div>
-            <div className="w-10 h-10 rounded-full bg-[#306e9a] text-white flex items-center justify-center text-sm font-bold shadow-md">
-              {userName.charAt(0).toUpperCase()}
-            </div>
+            <Dropdown menu={{ items: menuItems }} trigger={["click"]} placement="bottomRight">
+              <div className="w-10 h-10 rounded-full bg-[#306e9a] text-white flex items-center justify-center text-sm font-bold shadow-md cursor-pointer hover:bg-[#275a7f] transition-colors">
+                {displayName.charAt(0).toUpperCase()}
+              </div>
+            </Dropdown>
           </div>
         </div>
       </div>
