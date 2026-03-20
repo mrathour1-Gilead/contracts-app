@@ -40,7 +40,7 @@ export function Signup() {
             </svg>
           </div>
           <h1 className="text-3xl font-bold text-gray-900 mb-2">Create Your Account</h1>
-          <p className="text-gray-600">Global Supply Chain Contracts Database</p>
+          <p className="text-gray-600">Global Supply Chain Contracts Summary Database</p>
         </div>
 
         <Card className="shadow-xl border border-gray-200" style={{ borderRadius: '12px' }}>
