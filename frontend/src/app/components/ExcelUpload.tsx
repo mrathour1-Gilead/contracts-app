@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Modal,
   Upload,
@@ -14,7 +14,6 @@ import {
   DownloadOutlined,
   InboxOutlined,
 } from "@ant-design/icons";
-import { ALL_SECTIONS } from "@/app/components/steps/constants/defaultRows";
 import { useAppDispatch, useAppSelector } from "@/app/store/hooks";
 import { bulkUploadContracts } from "../store/contracts/contractsThunks";
 
@@ -22,13 +21,16 @@ const { Dragger } = Upload;
 const { Title, Link, Text } = Typography;
 
 const loadXLSX = async () => {
-  const module = await import("xlsx");
-  return module.default || module;
+  const mod = await import("xlsx");
+  return mod.default ?? mod;
 };
 
-type SectionKey = keyof typeof ALL_SECTIONS;
+const loadSections = async () => {
+  const mod = await import("@/app/components/steps/constants/defaultRows");
+  return mod.ALL_SECTIONS;
+};
 
-const SECTION_ORDER: SectionKey[] = [
+const SECTION_ORDER = [
   "cmoDetails",
   "statusUpdate",
   "generalTerms",
@@ -55,7 +57,8 @@ type FieldRow = {
 const formatSection = (section: string) =>
   section.replace(/([A-Z])/g, " $1").replace(/^./, (s) => s.toUpperCase());
 
-const buildTemplateData = () => {
+const buildTemplateData = async () => {
+  const ALL_SECTIONS = await loadSections();
   const rows: any[] = [];
 
   SECTION_ORDER.forEach((sectionKey) => {
@@ -77,26 +80,6 @@ const buildTemplateData = () => {
   });
 
   return rows;
-};
-
-const buildLookups = () => {
-  const sectionMap: Record<string, SectionKey> = {};
-  const fieldMap: Record<string, { section: SectionKey; config: FieldRow }> =
-    {};
-
-  Object.entries(ALL_SECTIONS).forEach(([section, rows]) => {
-    sectionMap[formatSection(section).toLowerCase()] =
-      section as SectionKey;
-
-    (rows as FieldRow[]).forEach((row) => {
-      fieldMap[row.field.toLowerCase()] = {
-        section: section as SectionKey,
-        config: row,
-      };
-    });
-  });
-
-  return { sectionMap, fieldMap };
 };
 
 const parseSheet = (rows: any[], sectionMap: any, fieldMap: any) => {
@@ -189,7 +172,7 @@ const validateHeaders = (ws: any, XLSX: any) => {
 
 const generateErrorFile = async (errorSheets: Record<string, any[]>) => {
   const XLSX = await loadXLSX();
-
+  const wb = XLSX.utils.book_new();
 
   Object.entries(errorSheets).forEach(([sheet, rows]) => {
     const ws = XLSX.utils.json_to_sheet(rows);
@@ -205,10 +188,10 @@ const generateErrorFile = async (errorSheets: Record<string, any[]>) => {
       { wch: 30 },
       { wch: 50 },
     ];
+
     XLSX.utils.book_append_sheet(wb, ws, sheet);
   });
 
-  const wb = XLSX.utils.book_new();
   const buffer = XLSX.write(wb, {
     bookType: "xlsx",
     type: "array",
@@ -225,21 +208,44 @@ const BulkUploadModal: React.FC<{ onClose: () => void }> = ({
   const [file, setFile] = useState<File | null>(null);
   const [errorFile, setErrorFile] = useState<Blob | null>(null);
   const [loading, setLoading] = useState(false);
+  const [lookups, setLookups] = useState<any>(null);
 
   const dispatch = useAppDispatch();
   const createUpdateLoader = useAppSelector(
     (s) => s.contracts.loading.createUpdateLoader
   );
 
-  const { sectionMap, fieldMap } = useMemo(buildLookups, []);
+  useEffect(() => {
+    loadSections().then((ALL_SECTIONS) => {
+      const sectionMap: any = {};
+      const fieldMap: any = {};
+
+      Object.entries(ALL_SECTIONS).forEach(([section, rows]) => {
+        sectionMap[formatSection(section).toLowerCase()] = section;
+
+        (rows as FieldRow[]).forEach((row) => {
+          fieldMap[row.field.toLowerCase()] = {
+            section,
+            config: row,
+          };
+        });
+      });
+
+      setLookups({ sectionMap, fieldMap });
+    });
+  }, []);
+
+  if (!lookups) return null;
+
+  const { sectionMap, fieldMap } = lookups;
 
   const downloadTemplate = async () => {
     const XLSX = await loadXLSX();
+    const data = await buildTemplateData();
 
-    const data = buildTemplateData();
     const ws = XLSX.utils.json_to_sheet(data);
 
-     ws["!cols"] = [
+    ws["!cols"] = [
       { wch: 25 },
       { wch: 35 },
       { wch: 25 },
@@ -365,7 +371,9 @@ const BulkUploadModal: React.FC<{ onClose: () => void }> = ({
             accept=".xlsx,.xls"
             style={{ padding: 30 }}
           >
-            <div><InboxOutlined style={{ color: "#1677FF", fontSize: 48 }} /></div>
+            <div>
+              <InboxOutlined style={{ color: "#1677FF", fontSize: 48 }} />
+            </div>
             <p>Drag & Drop Excel file</p>
             <p>or</p>
             <Button icon={<UploadOutlined />}>Upload</Button>
