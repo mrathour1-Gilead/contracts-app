@@ -15,7 +15,7 @@ router.get(
   "/fetchList",
   asyncHandler(async (req, res) => {
     const result = await fetchContracts(req.query);
-    res.json(result);
+    return result;
   })
 );
 
@@ -23,8 +23,8 @@ router.get(
 router.get(
   "/auditlogs/:id",
   asyncHandler(async (req, res) => {
-    const data = await getAuditLogs(req.params.id);
-    res.json({ data });
+    const result = await getAuditLogs(req.params.id);
+    return result;
   })
 );
 
@@ -33,7 +33,7 @@ router.post(
   "/create",
   asyncHandler(async (req, res) => {
     const result = await createContract(req.body);
-    res.json(result);
+    return result;
   })
 );
 
@@ -42,7 +42,7 @@ router.post(
   asyncHandler(async (req, res) => {
     const data = req.body;
     const result = await bulkUploadContracts(data);
-    res.json(result);
+    return result;
   })
 );
 
@@ -51,7 +51,7 @@ router.put(
   "/update/:id",
   asyncHandler(async (req, res) => {
     const result = await updateContract(req.params.id, req.body);
-    res.json(result);
+    return result;
   })
 );
 

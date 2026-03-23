@@ -7,7 +7,7 @@ export const fetchUserInfo = createAsyncThunk<any, void>(
     try {
       const res: any = await apiClient.get("/auth/userinfo");
       return {
-        data: res.data,
+        data: res?.data?.data,
       };
     } catch (error: any) {
       return rejectWithValue(error?.message || "error fetching user info");
@@ -30,9 +30,10 @@ export const loginAsync = createAsyncThunk(
         email,
         password,
       });
-      localStorage.setItem("contractToken", res?.data?.token);
+      const token =  res?.data?.data?.token;
+      localStorage.setItem("contractToken", token);
       await dispatch(fetchUserInfo());
-       return res?.data?.token;
+       return token;
     } catch (error) {
       return rejectWithValue("Login failed. Please try again.");
     }
@@ -55,9 +56,10 @@ export const signupAsync = createAsyncThunk(
         password,
         name,
       });
-      localStorage.setItem("contractToken", res?.data?.token);
+      const token =  res?.data?.data?.token;
+      localStorage.setItem("contractToken", token);
       await dispatch(fetchUserInfo());
-      return res?.data?.token;
+      return token;
     } catch (error) {
       return rejectWithValue("Signup failed. Please try again.");
     }

@@ -9,10 +9,10 @@ import {
   Space,
   message,
 } from "antd";
-import { UploadOutlined, DownloadOutlined } from "@ant-design/icons";
+import { UploadOutlined, DownloadOutlined, InboxOutlined } from "@ant-design/icons";
 import * as XLSX from "xlsx";
 import { ALL_SECTIONS } from "@/app/components/steps/constants/defaultRows";
-import { useAppSelector, useAppDispatch } from "@/app/store/hooks";
+import { useAppDispatch, useAppSelector } from "@/app/store/hooks";
 import { bulkUploadContracts } from "../store/contracts/contractsThunks";
 
 const { Dragger } = Upload;
@@ -20,153 +20,317 @@ const { Title, Link, Text } = Typography;
 
 type SectionKey = keyof typeof ALL_SECTIONS;
 
+const SECTION_ORDER: SectionKey[] = [
+  "cmoDetails",
+  "statusUpdate",
+  "generalTerms",
+  "delivery",
+  "product",
+  "forecastOrdering",
+  "pricing",
+  "rawMaterials",
+  "qcTesting",
+  "performance",
+  "governance",
+  "comments",
+  "specialFields",
+];
+
 type FieldRow = {
   key: string;
   field: string;
-  sno: number;
+  required?: boolean;
+  type?: "number" | "date" | "text";
+  options?: { value: string; label: string }[];
 };
 
-type ReverseMap = Record<
-  string,
-  { section: SectionKey; key: string; metaKey: string }
->;
-
-const META_KEYS = [
-  { key: "value", label: "Value" },
-  { key: "meetsBaseline", label: "Meets Baseline" },
-  { key: "baselineTerms", label: "Baseline Terms" },
-  { key: "termDetail", label: "Term Detail" },
-  { key: "sectionInContract", label: "Section In Contract" },
-  { key: "furtherDetails", label: "Further Details" },
-];
-
-const formatSection = (section: string): string =>
+const formatSection = (section: string) =>
   section.replace(/([A-Z])/g, " $1").replace(/^./, (s) => s.toUpperCase());
 
-/** ✅ Build Excel Headers */
-const buildHeaders = (): string[] => {
-  const headers: string[] = [];
+const buildTemplateData = () => {
+  const rows: any[] = [];
 
-  Object.entries(ALL_SECTIONS).forEach(([section, rows]) => {
-    (rows as FieldRow[]).forEach((row) => {
-      META_KEYS.forEach((meta) => {
-        headers.push(
-          `${formatSection(section)} - ${row.field} - ${meta.label}`
-        );
+  SECTION_ORDER.forEach((sectionKey) => {
+  const fields  = ALL_SECTIONS[sectionKey];
+    const sectionName = formatSection(sectionKey);
+
+    (fields as FieldRow[]).forEach((field) => {
+      rows.push({
+        Section: sectionName,
+        Field: field.field,
+        Value: "",
+        "Term Detail": "",
+        "Section in Contract": "",
+        "Further details or Comments": "",
+        "Meets baseline (Yes/No)": "",
+        "Baseline Terms": "",
       });
     });
   });
 
-  return headers;
+  return rows;
 };
 
-/** ✅ Reverse map (Excel → payload) */
-const buildReverseMap = (): ReverseMap => {
-  const map = {} as ReverseMap;
+const buildLookups = () => {
+  const sectionMap: Record<string, SectionKey> = {};
+  const fieldMap: Record<string, { section: SectionKey; config: FieldRow }> =
+    {};
 
   Object.entries(ALL_SECTIONS).forEach(([section, rows]) => {
-    (rows as FieldRow[]).forEach((row) => {
-      META_KEYS.forEach((meta) => {
-        const header = `${formatSection(section)} - ${row.field} - ${meta.label}`;
+    sectionMap[formatSection(section).toLowerCase()] =
+      section as SectionKey;
 
-        map[header] = {
-          section: section as SectionKey,
-          key: row.key,
-          metaKey: meta.key,
-        };
-      });
+    (rows as FieldRow[]).forEach((row) => {
+      fieldMap[row.field.toLowerCase()] = {
+        section: section as SectionKey,
+        config: row,
+      };
     });
   });
 
-  return map;
+  return { sectionMap, fieldMap };
 };
 
-/** ✅ Get sno directly from ALL_SECTIONS */
-const getSno = (section: SectionKey, key: string) => {
-  const rows = ALL_SECTIONS[section] as FieldRow[];
-  return rows.find((r) => r.key === key)?.sno;
+const parseSheet = (rows: any[], sectionMap: any, fieldMap: any) => {
+  const obj: Record<string, any> = {};
+  const errors: { row: number; message: string }[] = [];
+
+  rows.forEach((row, index) => {
+    const sectionName = row["Section"]?.trim()?.toLowerCase();
+    const fieldName = row["Field"]?.trim()?.toLowerCase();
+    const raw = row["Meets baseline (Yes/No)"];
+
+    if (!sectionName || !fieldName) return;
+
+    const section = sectionMap[sectionName];
+    const fieldEntry = fieldMap[fieldName];
+
+    if (!section) {
+      errors.push({ row: index + 2, message: "Invalid section" });
+      return;
+    }
+
+    if (!fieldEntry) {
+      errors.push({ row: index + 2, message: "Invalid field" });
+      return;
+    }
+
+    let meetsBaseline =
+      typeof raw === "string" ? raw.trim().toLowerCase() : "";
+
+    if (meetsBaseline && meetsBaseline !== "yes" && meetsBaseline !== "no") {
+      errors.push({
+        row: index + 2,
+        message: "Meets baseline must be Yes or No",
+      });
+    }
+
+    if (meetsBaseline) {
+      meetsBaseline =
+        meetsBaseline.charAt(0).toUpperCase() + meetsBaseline.slice(1);
+    }
+
+    const { config } = fieldEntry;
+    const { required, error, ...restConfig } = config as any;
+
+    if (!obj[section]) obj[section] = {};
+
+    obj[section][restConfig.key] = {
+      ...restConfig,
+      value: row["Value"] ?? "",
+      termDetail: row["Term Detail"] ?? "",
+      sectionInContract: row["Section in Contract"] ?? "",
+      furtherDetails: row["Further details or Comments"] ?? "",
+      meetsBaseline: meetsBaseline,
+      baselineTerms: row["Baseline Terms"] ?? "",
+    };
+  });
+
+  return { obj, errors };
 };
 
-const CreateModal: React.FC<{ onClose: () => void }> = ({ onClose }) => {
+const generateErrorFile = (errorSheets: Record<string, any[]>) => {
+  const wb = XLSX.utils.book_new();
+
+  Object.entries(errorSheets).forEach(([sheet, rows]) => {
+    const ws = XLSX.utils.json_to_sheet(rows);
+
+    ws["!cols"] = [
+      { wch: 25 },
+      { wch: 35 },
+      { wch: 25 },
+      { wch: 30 },
+      { wch: 30 },
+      { wch: 40 },
+      { wch: 25 },
+      { wch: 30 },
+      { wch: 50 },
+    ];
+
+    XLSX.utils.book_append_sheet(wb, ws, sheet);
+  });
+
+  const buffer = XLSX.write(wb, {
+    bookType: "xlsx",
+    type: "array",
+  });
+
+  return new Blob([buffer], {
+    type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+  });
+};
+
+const REQUIRED_HEADERS = [
+  "Section",
+  "Field",
+  "Value",
+  "Term Detail",
+  "Section in Contract",
+  "Further details or Comments",
+  "Meets baseline (Yes/No)",
+  "Baseline Terms",
+];
+
+const validateHeaders = (ws: XLSX.WorkSheet) => {
+  const headerRow = XLSX.utils.sheet_to_json(ws, {
+    header: 1,
+    range: 0,
+  })[0] as string[];
+
+  // if (!headerRow || headerRow.length !== REQUIRED_HEADERS.length) {
+  //   message.error("Invalid Excel file");
+  //   return false;
+  // }
+
+  for (let i = 0; i < REQUIRED_HEADERS.length; i++) {
+    const actual = (headerRow[i] || "").trim();
+    const expected = REQUIRED_HEADERS[i];
+
+    if (actual !== expected) {
+      message.error("Invalid Excel file");
+      return false;
+    }
+  }
+
+  return true;
+};
+
+const BulkUploadModal: React.FC<{ onClose: () => void }> = ({
+  onClose,
+}) => {
   const [file, setFile] = useState<File | null>(null);
+  const [errorFile, setErrorFile] = useState<Blob | null>(null);
   const [loading, setLoading] = useState(false);
 
   const dispatch = useAppDispatch();
   const createUpdateLoader = useAppSelector(
-    (state) => state.contracts.loading.createUpdateLoader
+    (s) => s.contracts.loading.createUpdateLoader
   );
 
-  const reverseMap = useMemo(buildReverseMap, []);
+  const { sectionMap, fieldMap } = useMemo(buildLookups, []);
 
-  /** ✅ Download Template */
   const downloadTemplate = () => {
-    const headers = buildHeaders();
-    const ws = XLSX.utils.aoa_to_sheet([headers]);
+    const data = buildTemplateData();
+    const ws = XLSX.utils.json_to_sheet(data);
+
+    ws["!cols"] = [
+      { wch: 25 },
+      { wch: 35 },
+      { wch: 25 },
+      { wch: 30 },
+      { wch: 30 },
+      { wch: 40 },
+      { wch: 25 },
+      { wch: 30 },
+    ];
 
     const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, "Template");
+    XLSX.utils.book_append_sheet(wb, ws, "Contract 1");
 
-    XLSX.writeFile(wb, "create_template.xlsx");
+    XLSX.writeFile(wb, "contract_template.xlsx");
   };
 
-  const handleUpload = (f: File): boolean => {
+  const handleUpload = (f: File) => {
+    const isExcel =
+      f.type ===
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" ||
+      f.type === "application/vnd.ms-excel" ||
+      f.name.endsWith(".xlsx") ||
+      f.name.endsWith(".xls");
+
+    if (!isExcel) {
+      message.error("Only Excel files (.xlsx, .xls) are allowed");
+      return Upload.LIST_IGNORE;
+    }
     setFile(f);
+    setErrorFile(null);
     message.success("File uploaded. Click Process.");
     return false;
   };
 
-  /** ✅ Main handler */
   const handleValidate = async () => {
-    if (!file || loading || createUpdateLoader) return;
+    if (!file) return;
 
     setLoading(true);
 
-    let payload: Record<string, any>[] = [];
+    const buffer = await file.arrayBuffer();
+    const wb = XLSX.read(buffer);
 
-    /** 🔹 Parse Excel */
-    try {
-      const buffer = await file.arrayBuffer();
-      const wb = XLSX.read(buffer);
-      const ws = wb.Sheets[wb.SheetNames[0]];
+    const payload: any[] = [];
+    const errorSheets: Record<string, any[]> = {};
 
-      const rows = XLSX.utils.sheet_to_json<Record<string, unknown>>(ws, {
-        defval: "",
-      });
+    for (const sheetName of wb.SheetNames) {
+      const ws = wb.Sheets[sheetName];
 
-      rows.forEach((row) => {
-        const obj: Record<string, any> = {};
+      const isValid = validateHeaders(ws);
+      if (!isValid) {
+        setLoading(false);
+        return;
+      }
 
-        Object.entries(row).forEach(([header, value]) => {
-          const mapping = reverseMap[header.trim()];
-          if (!mapping) return;
+      const rows = XLSX.utils.sheet_to_json<any>(ws, { defval: "" });
 
-          const { section, key, metaKey } = mapping;
+      const { obj, errors } = parseSheet(
+        rows,
+        sectionMap,
+        fieldMap
+      );
 
-          if (!obj[section]) obj[section] = {};
-
-          if (!obj[section][key]) {
-            obj[section][key] = {
-              sno: getSno(section, key), // ✅ from buildRows
-            };
-          }
-
-          obj[section][key][metaKey] = value;
-        });
-
+      if (errors.length) {
+        errorSheets[sheetName] = rows.map((row, index) => ({
+          ...row,
+          Error: errors
+            .filter((e) => e.row === index + 2)
+            .map((e) => e.message)
+            .join("\n"),
+        }));
+      } else {
         payload.push(obj);
-      });
+      }
+    }
 
-      console.log("FINAL PAYLOAD:", payload);
-    } catch (e) {
-      console.error(e);
-      message.error("Invalid Excel file");
+    if (Object.keys(errorSheets).length) {
+      const blob = generateErrorFile(errorSheets);
+      setErrorFile(blob);
+      message.error("Fix errors and re-upload file");
       setLoading(false);
       return;
     }
 
     await dispatch(bulkUploadContracts(payload)).unwrap();
-    message.success("Contracts saved successfully");
+
+    message.success("Contracts uploaded successfully");
     setLoading(false);
+    onClose();
+  };
+
+  const downloadErrorFile = () => {
+    if (!errorFile) return;
+    const url = URL.createObjectURL(errorFile);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "error_file.xlsx";
+    a.click();
   };
 
   return (
@@ -182,7 +346,7 @@ const CreateModal: React.FC<{ onClose: () => void }> = ({ onClose }) => {
           key="process"
           type="primary"
           onClick={handleValidate}
-          loading={loading || createUpdateLoader}
+          loading={createUpdateLoader || loading}
           disabled={!file}
         >
           Validate & Process
@@ -191,7 +355,7 @@ const CreateModal: React.FC<{ onClose: () => void }> = ({ onClose }) => {
     >
       <Row gutter={24}>
         <Col span={14} style={{ borderRight: "1px solid #f0f0f0" }}>
-          <Title level={5}>Upload Create response</Title>
+          <Title level={5}>Upload Contracts</Title>
 
           <Dragger
             beforeUpload={handleUpload}
@@ -199,25 +363,31 @@ const CreateModal: React.FC<{ onClose: () => void }> = ({ onClose }) => {
             accept=".xlsx,.xls"
             style={{ padding: 30 }}
           >
+            <div><InboxOutlined style={{ color: "#1677FF", fontSize: 48 }} /></div>
             <p>Drag & Drop Excel file</p>
             <p>or</p>
             <Button icon={<UploadOutlined />}>Upload</Button>
           </Dragger>
 
-          {file && (
-            <Text style={{ marginTop: 12, display: "block" }}>
-              {file.name}
-            </Text>
-          )}
+          {file && <Text style={{ marginTop: 10 }}>{file.name}</Text>}
         </Col>
 
         <Col span={10}>
           <Title level={5}>Download Template</Title>
 
-          <Space orientation="vertical" size="large">
+          <Space orientation="vertical">
             <Link onClick={downloadTemplate}>
-              Download File <DownloadOutlined />
+              Download Template <DownloadOutlined />
             </Link>
+
+            {errorFile && (
+              <Text
+                style={{ color: "red", cursor: "pointer" }}
+                onClick={downloadErrorFile}
+              >
+                Download Error File <DownloadOutlined />
+              </Text>
+            )}
           </Space>
         </Col>
       </Row>
@@ -225,4 +395,4 @@ const CreateModal: React.FC<{ onClose: () => void }> = ({ onClose }) => {
   );
 };
 
-export default CreateModal;
+export default BulkUploadModal;

@@ -16,8 +16,9 @@ interface PublicRouteProps {
 export function PublicRoute({ children }: PublicRouteProps) {
   const { userFetching, user } = useAppSelector((state) => state.auth);
   const dispatch = useAppDispatch();
+
   useEffect(() => {
-      dispatch(fetchUserInfo());
+    dispatch(fetchUserInfo());
   }, [])
 
   if (userFetching) {

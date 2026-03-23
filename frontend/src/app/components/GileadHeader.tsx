@@ -12,8 +12,6 @@ export function GileadHeader({
   const { user } = useAppSelector((state) => state.auth);
   const displayName = user?.name || "User";
 
-  console.log("ussseerrr", user)
-
   const handleLogout = () => {
     dispatch(logout());
   };

@@ -14,13 +14,13 @@ const router = express.Router();
 
 router.post("/signup", asyncHandler(async (req, res) => {
   const result = await signup(req.body);
-  res.json(result);
+  return result;
 }));
 
 
 router.post("/login", asyncHandler(async (req, res) => {
   const result = await login(req.body);
-  res.json(result);
+  return result;
 }));
 
 
@@ -33,16 +33,16 @@ router.get("/userinfo", asyncHandler(async (req, res) => {
 
   const result = await getUserInfo(res,token);
 
-  res.json(result);
+  return result;
 }));
 
 router.post("/reset/generate", asyncHandler(async (req, res) => {
-  res.json(await generateResetTokenForUser(req.body.email));
+  return await  generateResetTokenForUser(req.body.email);
 }));
 
 // confirm reset
 router.post("/reset/confirm", asyncHandler(async (req, res) => {
-  res.json(await resetPassword(req.body));
+  return await  resetPassword(req.body);
 }));
 
 

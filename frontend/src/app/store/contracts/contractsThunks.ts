@@ -30,10 +30,11 @@ export const fetchContracts = createAsyncThunk<
       },
     });
 
+
     return {
-      data: res.data.data,
-      nextKey: res.data.nextKey ?? null,
-      totalCount: res.data.totalCount,
+      data: res.data.data?.items,
+      nextKey: res.data.data.nextKey ?? null,
+      totalCount: res.data.data.totalCount,
       page,
     };
   } catch (err: any) {

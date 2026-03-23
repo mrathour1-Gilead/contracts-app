@@ -60,13 +60,13 @@ export const bulkUploadContracts = async (data) => {
     const item = {
       ...body,
       ...flat,
-
       id: uuid(),
       cnt_id: cntIds[index],
       createdAt: now,
       updatedAt: now,
       currentStep: 0,
       version: 0,
+      type: "CONTRACT",
       searchString: buildSearchString(flat),
     };
 
@@ -158,7 +158,7 @@ export const fetchContracts = async ({
   } while (countLastKey);
 
   return {
-    data: result.Items || [],
+    items: result.Items || [],
     totalCount,
     nextKey: result.LastEvaluatedKey
       ? Buffer.from(JSON.stringify(result.LastEvaluatedKey)).toString("base64")
@@ -194,6 +194,7 @@ export const createContract = async (body) => {
     createdAt: now,
     updatedAt: now,
     version: 0,
+    currentStep: 0,
     currentStep: 0,
     searchString: buildSearchString(flat),
   };
@@ -260,7 +261,8 @@ export const updateContract = async (id, body) => {
     ...body,
     ...flat,
     version: newVersion,
-    lastModifiedAt: now,
+    version: newVersion,
+    updatedAt: now,
     searchString: buildSearchString(flat),
   };
 
