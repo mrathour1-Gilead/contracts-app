@@ -12,6 +12,9 @@ export default defineConfig({
     react(),
     tailwindcss(),
   ],
+  build: {
+    sourcemap: false,
+  },
 
   server: {
     // proxy: {
