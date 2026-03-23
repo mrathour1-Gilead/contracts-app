@@ -9,14 +9,22 @@ import {
   Space,
   message,
 } from "antd";
-import { UploadOutlined, DownloadOutlined, InboxOutlined } from "@ant-design/icons";
-import * as XLSX from "xlsx";
+import {
+  UploadOutlined,
+  DownloadOutlined,
+  InboxOutlined,
+} from "@ant-design/icons";
 import { ALL_SECTIONS } from "@/app/components/steps/constants/defaultRows";
 import { useAppDispatch, useAppSelector } from "@/app/store/hooks";
 import { bulkUploadContracts } from "../store/contracts/contractsThunks";
 
 const { Dragger } = Upload;
 const { Title, Link, Text } = Typography;
+
+const loadXLSX = async () => {
+  const module = await import("xlsx");
+  return module.default || module;
+};
 
 type SectionKey = keyof typeof ALL_SECTIONS;
 
@@ -51,7 +59,7 @@ const buildTemplateData = () => {
   const rows: any[] = [];
 
   SECTION_ORDER.forEach((sectionKey) => {
-  const fields  = ALL_SECTIONS[sectionKey];
+    const fields = ALL_SECTIONS[sectionKey];
     const sectionName = formatSection(sectionKey);
 
     (fields as FieldRow[]).forEach((field) => {
@@ -149,8 +157,39 @@ const parseSheet = (rows: any[], sectionMap: any, fieldMap: any) => {
   return { obj, errors };
 };
 
-const generateErrorFile = (errorSheets: Record<string, any[]>) => {
-  const wb = XLSX.utils.book_new();
+const REQUIRED_HEADERS = [
+  "Section",
+  "Field",
+  "Value",
+  "Term Detail",
+  "Section in Contract",
+  "Further details or Comments",
+  "Meets baseline (Yes/No)",
+  "Baseline Terms",
+];
+
+const validateHeaders = (ws: any, XLSX: any) => {
+  const headerRow = XLSX.utils.sheet_to_json(ws, {
+    header: 1,
+    range: 0,
+  })[0] as string[];
+
+  for (let i = 0; i < REQUIRED_HEADERS.length; i++) {
+    const actual = (headerRow?.[i] || "").trim();
+    const expected = REQUIRED_HEADERS[i];
+
+    if (actual !== expected) {
+      message.error("Invalid Excel file");
+      return false;
+    }
+  }
+
+  return true;
+};
+
+const generateErrorFile = async (errorSheets: Record<string, any[]>) => {
+  const XLSX = await loadXLSX();
+
 
   Object.entries(errorSheets).forEach(([sheet, rows]) => {
     const ws = XLSX.utils.json_to_sheet(rows);
@@ -166,10 +205,10 @@ const generateErrorFile = (errorSheets: Record<string, any[]>) => {
       { wch: 30 },
       { wch: 50 },
     ];
-
     XLSX.utils.book_append_sheet(wb, ws, sheet);
   });
 
+  const wb = XLSX.utils.book_new();
   const buffer = XLSX.write(wb, {
     bookType: "xlsx",
     type: "array",
@@ -178,41 +217,6 @@ const generateErrorFile = (errorSheets: Record<string, any[]>) => {
   return new Blob([buffer], {
     type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
   });
-};
-
-const REQUIRED_HEADERS = [
-  "Section",
-  "Field",
-  "Value",
-  "Term Detail",
-  "Section in Contract",
-  "Further details or Comments",
-  "Meets baseline (Yes/No)",
-  "Baseline Terms",
-];
-
-const validateHeaders = (ws: XLSX.WorkSheet) => {
-  const headerRow = XLSX.utils.sheet_to_json(ws, {
-    header: 1,
-    range: 0,
-  })[0] as string[];
-
-  // if (!headerRow || headerRow.length !== REQUIRED_HEADERS.length) {
-  //   message.error("Invalid Excel file");
-  //   return false;
-  // }
-
-  for (let i = 0; i < REQUIRED_HEADERS.length; i++) {
-    const actual = (headerRow[i] || "").trim();
-    const expected = REQUIRED_HEADERS[i];
-
-    if (actual !== expected) {
-      message.error("Invalid Excel file");
-      return false;
-    }
-  }
-
-  return true;
 };
 
 const BulkUploadModal: React.FC<{ onClose: () => void }> = ({
@@ -229,11 +233,13 @@ const BulkUploadModal: React.FC<{ onClose: () => void }> = ({
 
   const { sectionMap, fieldMap } = useMemo(buildLookups, []);
 
-  const downloadTemplate = () => {
+  const downloadTemplate = async () => {
+    const XLSX = await loadXLSX();
+
     const data = buildTemplateData();
     const ws = XLSX.utils.json_to_sheet(data);
 
-    ws["!cols"] = [
+     ws["!cols"] = [
       { wch: 25 },
       { wch: 35 },
       { wch: 25 },
@@ -241,7 +247,8 @@ const BulkUploadModal: React.FC<{ onClose: () => void }> = ({
       { wch: 30 },
       { wch: 40 },
       { wch: 25 },
-      { wch: 30 },
+      { wch: 20 },
+      { wch: 50 },
     ];
 
     const wb = XLSX.utils.book_new();
@@ -252,16 +259,13 @@ const BulkUploadModal: React.FC<{ onClose: () => void }> = ({
 
   const handleUpload = (f: File) => {
     const isExcel =
-      f.type ===
-      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" ||
-      f.type === "application/vnd.ms-excel" ||
-      f.name.endsWith(".xlsx") ||
-      f.name.endsWith(".xls");
+      f.name.endsWith(".xlsx") || f.name.endsWith(".xls");
 
     if (!isExcel) {
-      message.error("Only Excel files (.xlsx, .xls) are allowed");
+      message.error("Only Excel files are allowed");
       return Upload.LIST_IGNORE;
     }
+
     setFile(f);
     setErrorFile(null);
     message.success("File uploaded. Click Process.");
@@ -272,6 +276,7 @@ const BulkUploadModal: React.FC<{ onClose: () => void }> = ({
     if (!file) return;
 
     setLoading(true);
+    const XLSX = await loadXLSX();
 
     const buffer = await file.arrayBuffer();
     const wb = XLSX.read(buffer);
@@ -282,27 +287,24 @@ const BulkUploadModal: React.FC<{ onClose: () => void }> = ({
     for (const sheetName of wb.SheetNames) {
       const ws = wb.Sheets[sheetName];
 
-      const isValid = validateHeaders(ws);
-      if (!isValid) {
+      if (!validateHeaders(ws, XLSX)) {
         setLoading(false);
         return;
       }
 
       const rows = XLSX.utils.sheet_to_json<any>(ws, { defval: "" });
-
-      const { obj, errors } = parseSheet(
-        rows,
-        sectionMap,
-        fieldMap
-      );
+      const { obj, errors } = parseSheet(rows, sectionMap, fieldMap);
 
       if (errors.length) {
+        const errorMap = new Map<number, string[]>();
+        errors.forEach((e) => {
+          if (!errorMap.has(e.row)) errorMap.set(e.row, []);
+          errorMap.get(e.row)!.push(e.message);
+        });
+
         errorSheets[sheetName] = rows.map((row, index) => ({
           ...row,
-          Error: errors
-            .filter((e) => e.row === index + 2)
-            .map((e) => e.message)
-            .join("\n"),
+          Error: (errorMap.get(index + 2) || []).join("\n"),
         }));
       } else {
         payload.push(obj);
@@ -310,7 +312,7 @@ const BulkUploadModal: React.FC<{ onClose: () => void }> = ({
     }
 
     if (Object.keys(errorSheets).length) {
-      const blob = generateErrorFile(errorSheets);
+      const blob = await generateErrorFile(errorSheets);
       setErrorFile(blob);
       message.error("Fix errors and re-upload file");
       setLoading(false);
@@ -354,7 +356,7 @@ const BulkUploadModal: React.FC<{ onClose: () => void }> = ({
       ]}
     >
       <Row gutter={24}>
-        <Col span={14} style={{ borderRight: "1px solid #f0f0f0" }}>
+        <Col span={14}>
           <Title level={5}>Upload Contracts</Title>
 
           <Dragger
@@ -381,10 +383,7 @@ const BulkUploadModal: React.FC<{ onClose: () => void }> = ({
             </Link>
 
             {errorFile && (
-              <Text
-                style={{ color: "red", cursor: "pointer" }}
-                onClick={downloadErrorFile}
-              >
+              <Text onClick={downloadErrorFile} style={{ color: "red" }}>
                 Download Error File <DownloadOutlined />
               </Text>
             )}
