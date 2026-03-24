@@ -153,7 +153,7 @@ const AuditLogDrawer = ({ onClose, contractId }: AuditLogDrawerProps) => {
                   </div>
 
                   <div style={{ color: "#888", fontSize: 13 }}>
-                    Version {versionItem.version} •{" "}
+                    {/* Version {versionItem.version} •{" "} */}
                     {new Date(
                       versionItem.changed_at
                     ).toLocaleString()}
