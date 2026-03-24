@@ -32,7 +32,7 @@ router.get(
 router.post(
   "/create",
   asyncHandler(async (req, res) => {
-    const result = await createContract(req.body);
+    const result = await createContract(req);
     return result;
   })
 );
@@ -40,8 +40,7 @@ router.post(
 router.post(
   "/bulk-upload",
   asyncHandler(async (req, res) => {
-    const data = req.body;
-    const result = await bulkUploadContracts(data);
+    const result = await bulkUploadContracts(req);
     return result;
   })
 );
@@ -50,7 +49,7 @@ router.post(
 router.put(
   "/update/:id",
   asyncHandler(async (req, res) => {
-    const result = await updateContract(req.params.id, req.body);
+    const result = await updateContract(req.params.id, req);
     return result;
   })
 );

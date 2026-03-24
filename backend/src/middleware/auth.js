@@ -38,7 +38,7 @@ export async function authMiddleware(req, res, next) {
 
     req.user = {
       email: user.email,
-      name: user.name || "Unknown User",
+      name: user.name || "system",
       active: true,
     };
 

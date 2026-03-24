@@ -46,7 +46,8 @@ const flattenContractData = (data, existing = {}) => {
 const buildSearchString = (flat) =>
   Object.values(flat).filter(Boolean).map(normalize).join(" ");
 
-export const bulkUploadContracts = async (data) => {
+export const bulkUploadContracts = async (req) => {
+  const data = req.body
   if (!Array.isArray(data) || !data.length) {
     throw new Error("Invalid payload");
   }
@@ -66,6 +67,8 @@ export const bulkUploadContracts = async (data) => {
       updatedAt: now,
       currentStep: 0,
       version: 0,
+      updatedBy: req.user?.name || "system",
+      createdBy: req.user?.name || "system",
       type: "CONTRACT",
       searchString: buildSearchString(flat),
     };
@@ -181,8 +184,9 @@ export const getAuditLogs = async (id) => {
   return result.Items || [];
 };
 
-export const createContract = async (body) => {
+export const createContract = async (req) => {
   const now = new Date().toISOString();
+  const body = req.body;
 
   const flat = flattenContractData(body);
 
@@ -197,6 +201,8 @@ export const createContract = async (body) => {
     currentStep: 0,
     currentStep: 0,
     searchString: buildSearchString(flat),
+    updatedBy: req.user?.name || "system",
+    createdBy: req.user?.name || "system",
   };
 
   delete item.method;
@@ -213,8 +219,9 @@ export const createContract = async (body) => {
   return { id: item.id, message: "Created" };
 };
 
-export const updateContract = async (id, body) => {
+export const updateContract = async (id, req) => {
   const now = new Date().toISOString();
+  const body = req.body
 
   const existing = await db.send(
     new GetCommand({
@@ -247,7 +254,7 @@ export const updateContract = async (id, body) => {
           contractId: id,
           version: `VERSION#${newVersion}`,
           audit_id: `AUDIT#${id}`,
-          user: body.user || "system",
+          user: req.user?.name || "system",
           changed_at: now,
           changes,
         },
@@ -263,6 +270,7 @@ export const updateContract = async (id, body) => {
     version: newVersion,
     version: newVersion,
     updatedAt: now,
+    updatedBy: req.user?.name || "system",
     searchString: buildSearchString(flat),
   };
 
