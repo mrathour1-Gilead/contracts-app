@@ -16,14 +16,10 @@ import {
 } from "@ant-design/icons";
 import { useAppDispatch, useAppSelector } from "@/app/store/hooks";
 import { bulkUploadContracts } from "../store/contracts/contractsThunks";
+import ExcelJS from "exceljs";
 
 const { Dragger } = Upload;
 const { Title, Link, Text } = Typography;
-
-const loadXLSX = async () => {
-  const mod = await import("xlsx");
-  return mod.default ?? mod;
-};
 
 const loadSections = async () => {
   const mod = await import("@/app/components/steps/constants/defaultRows");
@@ -46,26 +42,29 @@ const SECTION_ORDER = [
   "specialFields",
 ];
 
-type FieldRow = {
-  key: string;
-  field: string;
-  required?: boolean;
-  type?: "number" | "date" | "text";
-  options?: { value: string; label: string }[];
-};
-
 const formatSection = (section: string) =>
   section.replace(/([A-Z])/g, " $1").replace(/^./, (s) => s.toUpperCase());
 
+const REQUIRED_HEADERS = [
+  "Section",
+  "Field",
+  "Value",
+  "Term Detail",
+  "Section in Contract",
+  "Further details or Comments",
+  "Meets baseline (Yes/No)",
+  "Baseline Terms",
+];
+
 const buildTemplateData = async () => {
-  const ALL_SECTIONS = await loadSections();
+  const ALL_SECTIONS = (await loadSections()) as Record<string, any>;
   const rows: any[] = [];
 
   SECTION_ORDER.forEach((sectionKey) => {
     const fields = ALL_SECTIONS[sectionKey];
     const sectionName = formatSection(sectionKey);
 
-    (fields as FieldRow[]).forEach((field) => {
+    fields.forEach((field: any) => {
       rows.push({
         Section: sectionName,
         Field: field.field,
@@ -82,135 +81,62 @@ const buildTemplateData = async () => {
   return rows;
 };
 
-const parseSheet = (rows: any[], sectionMap: any, fieldMap: any) => {
-  const obj: Record<string, any> = {};
-  const errors: { row: number; message: string }[] = [];
-
-  rows.forEach((row, index) => {
-    const sectionName = row["Section"]?.trim()?.toLowerCase();
-    const fieldName = row["Field"]?.trim()?.toLowerCase();
-    const raw = row["Meets baseline (Yes/No)"];
-
-    if (!sectionName || !fieldName) return;
-
-    const section = sectionMap[sectionName];
-    const fieldEntry = fieldMap[fieldName];
-
-    if (!section) {
-      errors.push({ row: index + 2, message: "Invalid section" });
-      return;
-    }
-
-    if (!fieldEntry) {
-      errors.push({ row: index + 2, message: "Invalid field" });
-      return;
-    }
-
-    let meetsBaseline =
-      typeof raw === "string" ? raw.trim().toLowerCase() : "";
-
-    if (meetsBaseline && meetsBaseline !== "yes" && meetsBaseline !== "no") {
-      errors.push({
-        row: index + 2,
-        message: "Meets baseline must be Yes or No",
-      });
-    }
-
-    if (meetsBaseline) {
-      meetsBaseline =
-        meetsBaseline.charAt(0).toUpperCase() + meetsBaseline.slice(1);
-    }
-
-    const { config } = fieldEntry;
-    const { required, error, ...restConfig } = config as any;
-
-    if (!obj[section]) obj[section] = {};
-
-    obj[section][restConfig.key] = {
-      ...restConfig,
-      value: row["Value"] ?? "",
-      termDetail: row["Term Detail"] ?? "",
-      sectionInContract: row["Section in Contract"] ?? "",
-      furtherDetails: row["Further details or Comments"] ?? "",
-      meetsBaseline: meetsBaseline,
-      baselineTerms: row["Baseline Terms"] ?? "",
-    };
-  });
-
-  return { obj, errors };
-};
-
-const REQUIRED_HEADERS = [
-  "Section",
-  "Field",
-  "Value",
-  "Term Detail",
-  "Section in Contract",
-  "Further details or Comments",
-  "Meets baseline (Yes/No)",
-  "Baseline Terms",
-];
-
-const validateHeaders = (ws: any, XLSX: any) => {
-  const headerRow = XLSX.utils.sheet_to_json(ws, {
-    header: 1,
-    range: 0,
-  })[0] as string[];
-
-  for (let i = 0; i < REQUIRED_HEADERS.length; i++) {
-    const actual = (headerRow?.[i] || "").trim();
-    const expected = REQUIRED_HEADERS[i];
-
-    if (actual !== expected) {
-      message.error("Invalid Excel file");
-      return false;
-    }
-  }
-
-  return true;
-};
-
 const generateErrorFile = async (errorSheets: Record<string, any[]>) => {
-  const XLSX = await loadXLSX();
-  const wb = XLSX.utils.book_new();
+  const wb = new ExcelJS.Workbook();
 
   Object.entries(errorSheets).forEach(([sheet, rows]) => {
-    const ws = XLSX.utils.json_to_sheet(rows);
+    const ws = wb.addWorksheet(sheet);
 
-    ws["!cols"] = [
-      { wch: 25 },
-      { wch: 35 },
-      { wch: 25 },
-      { wch: 30 },
-      { wch: 30 },
-      { wch: 40 },
-      { wch: 25 },
-      { wch: 30 },
-      { wch: 50 },
+    ws.columns = [
+      { header: "Section", key: "Section", width: 25 },
+      { header: "Field", key: "Field", width: 35 },
+      { header: "Value", key: "Value", width: 25 },
+      { header: "Term Detail", key: "Term Detail", width: 30 },
+      { header: "Section in Contract", key: "Section in Contract", width: 30 },
+      { header: "Further details or Comments", key: "Further details or Comments", width: 40 },
+      { header: "Meets baseline (Yes/No)", key: "Meets baseline (Yes/No)", width: 25 },
+      { header: "Baseline Terms", key: "Baseline Terms", width: 30 },
+      { header: "Error", key: "Error", width: 50 },
     ];
 
-    XLSX.utils.book_append_sheet(wb, ws, sheet);
+    rows.forEach((row) => ws.addRow(row));
+
+    ws.getRow(1).eachCell((cell) => {
+      cell.font = { bold: true, color: { argb: "FFFFFFFF" } };
+      cell.fill = {
+        type: "pattern",
+        pattern: "solid",
+        fgColor: { argb: "FF1677FF" },
+      };
+    });
+
+    ws.eachRow((row, rowNumber) => {
+      if (rowNumber === 1) return;
+      const errorCell = row.getCell("Error");
+      if (errorCell.value) {
+        row.eachCell((cell) => {
+          cell.fill = {
+            type: "pattern",
+            pattern: "solid",
+            fgColor: { argb: "FFFFF1F0" },
+          };
+        });
+      }
+    });
   });
 
-  const buffer = XLSX.write(wb, {
-    bookType: "xlsx",
-    type: "array",
-  });
-
-  return new Blob([buffer], {
-    type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-  });
+  const buffer = await wb.xlsx.writeBuffer();
+  return new Blob([buffer]);
 };
 
-const BulkUploadModal: React.FC<{ onClose: () => void }> = ({
-  onClose,
-}) => {
+const BulkUploadModal: React.FC<{ onClose: () => void }> = ({ onClose }) => {
   const [file, setFile] = useState<File | null>(null);
   const [errorFile, setErrorFile] = useState<Blob | null>(null);
   const [loading, setLoading] = useState(false);
   const [lookups, setLookups] = useState<any>(null);
 
   const dispatch = useAppDispatch();
+
   const createUpdateLoader = useAppSelector(
     (s) => s.contracts.loading.createUpdateLoader
   );
@@ -223,7 +149,7 @@ const BulkUploadModal: React.FC<{ onClose: () => void }> = ({
       Object.entries(ALL_SECTIONS).forEach(([section, rows]) => {
         sectionMap[formatSection(section).toLowerCase()] = section;
 
-        (rows as FieldRow[]).forEach((row) => {
+        (rows as any[]).forEach((row) => {
           fieldMap[row.field.toLowerCase()] = {
             section,
             config: row,
@@ -240,34 +166,58 @@ const BulkUploadModal: React.FC<{ onClose: () => void }> = ({
   const { sectionMap, fieldMap } = lookups;
 
   const downloadTemplate = async () => {
-    const XLSX = await loadXLSX();
     const data = await buildTemplateData();
 
-    const ws = XLSX.utils.json_to_sheet(data);
+    const wb = new ExcelJS.Workbook();
+    const ws = wb.addWorksheet("Contract 1");
 
-    ws["!cols"] = [
-      { wch: 25 },
-      { wch: 35 },
-      { wch: 25 },
-      { wch: 30 },
-      { wch: 30 },
-      { wch: 40 },
-      { wch: 25 },
-      { wch: 20 },
-      { wch: 50 },
-    ];
+    ws.columns = Object.keys(data[0]).map((key) => ({
+      header: key,
+      key,
+      width: 30,
+    }));
 
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, "Contract 1");
+    data.forEach((row) => ws.addRow(row));
 
-    XLSX.writeFile(wb, "contract_template.xlsx");
+    ws.getRow(1).eachCell((cell) => {
+      cell.font = { bold: true, color: { argb: "FFFFFFFF" } };
+      cell.fill = {
+        type: "pattern",
+        pattern: "solid",
+        fgColor: { argb: "FF1677FF" },
+      };
+      cell.alignment = { vertical: "middle", horizontal: "center" };
+    });
+
+    ws.eachRow((row, rowNumber) => {
+      if (rowNumber === 1) return;
+      row.getCell(7).dataValidation = {
+        type: "list",
+        allowBlank: true,
+        formulae: ['"Yes,No"'],
+      };
+    });
+
+    const buffer = await wb.xlsx.writeBuffer();
+    const blob = new Blob([buffer]);
+
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "contract_template.xlsx";
+    a.click();
   };
 
   const handleUpload = (f: File) => {
-    const isExcel =
+    const isExcelExtension =
       f.name.endsWith(".xlsx") || f.name.endsWith(".xls");
 
-    if (!isExcel) {
+    const isExcelMime =
+      f.type ===
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" ||
+      f.type === "application/vnd.ms-excel";
+
+    if (!isExcelExtension && !isExcelMime) {
       message.error("Only Excel files are allowed");
       return Upload.LIST_IGNORE;
     }
@@ -282,54 +232,121 @@ const BulkUploadModal: React.FC<{ onClose: () => void }> = ({
     if (!file) return;
 
     setLoading(true);
-    const XLSX = await loadXLSX();
 
-    const buffer = await file.arrayBuffer();
-    const wb = XLSX.read(buffer);
+    try {
+      const workbook = new ExcelJS.Workbook();
+      const buffer = await file.arrayBuffer();
+      await workbook.xlsx.load(buffer);
 
-    const payload: any[] = [];
-    const errorSheets: Record<string, any[]> = {};
+      const payload: any[] = [];
+      const errorSheets: Record<string, any[]> = {};
 
-    for (const sheetName of wb.SheetNames) {
-      const ws = wb.Sheets[sheetName];
+      workbook.eachSheet((worksheet, sheetId) => {
+        const sheetName = worksheet.name;
 
-      if (!validateHeaders(ws, XLSX)) {
+        const headerRow = worksheet.getRow(1).values as string[];
+
+        for (let i = 1; i <= REQUIRED_HEADERS.length; i++) {
+          if ((headerRow[i] || "").trim() !== REQUIRED_HEADERS[i - 1]) {
+            throw new Error("Invalid Excel format");
+          }
+        }
+
+        const rows: any[] = [];
+        worksheet.eachRow((row, rowNumber) => {
+          if (rowNumber === 1) return;
+          rows.push({
+            Section: row.getCell(1).text,
+            Field: row.getCell(2).text,
+            Value: row.getCell(3).text,
+            "Term Detail": row.getCell(4).text,
+            "Section in Contract": row.getCell(5).text,
+            "Further details or Comments": row.getCell(6).text,
+            "Meets baseline (Yes/No)": row.getCell(7).text,
+            "Baseline Terms": row.getCell(8).text,
+          });
+        });
+
+        const errorMap = new Map<number, string[]>();
+        const validObj: Record<string, any> = {};
+
+        rows.forEach((row, index) => {
+          const rowNumber = index + 2;
+
+          const sectionName = row["Section"]?.trim()?.toLowerCase();
+          const fieldName = row["Field"]?.trim()?.toLowerCase();
+          const raw = row["Meets baseline (Yes/No)"];
+
+          let errors: string[] = [];
+
+          const section = sectionMap[sectionName];
+          const fieldEntry = fieldMap[fieldName];
+
+          if (!section) errors.push("Invalid section");
+          if (!fieldEntry) errors.push("Invalid field");
+
+          let meetsBaseline =
+            typeof raw === "string" ? raw.trim().toLowerCase() : "";
+
+          if (meetsBaseline && meetsBaseline !== "yes" && meetsBaseline !== "no") {
+            errors.push("Meets baseline must be Yes or No");
+          }
+
+          if (meetsBaseline) {
+            meetsBaseline =
+              meetsBaseline.charAt(0).toUpperCase() + meetsBaseline.slice(1);
+          }
+
+          if (errors.length) {
+            errorMap.set(rowNumber, errors);
+            return;
+          }
+
+          const { config } = fieldEntry;
+          const { required, error, ...restConfig } = config as any;
+
+          if (!validObj[section]) validObj[section] = {};
+
+          validObj[section][restConfig.key] = {
+            ...restConfig,
+            value: row["Value"] ?? "",
+            termDetail: row["Term Detail"] ?? "",
+            sectionInContract: row["Section in Contract"] ?? "",
+            furtherDetails: row["Further details or Comments"] ?? "",
+            meetsBaseline,
+            baselineTerms: row["Baseline Terms"] ?? "",
+          };
+        });
+
+        if (Object.keys(validObj).length) {
+          payload.push(validObj);
+        }
+
+        if (errorMap.size) {
+          errorSheets[sheetName] = rows.map((row, index) => ({
+            ...row,
+            Error: (errorMap.get(index + 2) || []).join("\n"),
+          }));
+        }
+      });
+
+      if (Object.keys(errorSheets).length) {
+        const blob = await generateErrorFile(errorSheets);
+        setErrorFile(blob);
+        message.error("Fix errors and re-upload file");
         setLoading(false);
         return;
       }
 
-      const rows = XLSX.utils.sheet_to_json<any>(ws, { defval: "" });
-      const { obj, errors } = parseSheet(rows, sectionMap, fieldMap);
+      await dispatch(bulkUploadContracts(payload)).unwrap();
 
-      if (errors.length) {
-        const errorMap = new Map<number, string[]>();
-        errors.forEach((e) => {
-          if (!errorMap.has(e.row)) errorMap.set(e.row, []);
-          errorMap.get(e.row)!.push(e.message);
-        });
-
-        errorSheets[sheetName] = rows.map((row, index) => ({
-          ...row,
-          Error: (errorMap.get(index + 2) || []).join("\n"),
-        }));
-      } else {
-        payload.push(obj);
-      }
+      message.success("Contracts uploaded successfully");
+      onClose();
+    } catch (err: any) {
+      message.error(err.message || "Validation failed");
     }
 
-    if (Object.keys(errorSheets).length) {
-      const blob = await generateErrorFile(errorSheets);
-      setErrorFile(blob);
-      message.error("Fix errors and re-upload file");
-      setLoading(false);
-      return;
-    }
-
-    await dispatch(bulkUploadContracts(payload)).unwrap();
-
-    message.success("Contracts uploaded successfully");
     setLoading(false);
-    onClose();
   };
 
   const downloadErrorFile = () => {
@@ -386,14 +403,14 @@ const BulkUploadModal: React.FC<{ onClose: () => void }> = ({
           <Title level={5}>Download Template</Title>
 
           <Space orientation="vertical">
-            <Link onClick={downloadTemplate}>
+            <Button type="link" onClick={downloadTemplate}>
               Download Template <DownloadOutlined />
-            </Link>
+            </Button>
 
             {errorFile && (
-              <Text onClick={downloadErrorFile} style={{ color: "red" }}>
+              <Button type="link" danger onClick={downloadErrorFile}>
                 Download Error File <DownloadOutlined />
-              </Text>
+              </Button>
             )}
           </Space>
         </Col>
@@ -403,3 +420,4 @@ const BulkUploadModal: React.FC<{ onClose: () => void }> = ({
 };
 
 export default BulkUploadModal;
+ 
