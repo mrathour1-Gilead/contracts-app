@@ -180,8 +180,8 @@ export const DashboardView = memo(
               pageSize: TABLE_CONFIG.defaultPageSize,
               total: totalCount,
               showSizeChanger: false,
-              showTotal: (total, range) =>
-                `Showing ${range[0]}-${range[1]} of ${total} items`,
+              // showTotal: (total, range) =>
+              //   `Showing ${range[0]}-${range[1]} of ${total} items`,
               onChange: (nextPage) => {
                 if (lastKeyMap[nextPage] !== undefined) {
                   dispatch(fetchContracts({ page: nextPage, search: searchText }))

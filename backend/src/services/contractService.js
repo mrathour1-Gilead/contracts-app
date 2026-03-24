@@ -111,7 +111,7 @@ export const bulkUploadContracts = async (data) => {
 
 export const fetchContracts = async ({
   search = "",
-  pageSize = 10,
+  pageSize = 25,
   lastKey,
 }) => {
   const limit = Number(pageSize);

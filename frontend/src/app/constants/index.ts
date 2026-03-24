@@ -13,7 +13,7 @@ export const BRAND_COLORS = {
 
 // Table configuration
 export const TABLE_CONFIG = {
-  defaultPageSize: 10,
+  defaultPageSize: 25,
   scrollX: 1400,
   scrollY: "calc(100vh - 350px)",
 } as const;
