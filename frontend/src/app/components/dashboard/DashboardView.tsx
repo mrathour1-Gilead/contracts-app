@@ -32,7 +32,7 @@ export const DashboardView = memo(
   }: DashboardViewProps) => {
     const dispatch = useAppDispatch()
 
-    const { contractLists, loading, totalCount, page, lastKeyMap } =
+    const { contractLists, loading, totalCount, page } =
       useAppSelector((state) => state.contracts)
 
     const [searchText, setSearchText] = useState("")
@@ -180,12 +180,10 @@ export const DashboardView = memo(
               pageSize: TABLE_CONFIG.defaultPageSize,
               total: totalCount,
               showSizeChanger: false,
-              // showTotal: (total, range) =>
-              //   `Showing ${range[0]}-${range[1]} of ${total} items`,
+              showTotal: (total, range) =>
+                `Showing ${range[0]}-${range[1]} of ${total} items`,
               onChange: (nextPage) => {
-                if (lastKeyMap[nextPage] !== undefined) {
                   dispatch(fetchContracts({ page: nextPage, search: searchText }))
-                }
               },
             }}
             onRow={(record) => ({

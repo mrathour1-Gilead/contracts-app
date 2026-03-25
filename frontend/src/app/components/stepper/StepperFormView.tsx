@@ -13,13 +13,13 @@ import { useAppSelector, useAppDispatch } from "@/app/store/hooks"
 import { App } from "antd";
 
 interface StepperFormViewProps {
-  steps: readonly Step[];
   currentStep: number;
   isFirstStep: boolean;
   isLastStep: boolean;
   onBackToDashboard: () => void;
   onPrevious: () => void;
   onNext: () => void;
+  goToStep: (step: number) => void;
   onSaveLater: () => void;
   viewMode?: boolean;
   contractData?: any;
@@ -27,7 +27,6 @@ interface StepperFormViewProps {
 }
 
 export const StepperFormView = memo(({
-  steps,
   currentStep,
   isFirstStep,
   isLastStep,
@@ -36,6 +35,7 @@ export const StepperFormView = memo(({
   onNext,
   onSaveLater,
   contractData = {},
+  goToStep = (step: number) => {},
   isEdit = false,
   viewMode = false,
 }: StepperFormViewProps) => {
@@ -101,8 +101,9 @@ export const StepperFormView = memo(({
           {/* Left Sidebar - Vertical Stepper */}
           <div className="flex-shrink-0 flex">
             <VerticalStepper
-              steps={steps as Step[]}
               currentStep={currentStep}
+              viewMode={viewMode}
+              goToStep={goToStep}
             />
           </div>
 
@@ -115,7 +116,6 @@ export const StepperFormView = memo(({
             <StepNavigation
               isEdit={isEdit}
               currentStep={currentStep}
-              totalSteps={steps.length}
               isFirstStep={isFirstStep}
               isLastStep={isLastStep}
               onPrevious={onPrevious}

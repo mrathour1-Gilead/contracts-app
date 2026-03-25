@@ -13,7 +13,6 @@ import { BRAND_COLORS } from "../../constants";
 
 interface StepNavigationProps {
   currentStep: number;
-  totalSteps: number;
   isFirstStep: boolean;
   isLastStep: boolean;
   onPrevious: () => void;
@@ -26,7 +25,6 @@ interface StepNavigationProps {
 
 export const StepNavigation = memo(({
   currentStep,
-  totalSteps,
   isFirstStep,
   isLastStep,
   onPrevious,

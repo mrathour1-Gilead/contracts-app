@@ -1,49 +1,20 @@
 import { verifyToken } from "../utils/jwt.js";
-import { getUserByEmail } from "../services/userService.js";
+import db from "../models/index.js";
 
-export async function authMiddleware(req, res, next) {
-  try {
-    const authHeader = req.headers.authorization;
+export const authMiddleware = async (req, res, next) => {
+  const token = req.headers.authorization?.split(" ")[1];
+  if (!token) return res.status(401).json({ message: "Unauthorized" });
 
-    if (!authHeader) {
-      return res.status(401).json({ message: "Unauthorized" });
-    }
+  const payload = verifyToken(token);
 
-    const token = authHeader.startsWith("Bearer ")
-      ? authHeader.split(" ")[1]
-      : authHeader;
+  const user = await db.User.findOne({ where: { email: payload.email } });
+  if (!user) return res.status(401).json({ message: "User not found" });
 
-    if (!token) {
-      return res.status(401).json({ message: "Unauthorized" });
-    }
-
-    const payload = verifyToken(token);
-
-
-    if (!payload || !payload.email) {
-      return res.status(401).json({ message: "Invalid token" });
-    }
-
-
-    const user = await getUserByEmail(payload.email);
-
-    if (!user) {
-      return res.status(401).json({ message: "User not found" });
-    }
-
-    if (user.active !== 1) {
-      return res.status(403).json({ message: "User inactive" });
-    }
-
-
-    req.user = {
+  req.auth = {
+    user: {
       email: user.email,
-      name: user.name || "system",
-      active: true,
-    };
-
-    next();
-  } catch (err) {
-    next(err);
-  }
-}
+      id: user.id,
+    },
+  };
+  next();
+};

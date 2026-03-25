@@ -15,7 +15,6 @@ interface ContractsState {
   lastKey: null | string;
   totalCount: number;
   page: number;
-  lastKeyMap: Record<number, string | null>;
   loading: {
     list: boolean;
     createUpdateLoader: boolean;
@@ -31,7 +30,6 @@ const initialState: ContractsState = {
   selectedContract: null,
   totalCount: 0,
   page: 1,
-  lastKeyMap: { 1: null },
   loading: {
     list: false,
     createUpdateLoader: false,
@@ -57,7 +55,6 @@ const contractsSlice = createSlice({
     },
     resetPagination(state) {
       state.page = 1;
-      state.lastKeyMap = { 1: null };
     },
   },
   extraReducers: (builder) => {
@@ -74,7 +71,6 @@ const contractsSlice = createSlice({
             new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime(),
         );
         state.totalCount = totalCount;
-        state.lastKeyMap[page + 1] = nextKey;
         state.page = page;
       })
       .addCase(fetchContracts.rejected, (state, action) => {
@@ -130,7 +126,7 @@ const contractsSlice = createSlice({
         state.loading.auditLogs = false;
 
         state.auditLogs = action.payload.data.sort(
-          (a: AuditLog, b: AuditLog) => a.version - b.version,
+          (a: AuditLog, b: AuditLog) => new Date(a.changed_at).getTime() - new Date(b.changed_at).getTime(),
         );
       })
       .addCase(fetchContractAuditLogs.rejected, (state, action) => {

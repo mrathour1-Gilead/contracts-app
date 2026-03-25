@@ -1,15 +1,7 @@
-import { v4 as uuid } from "uuid";
-import {
-  PutCommand,
-  UpdateCommand,
-  ScanCommand,
-  GetCommand,
-  QueryCommand,
-  BatchWriteCommand,
-} from "@aws-sdk/lib-dynamodb";
-import { db, ITEM_TABLE, AUDIT_TABLE } from "../config/dynamodb.js";
-import { nextContractId, getNextContractIds } from "../utils/helpers.js";
+import db from "../models/index.js";
 import { generateAuditChanges } from "../utils/audit.js";
+import { Op } from "sequelize";
+
 
 const SEARCH_CONFIG = {
   cmoDetails: ["cmoName", "relationshipOwner"],
@@ -36,7 +28,9 @@ const flattenContractData = (data, existing = {}) => {
   Object.entries(SEARCH_CONFIG).forEach(([section, fields]) => {
     fields.forEach((field) => {
       result[field] =
-        data?.[section]?.[field]?.value ?? existing?.[field] ?? null;
+        data?.[section]?.[field]?.value ??
+        existing?.[field] ??
+        null;
     });
   });
 
@@ -46,263 +40,187 @@ const flattenContractData = (data, existing = {}) => {
 const buildSearchString = (flat) =>
   Object.values(flat).filter(Boolean).map(normalize).join(" ");
 
-export const bulkUploadContracts = async (req) => {
-  const data = req.body
-  if (!Array.isArray(data) || !data.length) {
-    throw new Error("Invalid payload");
-  }
-  const now = new Date().toISOString();
 
-  const cntIds = await getNextContractIds(data.length);
+export const bulkUploadContracts = async (data, auth) => {
+  const now = new Date();
 
-  const items = data.map((body, index) => {
-    const flat = flattenContractData(body);
+  return await db.sequelize.transaction(async (t) => {
+    const items = data.map((d) => {
+      const flat = flattenContractData(d);
 
-    const item = {
-      ...body,
-      ...flat,
-      id: uuid(),
-      cnt_id: cntIds[index],
-      createdAt: now,
-      updatedAt: now,
-      currentStep: 0,
-      version: 0,
-      updatedBy: req.user?.name || "system",
-      createdBy: req.user?.name || "system",
-      type: "CONTRACT",
-      searchString: buildSearchString(flat),
-    };
+      return {
+        ...d,
+        ...flat,
+        searchString: buildSearchString(flat),
 
-    delete item.method;
-    delete item.errmsg;
-    delete item.section;
+        version: 0,
+        currentStep: 0,
+        createdAt: now,
+        updatedAt: now,
+        createdById: auth.user.id,
+        updatedById: auth.user.id,
+      };
+    });
 
-    return {
-      PutRequest: {
-        Item: item,
-      },
-    };
+    await db.Contract.bulkCreate(items, { transaction: t });
+
+    return { count: items.length };
   });
+};
 
-  const CHUNK_SIZE = 25;
 
-  for (let i = 0; i < items.length; i += CHUNK_SIZE) {
-    let batch = items.slice(i, i + CHUNK_SIZE);
+export const createContract = async (data, auth) => {
+  const now = new Date();
 
-    let response = await db.send(
-      new BatchWriteCommand({
-        RequestItems: {
-          [ITEM_TABLE]: batch,
-        },
-      }),
+  return await db.sequelize.transaction(async (t) => {
+    const flat = flattenContractData(data);
+
+    const contract = await db.Contract.create(
+      {
+        ...data,
+        ...flat,
+        searchString: buildSearchString(flat),
+
+        version: 0,
+        currentStep: 0,
+        createdAt: now,
+        updatedAt: now,
+        createdById: auth.user.id,
+        updatedById: auth.user.id,
+      },
+      { transaction: t }
     );
 
-    while (response.UnprocessedItems?.[ITEM_TABLE]?.length) {
-      response = await db.send(
-        new BatchWriteCommand({
-          RequestItems: response.UnprocessedItems,
-        }),
+    return { id: contract.id };
+  });
+};
+
+
+export const updateContract = async (id, data, auth) => {
+  return await db.sequelize.transaction(async (t) => {
+    const contract = await db.Contract.findByPk(id, {
+      transaction: t,
+      lock: t.LOCK.UPDATE,
+    });
+
+    if (!contract) {
+      throw new Error("Contract not found");
+    }
+
+    const section = data.section;
+
+    if (!section || !(section in contract.dataValues)) {
+      throw new Error("Invalid section");
+    }
+
+    const oldSection = contract[section] || {};
+    const newSection = data[section] || {};
+
+    const changes = generateAuditChanges(oldSection, newSection, section);
+
+    let version = contract.version;
+
+    if (changes.length > 0) {
+      version++;
+
+      await db.AuditLog.create(
+        {
+          contractId: id,
+          version,
+          changes,
+          updatedById: auth.user.id,
+          createdAt: new Date(),
+        },
+        { transaction: t }
       );
     }
-  }
 
-  return {
-    message: "Bulk upload successful",
-    count: items.length,
-  };
+
+    const flat = flattenContractData(data, contract);
+
+    const allowedFields = [
+      "cmoDetails",
+      "delivery",
+      "pricing",
+      "product",
+      "forecastOrdering",
+      "generalTerms",
+      "governance",
+      "performance",
+      "qcTesting",
+      "rawMaterials",
+      "specialFields",
+      "statusUpdate",
+      "comments",
+      "searchString",
+      "cmoName",
+      "relationshipOwner",
+      "typeOfAgreement",
+      "autoRenewTerms",
+      "paymentTerms",
+      "notificationTime",
+      "forecastTimeHorizon",
+      "forecastBindingPeriod",
+      "currentExpirationDate",
+    ];
+
+    const safeBody = {};
+    for (const key of allowedFields) {
+      if (key in data) {
+        safeBody[key] = data[key];
+      }
+    }
+
+    await contract.update(
+      {
+        ...safeBody,
+        ...flat,
+        searchString: buildSearchString(flat),
+
+        version,
+        updatedById: auth.user.id,
+        updatedAt: new Date(),
+      },
+      { transaction: t }
+    );
+
+    return { id, version };
+  });
 };
+
 
 export const fetchContracts = async ({
   search = "",
-  pageSize = 25,
-  lastKey,
+  page = 1,
+  limit = 25,
 }) => {
-  const limit = Number(pageSize);
+  const where = search
+    ? { searchString: { [Op.iLike]: `%${search.toLowerCase()}%` } }
+    : {};
 
-  const exclusiveStartKey = lastKey
-    ? JSON.parse(Buffer.from(lastKey, "base64").toString("utf-8"))
-    : undefined;
-
-  const scanParams = {
-    TableName: ITEM_TABLE,
-    Limit: limit,
-    ExclusiveStartKey: exclusiveStartKey,
-  };
-
-  if (search) {
-    scanParams.FilterExpression = "contains(searchString, :search)";
-    scanParams.ExpressionAttributeValues = {
-      ":search": search.toLowerCase(),
-    };
-  }
-
-  const result = await db.send(new ScanCommand(scanParams));
-
-  let totalCount = 0;
-  let countLastKey;
-
-  do {
-    const countParams = {
-      TableName: ITEM_TABLE,
-      Select: "COUNT",
-      ExclusiveStartKey: countLastKey,
-    };
-
-    if (search) {
-      countParams.FilterExpression = "contains(searchString, :search)";
-      countParams.ExpressionAttributeValues = {
-        ":search": search.toLowerCase(),
-      };
-    }
-
-    const countResult = await db.send(new ScanCommand(countParams));
-    totalCount += countResult.Count || 0;
-    countLastKey = countResult.LastEvaluatedKey;
-  } while (countLastKey);
+  const { rows, count } = await db.Contract.findAndCountAll({
+    where,
+    limit,
+    offset: (page - 1) * limit,
+    order: [["updatedAt", "DESC"]],
+  });
 
   return {
-    items: result.Items || [],
-    totalCount,
-    nextKey: result.LastEvaluatedKey
-      ? Buffer.from(JSON.stringify(result.LastEvaluatedKey)).toString("base64")
-      : null,
+    items: rows,
+    totalCount: count,
+    page,
   };
 };
+
 
 export const getAuditLogs = async (id) => {
-  const result = await db.send(
-    new QueryCommand({
-      TableName: AUDIT_TABLE,
-      KeyConditionExpression: "audit_id = :audit_id",
-      ExpressionAttributeValues: {
-        ":audit_id": `AUDIT#${id}`,
-      },
-      ScanIndexForward: true,
-    }),
-  );
-
-  return result.Items || [];
-};
-
-export const createContract = async (req) => {
-  const now = new Date().toISOString();
-  const body = req.body;
-
-  const flat = flattenContractData(body);
-
-  const item = {
-    ...body,
-    ...flat,
-    id: uuid(),
-    cnt_id: await nextContractId(),
-    createdAt: now,
-    updatedAt: now,
-    version: 0,
-    currentStep: 0,
-    currentStep: 0,
-    searchString: buildSearchString(flat),
-    updatedBy: req.user?.name || "system",
-    createdBy: req.user?.name || "system",
-  };
-
-  delete item.method;
-  delete item.errmsg;
-  delete item.section;
-
-  await db.send(
-    new PutCommand({
-      TableName: ITEM_TABLE,
-      Item: item,
-    }),
-  );
-
-  return { id: item.id, message: "Created" };
-};
-
-export const updateContract = async (id, req) => {
-  const now = new Date().toISOString();
-  const body = req.body
-
-  const existing = await db.send(
-    new GetCommand({
-      TableName: ITEM_TABLE,
-      Key: { id },
-    }),
-  );
-
-  if (!existing.Item) {
-    throw new Error("Record not found");
-  }
-
-  const currentItem = existing.Item;
-
-  const section = body.section;
-  const newSection = body[section];
-  const oldSection = currentItem[section] || {};
-
-  const changes = generateAuditChanges(oldSection, newSection, section);
-
-  let newVersion = currentItem.version || 0;
-
-  if (changes.length > 0) {
-    newVersion += 1;
-
-    await db.send(
-      new PutCommand({
-        TableName: AUDIT_TABLE,
-        Item: {
-          contractId: id,
-          version: `VERSION#${newVersion}`,
-          audit_id: `AUDIT#${id}`,
-          user: req.user?.name || "system",
-          changed_at: now,
-          changes,
-        },
-      }),
-    );
-  }
-
-  const flat = flattenContractData(body, currentItem);
-
-  const updates = {
-    ...body,
-    ...flat,
-    version: newVersion,
-    version: newVersion,
-    updatedAt: now,
-    updatedBy: req.user?.name || "system",
-    searchString: buildSearchString(flat),
-  };
-
-  delete updates.method;
-  delete updates.id;
-  delete updates.errmsg;
-  delete updates.section;
-
-  const updateExpr = Object.keys(updates)
-    .map((k) => `#${k} = :${k}`)
-    .join(", ");
-
-  await db.send(
-    new UpdateCommand({
-      TableName: ITEM_TABLE,
-      Key: { id },
-      UpdateExpression: "SET " + updateExpr,
-      ExpressionAttributeNames: Object.fromEntries(
-        Object.keys(updates).map((k) => [`#${k}`, k]),
-      ),
-      ExpressionAttributeValues: Object.fromEntries(
-        Object.keys(updates).map((k) => [`:${k}`, updates[k]]),
-      ),
-    }),
-  );
-
-  return {
-    id,
-    version: newVersion,
-    message:
-      changes.length > 0
-        ? "Updated with audit log"
-        : "Updated (no value changes)",
-  };
+  return await db.AuditLog.findAll({
+    where: { contractId: id },
+    include:[{
+      model: db.User,
+      as: "UpdatedBy",
+      attributes: ["id", "name"]
+    }],
+    order: [["createdAt", "ASC"]],
+  });
 };

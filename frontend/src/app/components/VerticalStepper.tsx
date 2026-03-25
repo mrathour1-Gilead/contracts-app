@@ -1,6 +1,7 @@
-import { ConfigProvider, Button } from "antd";
-import { antdTheme } from "../theme/antd-theme";
+import { Button } from "antd";
 import { useState } from "react";
+import { WORKFLOW_STEPS } from "@/app/constants";
+
 import {
   FileTextOutlined,
   SyncOutlined,
@@ -27,8 +28,9 @@ export interface Step {
 }
 
 interface VerticalStepperProps {
-  steps: Step[];
   currentStep: number;
+  viewMode: boolean;
+  goToStep: (step: number) => void;
 }
 
 const stepIcons = [
@@ -48,8 +50,9 @@ const stepIcons = [
 ];
 
 export function VerticalStepper({
-  steps,
   currentStep,
+  viewMode,
+  goToStep = (step: number) => { }
 }: VerticalStepperProps) {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isTransitioning, setIsTransitioning] = useState(false);
@@ -63,37 +66,54 @@ export function VerticalStepper({
     }, 300);
   };
 
-  return (
-    <ConfigProvider theme={antdTheme}>
-      <div
-        className={`vertical-stepper-container bg-white rounded-lg border border-gray-200 self-stretch flex flex-col ${
-          isCollapsed ? 'w-16' : 'w-64'
-        } ${isTransitioning ? 'is-transitioning' : ''}`}
-      >
-        {/* Collapse/Expand Button */}
-        <div className="border-b border-gray-200 p-2 flex justify-end flex-shrink-0">
-          <Button
-            type="text"
-            size="small"
-            icon={isCollapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
-            onClick={handleToggle}
-            className="text-gray-600 hover:text-[#306e9a]"
-          />
-        </div>
+  const handleStepClick = (index: number) => {
+    if (index === currentStep || !viewMode) return;
 
-        <nav className="py-2 flex-1 overflow-auto">
-          {steps.map((step, index) => (
+    if (viewMode) {
+      goToStep(index);
+      return;
+    }
+
+    if (index <= currentStep + 1) {
+      goToStep(index);
+    }
+  };
+
+
+  return (
+    <div
+      className={`vertical-stepper-container bg-white rounded-lg border border-gray-200 self-stretch flex flex-col ${isCollapsed ? 'w-16' : 'w-64'
+        } ${isTransitioning ? 'is-transitioning' : ''}`}
+    >
+      {/* Collapse/Expand Button */}
+      <div className="border-b border-gray-200 p-2 flex justify-end flex-shrink-0">
+        <Button
+          type="text"
+          size="small"
+          icon={isCollapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
+          onClick={handleToggle}
+          className="text-gray-600 hover:text-[#306e9a]"
+        />
+      </div>
+
+      <nav className="py-2 flex-1 overflow-auto">
+        {WORKFLOW_STEPS.map((step, index) => {
+
+          const isStepClickable = viewMode || index <= currentStep + 1;
+
+          return (
             <div
               key={step.id}
               className={`
-                relative py-3 transition-all duration-300 ease-in-out ${isCollapsed ? 'px-3' : 'px-6'} cursor-default
-                ${
-                  index === currentStep
-                    ? "bg-gray-100 border-l-4 border-l-[#dc2626] text-gray-900 rounded-l-md active-step"
-                    : "text-gray-600 hover:bg-gray-50"
+              relative py-3 transition-all duration-300 ease-in-out ${isCollapsed ? "px-3" : "px-6"}
+              ${isStepClickable ? "cursor-pointer" : "cursor-not-allowed"}
+              ${index === currentStep
+                  ? "bg-gray-100 border-l-4 border-l-[#dc2626] text-gray-900 rounded-l-md active-step"
+                  : "text-gray-600 hover:bg-gray-50"
                 }
-              `}
+            `}
               title={isCollapsed ? step.label : undefined}
+              onClick={() => handleStepClick(index)}
             >
               <div className={`flex items-center transition-all duration-300 ${isCollapsed ? 'justify-center' : 'gap-3'}`}>
                 <span
@@ -102,17 +122,16 @@ export function VerticalStepper({
                   {stepIcons[index]}
                 </span>
                 <span
-                  className={`stepper-label-text text-sm whitespace-nowrap overflow-hidden ${
-                    index === currentStep ? "font-medium" : "font-normal"
-                  } ${isCollapsed ? 'opacity-0 w-0' : 'opacity-100 w-auto'}`}
+                  className={`stepper-label-text text-sm whitespace-nowrap overflow-hidden ${index === currentStep ? "font-medium" : "font-normal"
+                    } ${isCollapsed ? 'opacity-0 w-0' : 'opacity-100 w-auto'}`}
                 >
                   {step.label}
                 </span>
               </div>
             </div>
-          ))}
-        </nav>
-      </div>
-    </ConfigProvider>
+          )
+        })}
+      </nav>
+    </div>
   );
 }

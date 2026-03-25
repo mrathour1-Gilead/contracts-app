@@ -144,18 +144,18 @@ const AuditLogDrawer = ({ onClose, contractId }: AuditLogDrawerProps) => {
               {/* Header */}
               <Space align="start" style={{ marginBottom: 16 }}>
                 <Avatar style={{ backgroundColor: "#306e9a" }}>
-                  {getInitials(versionItem.user)}
+                  {getInitials(versionItem.UpdatedBy?.name || "Unknown User")}
                 </Avatar>
 
                 <div>
                   <div style={{ fontWeight: 600 }}>
-                    {versionItem.user}
+                    {versionItem.UpdatedBy?.name || "Unknown User"}
                   </div>
 
                   <div style={{ color: "#888", fontSize: 13 }}>
                     {/* Version {versionItem.version} •{" "} */}
                     {new Date(
-                      versionItem.changed_at
+                      versionItem.createdAt
                     ).toLocaleString()}
                   </div>
 

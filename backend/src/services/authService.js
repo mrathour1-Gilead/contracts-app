@@ -1,85 +1,45 @@
-import { getUserByEmail, createUser } from "./userService.js";
+import db from "../models/index.js";
 import { hashPassword, checkPassword } from "../utils/password.js";
 import { createToken, verifyToken } from "../utils/jwt.js";
 import { generateResetToken, validateResetToken } from "../utils/helpers.js";
-
+import { getUserByEmail, createUser } from "./userService.js";
 
 export const signup = async ({ email, password, name }) => {
   if (!email || !password || !name) {
-    throw new Error("Email, password or name is missing");
+    throw new Error("Missing fields");
   }
 
   const normalizedEmail = email.trim().toLowerCase();
 
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  if (!emailRegex.test(normalizedEmail)) {
-    throw new Error("Invalid email format");
-  }
+  const existing = await getUserByEmail(normalizedEmail);
+  if (existing) throw new Error("User exists");
 
-  if (!normalizedEmail.endsWith("@gilead.com")) {
-    throw new Error("Email must be @gilead.com domain");
-  }
-
-  if (password.length < 8) {
-    throw new Error("Password must be at least 8 characters long");
-  }
-
-  const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d).*$/;
-  if (!passwordRegex.test(password)) {
-    throw new Error("Password must include letters and numbers");
-  }
-
-  if (name.trim().length < 2) {
-    throw new Error("Name must be at least 2 characters");
-  }
-
-  const existingUser = await getUserByEmail(normalizedEmail);
-  if (existingUser) {
-    throw new Error("User already exists");
-  }
-
-  await createUser({
+  const user = await createUser({
     email: normalizedEmail,
-    password: hashPassword(password),
     name: name.trim(),
+    password: hashPassword(password),
+    active: 1,
   });
 
-  const token = createToken(normalizedEmail);
-
-  return { token };
+  return { token: createToken(user.email) };
 };
 
-
 export const login = async ({ email, password }) => {
-  if (!email || !password) {
-    throw new Error("Email or password is missing");
-  }
+  if (!email || !password) throw new Error("Missing fields");
 
   const user = await getUserByEmail(email);
 
-  if (!user) {
+  if (!user || !checkPassword(password, user.password)) {
     throw new Error("Invalid login");
   }
 
-  if (!checkPassword(password, user.password)) {
-    throw new Error("Invalid password");
-  }
+  if (!user.active) throw new Error("User inactive");
 
-  if (user.active !== 1) {
-    throw new Error("User inactive");
-  }
-
-  const token = createToken(user.email);
-
-  return { token };
+  return { token: createToken(user.email) };
 };
 
-
-
-export const getUserInfo = async (res,token) => {
-  if (!token) {
-    return res.status(401).json({ message: "Missing Token" });
-  }
+export const getUserInfo = async (token) => {
+  if (!token) throw new Error("Missing Token");
 
   const payload = verifyToken(token);
 
@@ -89,13 +49,8 @@ export const getUserInfo = async (res,token) => {
 
   const user = await getUserByEmail(payload.email);
 
-  if (!user) {
-    throw new Error("User not found");
-  }
-
-  if (user.active !== 1) {
-    throw new Error("User inactive");
-  }
+  if (!user) throw new Error("User not found");
+  if (!user.active) throw new Error("User inactive");
 
   return {
     email: user.email,
@@ -105,45 +60,38 @@ export const getUserInfo = async (res,token) => {
 };
 
 export const generateResetTokenForUser = async (email) => {
-  if (!email) {
-    throw new Error("Email is required");
-  }
+  if (!email) throw new Error("Email is required");
 
-  const user = await getUserByEmail(email);
-
-  if (!user) {
-    throw new Error("User not found");
-  }
+  const user = await getUserByEmail(email.toLowerCase());
+  if (!user) throw new Error("User not found");
 
   const token = await generateResetToken(email.toLowerCase());
 
+  await user.update({
+    resetToken: token,
+    resetTokenExpiresAt: new Date(Date.now() + 15 * 60 * 1000),
+  });
+
   return { resetToken: token };
 };
-
-
 
 export const resetPassword = async ({ email, resetToken, newPassword }) => {
   if (!email || !resetToken || !newPassword) {
     throw new Error("Missing fields");
   }
 
-  const valid = await validateResetToken(email.toLowerCase(), resetToken);
+  const user = await getUserByEmail(email.toLowerCase());
+  if (!user) throw new Error("User not found");
 
-  if (!valid) {
-    throw new Error("Invalid or expired token");
-  }
+  const valid = await validateResetToken(email.toLowerCase(), resetToken, user);
 
-  await db.send(
-    new UpdateCommand({
-      TableName: USERS_TABLE,
-      Key: { email: email.toLowerCase() },
-      UpdateExpression:
-        "SET password = :p REMOVE resetToken, resetTokenExpiresAt",
-      ExpressionAttributeValues: {
-        ":p": hashPassword(newPassword),
-      },
-    })
-  );
+  if (!valid) throw new Error("Invalid or expired token");
+
+  await user.update({
+    password: hashPassword(newPassword),
+    resetToken: null,
+    resetTokenExpiresAt: null,
+  });
 
   return { message: "Password updated" };
 };

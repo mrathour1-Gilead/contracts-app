@@ -42,6 +42,7 @@ export default function App() {
     handleCancel,
     handleCurrentStep,
     reset: resetStepper,
+    goToStep,
   } = useStepNavigation({
     totalSteps: WORKFLOW_STEPS.length,
     onCancel: () => {
@@ -115,7 +116,6 @@ export default function App() {
 
             {viewState === "stepper-form" && (
               <StepperFormView
-                steps={WORKFLOW_STEPS}
                 currentStep={currentStep}
                 isFirstStep={isFirstStep}
                 isLastStep={isLastStep}
@@ -125,11 +125,11 @@ export default function App() {
                 onSaveLater={handleSaveLater}
                 contractData={selectedContract}
                 isEdit={isEdit}
+                goToStep={goToStep}
               />
             )}
             {viewState === "stepper-view" && (
               <StepperFormView
-                steps={WORKFLOW_STEPS}
                 currentStep={currentStep}
                 isFirstStep={isFirstStep}
                 isLastStep={isLastStep}
@@ -139,6 +139,7 @@ export default function App() {
                 onSaveLater={() => { }}
                 viewMode={true}
                 contractData={selectedContract}
+                goToStep={goToStep}
               />
             )}
           </div>

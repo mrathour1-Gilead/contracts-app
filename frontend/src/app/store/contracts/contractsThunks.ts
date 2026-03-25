@@ -11,31 +11,24 @@ import type { RootState } from "../store";
 export const fetchContracts = createAsyncThunk<
   {
     data: Contract[];
-    nextKey: string | null;
-    page: number;
     totalCount: number;
   },
   { page: number; search?: string },
   { state: RootState; rejectValue: string }
->("contracts/fetchList", async ({ page, search }, { getState, rejectWithValue }) => {
+>("contracts/fetchList", async ({ page, search }, { rejectWithValue }) => {
   try {
-    const { contracts } = getState();
-
-    const lastKey = contracts.lastKeyMap[page] ?? null;
 
     const res = await apiClient.get("/contracts/fetchList", {
       params: {
-        lastKey,
         search,
+        page
       },
     });
 
 
     return {
       data: res.data.data?.items,
-      nextKey: res.data.data.nextKey ?? null,
       totalCount: res.data.data.totalCount,
-      page,
     };
   } catch (err: any) {
     return rejectWithValue(err.response?.data || err.message || "Failed to fetch contracts");
