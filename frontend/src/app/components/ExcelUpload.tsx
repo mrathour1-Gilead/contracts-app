@@ -247,6 +247,7 @@ const BulkUploadModal: React.FC<{ onClose: () => void }> = ({ onClose }) => {
         const headerRow = worksheet.getRow(1).values as string[];
 
         for (let i = 1; i <= REQUIRED_HEADERS.length; i++) {
+          console.log("header", (headerRow[i] || "").trim(), REQUIRED_HEADERS[i - 1])
           if ((headerRow[i] || "").trim() !== REQUIRED_HEADERS[i - 1]) {
             throw new Error("Invalid Excel format");
           }

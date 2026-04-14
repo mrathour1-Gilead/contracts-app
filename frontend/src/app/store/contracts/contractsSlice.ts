@@ -64,12 +64,9 @@ const contractsSlice = createSlice({
         state.loading.list = true;
       })
       .addCase(fetchContracts.fulfilled, (state, action) => {
-        const { data, nextKey, totalCount, page } = action.payload;
+        const { data, totalCount, page } = action.payload;
         state.loading.list = false;
-        state.contractLists = data.sort(
-          (a: Contract, b: Contract) =>
-            new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime(),
-        );
+        state.contractLists = data
         state.totalCount = totalCount;
         state.page = page;
       })
@@ -125,9 +122,7 @@ const contractsSlice = createSlice({
       .addCase(fetchContractAuditLogs.fulfilled, (state, action) => {
         state.loading.auditLogs = false;
 
-        state.auditLogs = action.payload.data.sort(
-          (a: AuditLog, b: AuditLog) => new Date(a.changed_at).getTime() - new Date(b.changed_at).getTime(),
-        );
+        state.auditLogs = action.payload.data;
       })
       .addCase(fetchContractAuditLogs.rejected, (state, action) => {
         state.loading.auditLogs = false;

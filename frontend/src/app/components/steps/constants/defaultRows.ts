@@ -87,30 +87,16 @@ export const COMMENTS_DEFAULT_ROWS = buildRows([
  */
 export const DELIVERY_DEFAULT_ROWS = buildRows([
   {
-    key: "continuousImprovement",
-    field: "Continuous improvement",
+    key: "deliveryTermsGileadToSupplier",
+    field: "Delivery Terms - Gilead to Supplier",
     sno: 1,
-    placeholder: "Enter continuous improvement details",
+    placeholder: "Enter Delivery Terms - Gilead to Supplier",
   },
   {
-    key: "poDeadlineToAcknowledgeBySupplier",
-    field: "PO-Deadline to acknowledge by supplier",
+    key: "deliveryTermsSupplierToGilead",
+    field: "Delivery Terms - Supplier to Gilead",
     sno: 2,
-    placeholder: "Enter PO acknowledgement deadline",
-  },
-  {
-    key: "specialField1",
-    field: "Special Field 1",
-    sno: 3,
-    furtherDetails: "Define Here",
-    placeholder: "Enter value",
-  },
-  {
-    key: "specialField2",
-    field: "Special Field 2",
-    sno: 4,
-    furtherDetails: "Define Here",
-    placeholder: "Enter value",
+    placeholder: "Enter Delivery Terms - Supplier to Gilead",
   },
 ]);
 
@@ -132,14 +118,9 @@ export const STATUS_UPDATE_DEFAULT_ROWS = buildRows([
   },
   {
     key: "templateMigrationStatus",
-    field: "Template migration status",
+    field: "Template (Gilead or Supplier)",
     sno: 3,
-    value: "No",
-    placeholder: "Select template migration status",
-    options: [
-      { value: "Yes", label: "Yes" },
-      { value: "No", label: "No" },
-    ],
+    placeholder: "Select Template (Gilead or Supplier)",
   },
 ]);
 
@@ -214,12 +195,6 @@ export const QC_TESTING_DEFAULT_ROWS = buildRows([
     sno: 3,
     placeholder: "Enter additional details",
   },
-  {
-    key: "supplyDeliveryPenalty",
-    field: "Supply delivery penalty",
-    sno: 4,
-    placeholder: "Enter delivery penalty terms",
-  },
 ]);
 
 /**
@@ -227,14 +202,6 @@ export const QC_TESTING_DEFAULT_ROWS = buildRows([
  */
 export const PRODUCT_DEFAULT_ROWS = buildRows([
   { key: "productName", field: "Product Name", sno: 1, placeholder: "Enter product name" },
-  { key: "productCode", field: "Product Code", sno: 2, placeholder: "Enter product code" },
-  { key: "productCategory", field: "Product Category", sno: 3, placeholder: "Select product category" },
-  { key: "dosageForm", field: "Dosage Form", sno: 4, placeholder: "Select dosage form" },
-  { key: "strength", field: "Strength", sno: 5, placeholder: "Enter strength" },
-  { key: "packSize", field: "Pack Size", sno: 6, type: "number", placeholder: "Enter pack size" },
-  { key: "shelfLife", field: "Shelf Life (Months)", sno: 7, type: "number", placeholder: "Enter shelf life in months" },
-  { key: "storageConditions", field: "Storage Conditions", sno: 8, placeholder: "Select storage conditions" },
-  { key: "hsCode", field: "HS Code", sno: 9, placeholder: "Enter HS code" },
 ]);
 
 /**
@@ -253,7 +220,12 @@ export const PERFORMANCE_DEFAULT_ROWS = buildRows([
   { key: "yieldIncreaseExpectation", field: "Yield increase expectation", sno: 2, type: "number", placeholder: "Enter yield increase percentage" },
   { key: "nonConformingPenalty", field: "Non-conforming penalty", sno: 3, type: "number", placeholder: "Enter penalty amount" },
   { key: "performanceTarget", field: "Performance target", sno: 4, type: "number", placeholder: "Enter performance target" },
-  { key: "meetingFrequency", field: "Meeting frequency", sno: 5, placeholder: "Select meeting frequency" },
+  {
+    key: "supplyDeliveryPenalty",
+    field: "Supply delivery penalty",
+    sno: 5,
+    placeholder: "Enter delivery penalty terms",
+  },
 ]);
 
 /**
@@ -267,6 +239,8 @@ export const GOVERNANCE_DEFAULT_ROWS = buildRows([
     sno: 1,
     placeholder: "Select option",
   },
+  { key: "meetingFrequency", field: "Meeting frequency", sno: 2, placeholder: "Select meeting frequency" },
+
 ]);
 
 /**

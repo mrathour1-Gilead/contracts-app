@@ -12,6 +12,7 @@ export const fetchContracts = createAsyncThunk<
   {
     data: Contract[];
     totalCount: number;
+    page: number;
   },
   { page: number; search?: string },
   { state: RootState; rejectValue: string }
@@ -29,6 +30,7 @@ export const fetchContracts = createAsyncThunk<
     return {
       data: res.data.data?.items,
       totalCount: res.data.data.totalCount,
+      page,
     };
   } catch (err: any) {
     return rejectWithValue(err.response?.data || err.message || "Failed to fetch contracts");
