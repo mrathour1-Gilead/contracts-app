@@ -84,7 +84,7 @@ const contractsSlice = createSlice({
         const id = action.payload;
 
         const updatedContract = state.contractLists.find(
-          (contract) => contract.id === id,
+          (contract) => +contract.id === +id,
         );
 
         if (updatedContract) {
@@ -105,7 +105,7 @@ const contractsSlice = createSlice({
         const id = action.payload;
 
         const updatedContract = state.contractLists.find(
-          (contract) => contract.id === id,
+          (contract) => +contract.id === +id,
         );
 
         if (updatedContract) {

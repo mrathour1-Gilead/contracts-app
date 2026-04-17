@@ -117,7 +117,7 @@ export const BaseFormStep = forwardRef<StepHandle, BaseFormStepProps>(
                     handleValueChange(
                       record.key,
                       "value",
-                      dateString as string
+                     date ? date.format("YYYY-MM-DD") : ""
                     )
                   }
                 />

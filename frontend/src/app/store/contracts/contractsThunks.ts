@@ -45,7 +45,8 @@ const saveContractAndRefresh = async (
   try {
     const res = await request;
 
-    const id = res.data.id;
+    const id = res.data?.data?.id;
+
 
     const { page } = getState().contracts;
 
@@ -121,6 +122,7 @@ export const updateContract = createAsyncThunk<
         dispatch,
         getState
       );
+      console.log("response", response)
       return response;
     } catch (err: any) {
       return rejectWithValue(

@@ -3,18 +3,29 @@ import type { TableColumnsType } from "antd";
 import { useMemo } from "react";
 import { FormTable, FormView } from "../FormTable";
 
+import dayjs from "dayjs";
+
+
+
 interface CommonDataViewProps {
   data: any;
   title: string;
 }
 
+
+
+export function CommonDataView({ data, title }: CommonDataViewProps) {
+const isValidDate = (value: any) => dayjs(value).isValid();
+
 const renderValue = (value: any) => {
+  if(value && isValidDate(value)) {
+    return dayjs(value).format("MMM DD YYYY");
+  }
   if (value === null || value === undefined || value === "") return "";
   if (typeof value === "object") return JSON.stringify(value);
   return value;
 };
 
-export function CommonDataView({ data, title }: CommonDataViewProps) {
   const columns: TableColumnsType<FormView> = useMemo(
     () => [
       {
