@@ -74,6 +74,7 @@ export function FormTable<T = FormFieldRow>({
       <div className="form-table">
         <Table
           pagination={false}
+          // bordered
           scroll={{ x: "max-content", y: "calc(100vh - 430px)" }}
           //           scroll={{
           //   x: "max-content",

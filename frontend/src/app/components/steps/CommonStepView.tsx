@@ -15,5 +15,5 @@ export function CommonStepView({
     (contractData?.[dataKey]) || {}
   ).sort((a: any, b: any)  => a.sno - b.sno);
 
-  return <CommonDataView data={data} title={title} />;
+  return <CommonDataView data={data} title={title} dataKey={dataKey} />;
 }

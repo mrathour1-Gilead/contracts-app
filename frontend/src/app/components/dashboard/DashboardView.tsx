@@ -19,7 +19,7 @@ interface DashboardViewProps {
   onViewContract: (contract: Contract) => void
   onEditContract: (contract: Contract) => void
   showAuditLog: (contract: Contract) => void
-  setOpenExcel: () => void;
+  setOpenExcel: () => void
 }
 
 export const DashboardView = memo(
@@ -28,7 +28,7 @@ export const DashboardView = memo(
     onViewContract,
     onEditContract,
     showAuditLog,
-    setOpenExcel
+    setOpenExcel,
   }: DashboardViewProps) => {
     const dispatch = useAppDispatch()
 
@@ -41,15 +41,14 @@ export const DashboardView = memo(
     const debounceTimer = useRef<number | null>(null)
     const skipNextSearchEffect = useRef(true)
 
-
     useEffect(() => {
       dispatch(resetPagination())
       dispatch(fetchContracts({ page: 1, search: "" }))
     }, [])
 
-
     useEffect(() => {
-      if(!searchUsed) return
+      if (!searchUsed) return
+
       if (skipNextSearchEffect.current) {
         skipNextSearchEffect.current = false
         return
@@ -71,11 +70,9 @@ export const DashboardView = memo(
       }
     }, [searchText])
 
-
     const onReload = () => {
       if (loading.list) return
 
-      // prevent debounce-triggered fetch
       skipNextSearchEffect.current = true
 
       setSearchText("")
@@ -86,27 +83,21 @@ export const DashboardView = memo(
 
     const onViewClick = (record: Contract) => {
       const data = contractLists.find((i) => i.id === record.id)
-      if (data) {
-        onViewContract(data)
-      }
+      if (data) onViewContract(data)
     }
 
     const onEditClick = (record: Contract) => {
       const data = contractLists.find((i) => i.id === record.id)
-      if (data) {
-        // onRowClick(data)
-        onEditContract(data)
-      }
+      if (data) onEditContract(data)
     }
 
     const actionHandlers = {
       onView: onViewClick,
       onEdit: onEditClick,
-      showAuditLogClick: showAuditLog
+      showAuditLogClick: showAuditLog,
     }
 
     const columns = getContractColumns(actionHandlers);
-
 
     return (
       <div className="bg-white border border-gray-100 overflow-hidden mt-3">
@@ -140,7 +131,6 @@ export const DashboardView = memo(
 
               <Tooltip title="Reload">
                 <Button
-                  // type="text"
                   icon={
                     <ReloadOutlined
                       spin={loading.list}
@@ -175,6 +165,12 @@ export const DashboardView = memo(
             dataSource={contractLists}
             rowKey="id"
             loading={loading.list}
+            // bordered
+            // tableLayout="fixed"
+            scroll={{
+              x: "max-content",
+              y: TABLE_CONFIG.scrollY,
+            }}
             pagination={{
               current: page,
               pageSize: TABLE_CONFIG.defaultPageSize,
@@ -183,21 +179,18 @@ export const DashboardView = memo(
               showTotal: (total, range) =>
                 `Showing ${range[0]}-${range[1]} of ${total} items`,
               onChange: (nextPage) => {
-                  dispatch(fetchContracts({ page: nextPage, search: searchText }))
+                dispatch(
+                  fetchContracts({
+                    page: nextPage,
+                    search: searchText,
+                  })
+                )
               },
             }}
             onRow={(record) => ({
               onClick: () => onViewClick(record),
               className: "cursor-pointer hover:bg-[#306e9a]/5",
             })}
-            scroll={{
-              x: TABLE_CONFIG.scrollX,
-              y: TABLE_CONFIG.scrollY,
-            }}
-            // locale={{
-            //   emptyText:
-            //     "No contracts yet. Click 'Add New Contract' to get started.",
-            // }}
           />
         </div>
       </div>

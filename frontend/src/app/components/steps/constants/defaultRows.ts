@@ -108,6 +108,7 @@ export const STATUS_UPDATE_DEFAULT_ROWS = buildRows([
     key: "mostRecentContractUpdate",
     field: "Most recent contract update",
     sno: 1,
+    type: "date",
     placeholder: "Enter most recent contract update",
   },
   {

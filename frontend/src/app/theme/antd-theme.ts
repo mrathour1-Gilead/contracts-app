@@ -25,7 +25,7 @@ export const antdTheme: ThemeConfig = {
       headerBg: "#306e9a",
       headerColor: "#ffffff",
       headerSplitColor: "transparent",
-      rowHoverBg: "#306e9a",
+      // rowHoverBg: "#306e9a",
       fontSize: 14,
     },
     Modal: {

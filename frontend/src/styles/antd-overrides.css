@@ -31,19 +31,19 @@
   color: #fde047 !important;
 }
 
-/* Table row hover effect */
-.ant-table-tbody > tr.ant-table-row:hover > td {
+
+/* .ant-table-tbody > tr.ant-table-row:hover > td {
   background-color: rgba(36, 83, 113, 0.05) !important;
 }
 
-/* Alternating row colors */
+
 .ant-table-tbody > tr:nth-child(even) > td {
   background-color: #f3f4f6;
 }
 
 .ant-table-tbody > tr:nth-child(odd) > td {
   background-color: white;
-}
+} */
 
 /* .ant-table-body {
   min-height: 300px !important;

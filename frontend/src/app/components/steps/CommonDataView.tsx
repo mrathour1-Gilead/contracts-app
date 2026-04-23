@@ -1,30 +1,41 @@
+
 import { Card } from "antd";
 import type { TableColumnsType } from "antd";
-import { useMemo } from "react";
+import { useMemo, useCallback } from "react";
 import { FormTable, FormView } from "../FormTable";
-
+import { STEP_CONFIG } from "../steps/stepConfig";
 import dayjs from "dayjs";
-
-
-
 interface CommonDataViewProps {
   data: any;
   title: string;
+  dataKey: string;
 }
+export function CommonDataView({ data, title, dataKey }: CommonDataViewProps) {
 
+  const stepFields = useMemo(
+    () => STEP_CONFIG.find((step) => step.key === dataKey)?.rows || [],
+    [dataKey]
+  );
 
+  const fieldMap = useMemo(() => {
+    const map: Record<string, any> = {};
+    stepFields.forEach((f: any) => {
+      if (f?.field) map[f.field] = f;
+    });
+    return map;
+  }, [stepFields]);
+  const isValidDate = useCallback((value: any) => dayjs(value).isValid(), []);
 
-export function CommonDataView({ data, title }: CommonDataViewProps) {
-const isValidDate = (value: any) => dayjs(value).isValid();
-
-const renderValue = (value: any) => {
-  if(value && isValidDate(value)) {
-    return dayjs(value).format("MMM DD YYYY");
-  }
-  if (value === null || value === undefined || value === "") return "";
-  if (typeof value === "object") return JSON.stringify(value);
-  return value;
-};
+  const renderValue = useCallback(
+    (value: any, row?: any) => {
+      const fieldConfig = row?.field ? fieldMap[row.field] : null;
+      if (value && fieldConfig?.type === "date" && isValidDate(value)) {
+       return dayjs(value).format("MMM DD YYYY");
+      }
+      return value;
+    },
+    [fieldMap, isValidDate]
+  );
 
   const columns: TableColumnsType<FormView> = useMemo(
     () => [
@@ -58,9 +69,9 @@ const renderValue = (value: any) => {
         title: "Further Details / Comments",
         dataIndex: "furtherDetails",
         width: 220,
-        render: (value) => (
+        render: (value: any, row: any) => (
           <div className="whitespace-pre-wrap">
-            {renderValue(value)}
+            {renderValue(value, row)}
           </div>
         ),
       },
@@ -77,9 +88,8 @@ const renderValue = (value: any) => {
         render: renderValue,
       },
     ],
-    []
+    [renderValue]
   );
-
   return (
     <Card title={title} style={{ height: "100%" }}>
       <FormTable
