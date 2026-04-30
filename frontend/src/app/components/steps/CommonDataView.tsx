@@ -1,15 +1,16 @@
-
 import { Card } from "antd";
 import type { TableColumnsType } from "antd";
 import { useMemo, useCallback } from "react";
 import { FormTable, FormView } from "../FormTable";
 import { STEP_CONFIG } from "../steps/stepConfig";
 import dayjs from "dayjs";
+
 interface CommonDataViewProps {
   data: any;
   title: string;
   dataKey: string;
 }
+
 export function CommonDataView({ data, title, dataKey }: CommonDataViewProps) {
 
   const stepFields = useMemo(
@@ -17,24 +18,48 @@ export function CommonDataView({ data, title, dataKey }: CommonDataViewProps) {
     [dataKey]
   );
 
-  const fieldMap = useMemo(() => {
-    const map: Record<string, any> = {};
-    stepFields.forEach((f: any) => {
-      if (f?.field) map[f.field] = f;
-    });
-    return map;
-  }, [stepFields]);
+    const tableData = useMemo(() => {
+    return stepFields
+      .map((row: any) => {
+        const apiRow =
+          data.find((item: any) => item.key === row.key) ||
+          data.find((item: any) => item.field === row.field) ||
+          {};
+
+        return {
+          key: row.key,
+
+          field: row.field,
+
+          value: apiRow.value ?? "",
+          termDetail: apiRow.termDetail ?? "",
+          sectionInContract: apiRow.sectionInContract ?? "",
+          furtherDetails: apiRow.furtherDetails ?? "",
+          meetsBaseline: apiRow.meetsBaseline ?? "",
+          baselineTerms: apiRow.baselineTerms ?? "",
+
+          type: row.type,
+          sno: row.sno,
+        };
+      })
+      .sort((a: any, b: any) => (a.sno || 0) - (b.sno || 0));
+  }, [data, stepFields]);
+
   const isValidDate = useCallback((value: any) => dayjs(value).isValid(), []);
+
 
   const renderValue = useCallback(
     (value: any, row?: any) => {
-      const fieldConfig = row?.field ? fieldMap[row.field] : null;
-      if (value && fieldConfig?.type === "date" && isValidDate(value)) {
-       return dayjs(value).format("MMM DD YYYY");
+      if (!value) return value;
+
+      // date formatting
+      if (row?.type === "date" && isValidDate(value)) {
+        return dayjs(value).format("MMM DD YYYY");
       }
+
       return value;
     },
-    [fieldMap, isValidDate]
+    [isValidDate]
   );
 
   const columns: TableColumnsType<FormView> = useMemo(
@@ -90,12 +115,13 @@ export function CommonDataView({ data, title, dataKey }: CommonDataViewProps) {
     ],
     [renderValue]
   );
+
   return (
     <Card title={title} style={{ height: "100%" }}>
       <FormTable
-        dataSource={data}
+        dataSource={tableData}
         columns={columns}
-        rowKey={(record) => record.field}
+        rowKey={(record) => record.key}
       />
     </Card>
   );
