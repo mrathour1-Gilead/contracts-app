@@ -9,7 +9,7 @@ import {
   RAW_MATERIALS_DEFAULT_ROWS,
   QC_TESTING_DEFAULT_ROWS,
   PERFORMANCE_DEFAULT_ROWS,
-  GOVERNANCE_DEFAULT_ROWS,
+  OTHERS_DEFAULT_ROWS,
   COMMENTS_DEFAULT_ROWS,
   SPECIAL_FIELDS_DEFAULT_ROWS,
 } from "./constants/defaultRows";
@@ -87,10 +87,10 @@ export const STEP_CONFIG = [
   },
 
   {
-    key: "governance",
-    title: "Governance",
+    key: "others",
+    title: "Others",
     step: 11,
-    rows: GOVERNANCE_DEFAULT_ROWS,
+    rows: OTHERS_DEFAULT_ROWS,
   },
 
   {

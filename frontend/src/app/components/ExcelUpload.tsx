@@ -37,7 +37,7 @@ const SECTION_ORDER = [
   "rawMaterials",
   "qcTesting",
   "performance",
-  "governance",
+  "others",
   "comments",
   "specialFields",
 ];

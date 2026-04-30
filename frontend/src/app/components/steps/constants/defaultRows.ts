@@ -24,41 +24,55 @@ export const CMO_DEFAULT_ROWS = buildRows([
     placeholder: "Enter CMO name",
   },
   {
-    key: "signingEntity1",
-    field: "Signing Entity 1",
+    key: "gileadSigningEntity1",
+    field: "Gilead Signing Entity 1",
+    required: false,
     sno: 4,
-    placeholder: "Enter signing entity",
+    placeholder: "Enter Gilead Signing Entity 1",
+  },
+  {
+    key: "gileadSigningEntity2",
+    field: "Gilead Signing Entity 2",
+    required: false,
+    sno: 5,
+    placeholder: "Enter Gilead Signing Entity 2",
+  },
+  {
+    key: "supplierEntity1",
+    field: "Supplier Entity 1",
+    sno: 6,
+    placeholder: "Enter Supplier entity 1",
   },
   {
     key: "supplierEntity2",
     field: "Supplier Entity 2",
     required: false,
-    sno: 5,
-    placeholder: "Enter supplier entity",
+    sno: 7,
+    placeholder: "Enter supplier entity 2",
   },
   {
     key: "supplierEntity3",
     field: "Supplier Entity 3",
     required: false,
-    sno: 6,
-    placeholder: "Enter supplier entity",
+    sno: 8,
+    placeholder: "Enter supplier entity 3",
   },
   {
     key: "location",
     field: "Location (Facility)",
-    sno: 7,
+    sno: 9,
     placeholder: "Enter facility location",
   },
   {
     key: "relationshipOwner",
     field: "Supplier Relationship Owner",
-    sno: 8,
+    sno: 10,
     placeholder: "Enter relationship owner",
   },
   {
     key: "territory",
     field: "Territory",
-    sno: 9,
+    sno: 11,
     placeholder: "Select territory",
     options: [
       { value: "North America", label: "North America" },
@@ -88,15 +102,25 @@ export const COMMENTS_DEFAULT_ROWS = buildRows([
 export const DELIVERY_DEFAULT_ROWS = buildRows([
   {
     key: "deliveryTermsGileadToSupplier",
-    field: "Delivery Terms - Gilead to Supplier",
+    field: "Delivery Terms-Gilead to Supplier (Shipping Term)",
     sno: 1,
     placeholder: "Enter Delivery Terms - Gilead to Supplier",
   },
   {
     key: "deliveryTermsSupplierToGilead",
-    field: "Delivery Terms - Supplier to Gilead",
+    field: "Delivery Terms-Supplier to Gilead (Shipping Term)",
     sno: 2,
     placeholder: "Enter Delivery Terms - Supplier to Gilead",
+  },
+  {
+    key: "productStoragePeriod",
+    field: "Gilead Product Storage Period at Supplier Site",
+    sno: 3,
+    placeholder: "Select Value",
+    options: [
+      { value: "Free Storage Period", label: "Free Storage Period" },
+      { value: "Paid Storage Term", label: "Paid Storage Term" },
+    ],
   },
 ]);
 
@@ -118,10 +142,20 @@ export const STATUS_UPDATE_DEFAULT_ROWS = buildRows([
     placeholder: "Enter contracts consolidation details",
   },
   {
-    key: "templateMigrationStatus",
-    field: "Template (Gilead or Supplier)",
+    key: "qagLinkageInMsa",
+    field: "QAG Linkage in MSA",
     sno: 3,
-    placeholder: "Select Template (Gilead or Supplier)",
+    placeholder: "Enter QAG Linkage in MSA",
+  },
+  {
+    key: "qagApproval",
+    field: "QAG Approval?",
+    sno: 4,
+    placeholder: "Enter QAG Approval?",
+    options: [
+      { value: "Yes", label: "Yes" },
+      { value: "No", label: "No" },
+    ],
   },
 ]);
 
@@ -130,21 +164,33 @@ export const STATUS_UPDATE_DEFAULT_ROWS = buildRows([
  */
 export const SPECIAL_FIELDS_DEFAULT_ROWS = buildRows([
   {
+    key: "specialField1",
+    field: "Special Field 1",
+    sno: 1,
+    placeholder: "Enter Special Field 1",
+  },
+  {
+    key: "specialField2",
+    field: "Special Field 2",
+    sno: 1,
+    placeholder: "Enter Special Field 2",
+  },
+  {
     key: "specialField3",
     field: "Special Field 3",
-    sno: 1,
+    sno: 3,
     placeholder: "Enter Special Field 3",
   },
   {
     key: "specialField4",
     field: "Special Field 4",
-    sno: 2,
+    sno: 4,
     placeholder: "Enter Special Field 4",
   },
   {
     key: "specialField5",
     field: "Special Field 5",
-    sno: 3,
+    sno: 5,
     placeholder: "Enter Special Field 5",
   },
 ]);
@@ -155,8 +201,7 @@ export const SPECIAL_FIELDS_DEFAULT_ROWS = buildRows([
 export const RAW_MATERIALS_DEFAULT_ROWS = buildRows([
   {
     key: "materialsStockpiles",
-    field:
-      "Materials Stockpiles - Components, excipient and API furnished by Gilead",
+    field: "Components, Excipient and API Furnished by Gilead",
     sno: 1,
     placeholder: "Enter material stockpile details",
   },
@@ -202,93 +247,268 @@ export const QC_TESTING_DEFAULT_ROWS = buildRows([
  * Product
  */
 export const PRODUCT_DEFAULT_ROWS = buildRows([
-  { key: "productName", field: "Product Name", sno: 1, placeholder: "Enter product name" },
+  {
+    key: "productName1",
+    field: "Product 1",
+    sno: 1,
+    placeholder: "Enter product 1",
+  },
+  {
+    key: "productName2",
+    field: "Product 2",
+    sno: 1,
+    placeholder: "Enter product 2",
+  },
+  {
+    key: "productName3",
+    field: "Product 3",
+    sno: 1,
+    placeholder: "Enter product 3",
+  },
 ]);
 
 /**
  * Pricing
  */
 export const PRICING_DEFAULT_ROWS = buildRows([
-  { key: "pricing", field: "Pricing", sno: 1, placeholder: "Select pricing model" },
-  { key: "annualPricingAdjustments", field: "Annual pricing adjustments", sno: 2, placeholder: "Enter adjustment terms" },
+  {
+    key: "pricing",
+    field: "Pricing",
+    sno: 1,
+    placeholder: "Select pricing model",
+  },
+  {
+    key: "annualPricingAdjustments",
+    field: "Annual pricing adjustments",
+    sno: 2,
+    placeholder: "Enter adjustment terms",
+  },
 ]);
 
 /**
  * Performance
  */
 export const PERFORMANCE_DEFAULT_ROWS = buildRows([
-  { key: "performanceKpis", field: "Performance KPIs", sno: 1, placeholder: "Enter KPIs" },
-  { key: "yieldIncreaseExpectation", field: "Yield increase expectation", sno: 2, type: "number", placeholder: "Enter yield increase percentage" },
-  { key: "nonConformingPenalty", field: "Non-conforming penalty", sno: 3, type: "number", placeholder: "Enter penalty amount" },
-  { key: "performanceTarget", field: "Performance target", sno: 4, type: "number", placeholder: "Enter performance target" },
+  {
+    key: "continuousImprovement",
+    field: "Continuous improvement",
+    sno: 1,
+    placeholder: "Enter Value",
+  },
   {
     key: "supplyDeliveryPenalty",
     field: "Supply delivery penalty",
-    sno: 5,
+    sno: 2,
     placeholder: "Enter delivery penalty terms",
+  },
+  {
+    key: "performanceKpis",
+    field: "Performance KPIs",
+    sno: 3,
+    placeholder: "Enter KPIs",
+  },
+  {
+    key: "yieldIncreaseExpectation",
+    field: "Yield increase expectation",
+    sno: 4,
+    type: "number",
+    placeholder: "Enter yield increase percentage",
+  },
+  {
+    key: "nonConformingPenalty",
+    field: "Non-conforming penalty",
+    sno: 5,
+    type: "number",
+    placeholder: "Enter penalty amount",
+  },
+  {
+    key: "performanceTarget",
+    field: "Performance target",
+    sno: 6,
+    type: "number",
+    placeholder: "Enter performance target",
   },
 ]);
 
 /**
  * Governance
  */
-export const GOVERNANCE_DEFAULT_ROWS = buildRows([
+export const OTHERS_DEFAULT_ROWS = buildRows([
   {
-    key: "annualBusinessReviewRequired",
-    field: "Annual business review required",
+    key: "informationSecurityExhibitIncluded",
+    field: "Information Security Exhibit Included",
     value: "No",
+    options: [
+      { value: "Yes", label: "Yes" },
+      { value: "No", label: "No" },
+    ],
     sno: 1,
     placeholder: "Select option",
   },
-  { key: "meetingFrequency", field: "Meeting frequency", sno: 2, placeholder: "Select meeting frequency" },
-
+  {
+    key: "liabilityCap",
+    field: "Liability Cap",
+    sno: 2,
+    placeholder: "Enter Liability Cap",
+  },
+  {
+    key: "otherTerms",
+    field: "Other Terms",
+    sno: 2,
+    placeholder: "Enter Liability Cap",
+  },
 ]);
 
 /**
  * General Terms
  */
 export const GENERAL_TERMS_DEFAULT_ROWS = buildRows([
-  { key: "typeOfAgreement", field: "Type of Agreement", sno: 1, placeholder: "Select agreement type" },
-  { key: "effectiveDate", field: "Effective Date", type: "date", sno: 2, placeholder: "Select effective date" },
-  { key: "initialTerm", field: "Initial Term", sno: 3, placeholder: "Enter initial term" },
-  { key: "expirationDateOfContract", field: "Expiration date of contract", type: "date", sno: 4, placeholder: "Select expiration date" },
-  { key: "currentExpirationDate", field: "Current expiration date", type: "date", sno: 5, placeholder: "Select current expiration date" },
-  { key: "notificationTime", field: "Notification Time", sno: 6, placeholder: "Enter notification period" },
-  { key: "autoRenewTerms", field: "Auto Renew Terms", sno: 7, placeholder: "Enter auto-renew terms" },
-  { key: "renewActionOrNotificationDate", field: "Renew Action or Notification Date", type: "date", sno: 8, placeholder: "Select renewal notification date" },
-  { key: "paymentTerms", field: "Payment terms", sno: 9, placeholder: "Enter payment terms" },
+  {
+    key: "typeOfAgreement",
+    field: "Type of Agreement",
+    sno: 1,
+    placeholder: "Select agreement type",
+  },
+  {
+    key: "effectiveDate",
+    field: "Effective Date",
+    type: "date",
+    sno: 2,
+    placeholder: "Select effective date",
+  },
+  {
+    key: "initialTerm",
+    field: "Initial Term",
+    sno: 3,
+    placeholder: "Enter initial term",
+  },
+  {
+    key: "expirationDateOfContract",
+    field: "Expiration date of contract",
+    type: "date",
+    sno: 4,
+    placeholder: "Select expiration date",
+  },
+  {
+    key: "currentExpirationDate",
+    field: "Current expiration date",
+    type: "date",
+    sno: 5,
+    placeholder: "Select current expiration date",
+  },
+  {
+    key: "notificationTime",
+    field: "Renew/Termination Notification Time ",
+    sno: 6,
+    placeholder: "Enter notification period",
+  },
+  {
+    key: "autoRenewTerms",
+    field: "Auto Renew Terms",
+    sno: 7,
+    placeholder: "Enter auto-renew terms",
+  },
+  {
+    key: "renewActionOrNotificationDate",
+    field: "Renew Action or Notification Date",
+    type: "date",
+    sno: 8,
+    placeholder: "Select renewal notification date",
+  },
+  {
+    key: "paymentTerms",
+    field: "Payment terms",
+    sno: 9,
+    placeholder: "Enter payment terms",
+  },
 ]);
 
 /**
  * Forecast & Ordering
  */
 export const FORECAST_ORDERING_DEFAULT_ROWS = buildRows([
-  { key: "forecastFrequency", field: "Forecast - Frequency", sno: 1, placeholder: "Enter forecast frequency" },
-  { key: "forecastTimeHorizon", field: "Forecast - Time Horizon", sno: 2, placeholder: "Enter forecast time horizon" },
-  { key: "forecastBindingPeriod", field: "Forecast - Firm Order Period(binding)", sno: 3, placeholder: "Enter firm order period" },
-  { key: "forecastUpdateDeadline", field: "Forecast - Update Deadline", sno: 4, placeholder: "Enter update deadline" },
-  { key: "forecastMoreDetails", field: "Forecast - More Details", sno: 5, placeholder: "Enter additional forecast details" },
-  { key: "poOrderLeadTimeRequired", field: "PO - Order Lead Time Required", sno: 6, type: "number", placeholder: "Enter lead time (days)", options: [
+  {
+    key: "forecastFrequency",
+    field: "Forecast - Frequency",
+    sno: 1,
+    placeholder: "Enter forecast frequency",
+  },
+  {
+    key: "forecastTimeHorizon",
+    field: "Forecast - Time Horizon",
+    sno: 2,
+    placeholder: "Enter forecast time horizon",
+  },
+  {
+    key: "forecastBindingPeriod",
+    field: "Forecast - Firm Order Period(binding)",
+    sno: 3,
+    placeholder: "Enter firm order period",
+  },
+  {
+    key: "forecastUpdateDeadline",
+    field: "Forecast-Update Deadline (Day of Month, Quarterly?)",
+    sno: 4,
+    placeholder: "Enter update deadline",
+  },
+  {
+    key: "forecastMoreDetails",
+    field: "Forecast-More Details (If applicable)",
+    sno: 5,
+    placeholder: "Enter additional forecast details",
+  },
+  {
+    key: "poOrderLeadTimeRequired",
+    field: "PO - Order Lead Time Required",
+    sno: 6,
+    type: "number",
+    placeholder: "Enter lead time (days)",
+    options: [
       { value: "Yes", label: "Yes" },
       { value: "No", label: "No" },
-    ], },
-  { key: "poFixedPOWindow", field: "PO - Fixed PO Window", sno: 7, placeholder: "Enter PO window" },
-  { key: "poMinimumOrderQuantity", field: "PO - Minimum Order Quantity", sno: 8, type: "number", placeholder: "Enter minimum order quantity" },
-  { key: "poOtherDetails", field: "PO - Other Details", sno: 9, placeholder: "Enter additional PO details" },
-  { key: "contractVolumeByPartAnnual", field: "Contract Volume by Part (Annual)", sno: 10, type: "number", placeholder: "Enter annual contract volume" },
+    ],
+  },
+  {
+    key: "poDeadline",
+    field: "PO-Deadline to Acknowledge by Supplier",
+    sno: 7,
+    placeholder: "Enter Value",
+  },
+  {
+    key: "poMinimumOrderQuantity",
+    field: "PO - Minimum Order Quantity",
+    sno: 8,
+    type: "number",
+    placeholder: "Enter minimum order quantity",
+  },
+  {
+    key: "poOtherDetails",
+    field: "PO - Other Details",
+    sno: 9,
+    placeholder: "Enter additional PO details",
+  },
+  {
+    key: "contractVolumeByPartAnnual",
+    field: "Annual Minimum Volume Commitment",
+    sno: 10,
+    type: "number",
+    placeholder: "Enter annual contract volume",
+  },
 ]);
 
 export const buildFieldMap = <
-  T extends readonly { key: string; field: string }[]
+  T extends readonly { key: string; field: string }[],
 >(
-  rows: T
+  rows: T,
 ): Record<T[number]["key"], string> => {
-  return rows.reduce((acc, row) => {
-    acc[row.key as T[number]["key"]] = row.field;
-    return acc;
-  }, {} as Record<T[number]["key"], string>);
+  return rows.reduce(
+    (acc, row) => {
+      acc[row.key as T[number]["key"]] = row.field;
+      return acc;
+    },
+    {} as Record<T[number]["key"], string>,
+  );
 };
-
 
 export const FIELD_LABEL_MAP = {
   delivery: buildFieldMap(DELIVERY_DEFAULT_ROWS),
@@ -301,7 +521,7 @@ export const FIELD_LABEL_MAP = {
   product: buildFieldMap(PRODUCT_DEFAULT_ROWS),
   pricing: buildFieldMap(PRICING_DEFAULT_ROWS),
   performance: buildFieldMap(PERFORMANCE_DEFAULT_ROWS),
-  governance: buildFieldMap(GOVERNANCE_DEFAULT_ROWS),
+  others: buildFieldMap(OTHERS_DEFAULT_ROWS),
   generalTerms: buildFieldMap(GENERAL_TERMS_DEFAULT_ROWS),
   forecastOrdering: buildFieldMap(FORECAST_ORDERING_DEFAULT_ROWS),
 };
@@ -317,7 +537,7 @@ export const ALL_SECTIONS = {
   rawMaterials: RAW_MATERIALS_DEFAULT_ROWS,
   qcTesting: QC_TESTING_DEFAULT_ROWS,
   performance: PERFORMANCE_DEFAULT_ROWS,
-  governance: GOVERNANCE_DEFAULT_ROWS,
+  others: OTHERS_DEFAULT_ROWS,
   comments: COMMENTS_DEFAULT_ROWS,
   specialFields: SPECIAL_FIELDS_DEFAULT_ROWS,
 };

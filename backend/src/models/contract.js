@@ -25,7 +25,7 @@ export default (sequelize, DataTypes) => {
       product: DataTypes.JSONB,
       forecastOrdering: DataTypes.JSONB,
       generalTerms: DataTypes.JSONB,
-      governance: DataTypes.JSONB,
+      others: DataTypes.JSONB,
       performance: DataTypes.JSONB,
       qcTesting: DataTypes.JSONB,
       rawMaterials: DataTypes.JSONB,

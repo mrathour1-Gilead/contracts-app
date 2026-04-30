@@ -10,7 +10,7 @@ import { Contract } from "@/app/store/contracts/contracts.types"
 import { useStepNavigation } from "./hooks";
 import { WORKFLOW_STEPS, LOADING_DELAYS } from "./constants";
 import { GileadHeader } from "./components/GileadHeader";
-import { DashboardView } from "./components/dashboard/DashboardView";
+import { DashboardView } from "./components/dashboard/DashboardViewListing";
 import { StepperFormView } from "./components/stepper/StepperFormView";
 import { clearAuditLogs, setSelectedContract } from "@/app/store/contracts/contractsSlice"
 import { useAppSelector, useAppDispatch } from "@/app/store/hooks"

@@ -30,7 +30,7 @@ export const WORKFLOW_STEPS = [
   { id: 7, label: "Raw Materials", completed: false },
   { id: 8, label: "QC Testing", completed: false },
   { id: 9, label: "Performance", completed: false },
-  { id: 10, label: "Governance", completed: false },
+  { id: 10, label: "Others", completed: false },
   { id: 11, label: "Comments", completed: false },
   { id: 12, label: "Special Fields", completed: false },
 ] as const;

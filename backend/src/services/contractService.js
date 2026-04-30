@@ -145,7 +145,7 @@ export const updateContract = async (id, data, auth) => {
       "product",
       "forecastOrdering",
       "generalTerms",
-      "governance",
+      "others",
       "performance",
       "qcTesting",
       "rawMaterials",

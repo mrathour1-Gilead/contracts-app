@@ -81,7 +81,7 @@ export const createContract = createAsyncThunk<
         rawMaterials: {},
         qcTesting: {},
         performance: {},
-        governance: {},
+        others: {},
         comments: {},
         specialFields: {},
         // ...generateContractSearchFields(data, contracts.selectedContract || {}),

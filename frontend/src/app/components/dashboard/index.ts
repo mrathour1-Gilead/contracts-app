@@ -2,4 +2,4 @@
  * Dashboard components barrel export
  */
 
-export { DashboardView } from "./DashboardView";
+export { DashboardView } from "./DashboardViewListing";

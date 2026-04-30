@@ -154,7 +154,7 @@ export interface PerformanceData {
 }
 
 /**
- * Governance
+ * Others
  */
 export interface GovernanceData {
   annualBusinessReviewRequired: CommonFieldData;

@@ -72,7 +72,7 @@ export interface Contract {
   rawMaterials?: Record<string, unknown>;
   qcTesting?: Record<string, unknown>;
   performance?: Record<string, unknown>;
-  governance?: Record<string, unknown>;
+  others?: Record<string, unknown>;
   comments?: Record<string, unknown>;
   specialFields?: Record<string, unknown>;
 
@@ -123,7 +123,7 @@ export interface ContractView {
   rawMaterials?: Record<string, unknown>;
   qcTesting?: Record<string, unknown>;
   performance?: Record<string, unknown>;
-  governance?: Record<string, unknown>;
+  others?: Record<string, unknown>;
   comments?: Record<string, unknown>;
   specialFields?: Record<string, unknown>;
 

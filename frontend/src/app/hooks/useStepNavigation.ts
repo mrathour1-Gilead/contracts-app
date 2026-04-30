@@ -3,7 +3,6 @@
  */
 
 import { useState, useCallback } from "react";
-import type { CMOFormData } from "../types";
 
 interface UseStepNavigationProps {
   totalSteps: number;
@@ -15,7 +14,6 @@ export const useStepNavigation = ({
   onCancel,
 }: UseStepNavigationProps) => {
   const [currentStep, setCurrentStep] = useState(0);
-  const [formData, setFormData] = useState<CMOFormData>({});
 
   /**
    * Navigate to next step
@@ -81,7 +79,6 @@ export const useStepNavigation = ({
 
   return {
     currentStep,
-    formData,
     isFirstStep,
     isLastStep,
     handleNext,
