@@ -15,12 +15,14 @@ interface BaseFormStepProps {
   title: string;
   defaultRows: FormFieldRow[];
   existingRows?: Record<string, Partial<FormFieldRow>> | null;
+  selectOptions: any;
+  optionLoading: boolean;
   transformData: (rows: FormFieldRow[]) => any;
 }
 const isEmptyObject = (obj?: object | null) =>
   !obj || Object.keys(obj).length === 0;
 export const BaseFormStep = forwardRef<StepHandle, BaseFormStepProps>(
-  ({ title, defaultRows, existingRows, transformData }, ref) => {
+  ({ title, defaultRows, existingRows, transformData, selectOptions , optionLoading}, ref) => {
     const { notification } = App.useApp();
     const [dataSource, setDataSource] =
       useState<FormFieldRow[]>(defaultRows);
@@ -52,6 +54,7 @@ export const BaseFormStep = forwardRef<StepHandle, BaseFormStepProps>(
       },
       []
     );
+
     /* -----------------------------
        Shared table columns
     ------------------------------ */
@@ -76,11 +79,11 @@ export const BaseFormStep = forwardRef<StepHandle, BaseFormStepProps>(
           width: 220,
           render: (value, record) => {
             /* SELECT */
-            if (record.options) {
+            if (record.options || selectOptions[record.key]?.length) {
               return (
                 <Select
                   value={value || undefined}
-                  options={record.options}
+                  options={selectOptions[record.key] || record.options}
                   placeholder={record.placeholder}
                   className="w-full"
                   onChange={(v) =>
@@ -273,7 +276,7 @@ export const BaseFormStep = forwardRef<StepHandle, BaseFormStepProps>(
     }));
     return (
       <Card title={title} style={{ height: "100%" }}>
-        <FormTable dataSource={dataSource} columns={columns} />
+        <FormTable dataSource={dataSource} columns={columns} loading={optionLoading} />
       </Card>
     );
   }
