@@ -6,7 +6,7 @@ import { Form, Input, Button, Card, Divider } from 'antd';
 import { LockOutlined, MailOutlined } from '@ant-design/icons';
 import { useAppDispatch, useAppSelector } from '@/app/store/hooks';
 import { loginAsync } from '@/app/store/auth/authThunks';
-import { Link } from 'react-router';
+import { Link, useNavigate } from 'react-router';
 interface LoginFormValues {
   email: string;
   password: string;
@@ -14,6 +14,7 @@ interface LoginFormValues {
 export function Login() {
   const [form] = Form.useForm();
   const dispatch = useAppDispatch();
+  const navigate = useNavigate();
   const { isLoading } = useAppSelector((state) => state.auth);
   const handleSubmit = async (values: LoginFormValues) => {
     if(isLoading) return;
@@ -22,7 +23,8 @@ export function Login() {
         email: values.email.trim().toLowerCase(),
         password: values.password,
       })
-    );
+    ).unwrap();
+    navigate("/")
   };
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-gray-100 flex items-center justify-center px-4">

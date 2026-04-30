@@ -28,7 +28,6 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
       </div>
     );
   }
-
   if (!user) {
     return <Navigate to="/login" replace />;
   }

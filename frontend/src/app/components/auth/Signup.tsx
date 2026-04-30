@@ -2,7 +2,7 @@ import { Form, Input, Button, Card, Divider } from 'antd';
 import { UserOutlined, LockOutlined, MailOutlined } from '@ant-design/icons';
 import { useAppDispatch, useAppSelector } from '@/app/store/hooks';
 import { signupAsync } from '@/app/store/auth/authThunks';
-import { Link } from 'react-router';
+import { Link, useNavigate } from 'react-router';
 
 interface SignupFormValues {
   name: string;
@@ -14,6 +14,7 @@ interface SignupFormValues {
 export function Signup() {
   const [form] = Form.useForm();
   const dispatch = useAppDispatch();
+  const navigate = useNavigate();
   const { isLoading } = useAppSelector((state) => state.auth);
 
   const handleSubmit = async (values: SignupFormValues) => {
@@ -23,7 +24,8 @@ export function Signup() {
         password: values.password,
         name: values.name,
       })
-    );
+    ).unwrap();
+    navigate("/")
   };
 
   return (
