@@ -122,7 +122,6 @@ export const updateContract = createAsyncThunk<
         dispatch,
         getState
       );
-      console.log("response", response)
       return response;
     } catch (err: any) {
       return rejectWithValue(

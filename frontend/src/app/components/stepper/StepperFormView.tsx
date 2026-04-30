@@ -2,8 +2,7 @@
  * Stepper form view component for contract creation workflow
  */
 
-import { memo, useEffect, useRef } from "react";
-import type { Step } from "../../types";
+import { memo, useRef } from "react";
 import { VerticalStepper } from "../VerticalStepper";
 import { SecondaryActionBar } from "../SecondaryActionBar";
 import { StepContent, type StepContentHandle } from "./StepContent";

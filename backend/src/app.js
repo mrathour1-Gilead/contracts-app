@@ -5,6 +5,7 @@ import rateLimit from "express-rate-limit";
 import helmet from "helmet";
 import authRoutes from "./routes/authRoutes.js";
 import contractRoutes from "./routes/contractRoutes.js";
+import dropdownOptionRoutes from "./routes/dropdownOptionRoutes.js";
 import { authMiddleware } from "./middleware/auth.js";
 import { initDB } from "./config/dbInit.js";
 
@@ -44,6 +45,7 @@ app.disable("etag");
 
 app.use("/api/auth", authRoutes);
 app.use("/api/contracts", authMiddleware, contractRoutes);
+app.use("/api/dropdownOptions", authMiddleware, dropdownOptionRoutes);
 
 app.get("/api/health", (_, res) => res.send("OK"));
 

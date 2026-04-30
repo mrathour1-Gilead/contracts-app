@@ -29,9 +29,9 @@ export function PublicRoute({ children }: PublicRouteProps) {
     );
   }
 
-  if (user) {
-    return <Navigate to="/" replace />;
-  }
+  // if (user) {
+  //   return <Navigate to="/" replace />;
+  // }
 
   return <>{children}</>;
 }
