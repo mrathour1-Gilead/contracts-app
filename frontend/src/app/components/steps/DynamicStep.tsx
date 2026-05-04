@@ -1,10 +1,9 @@
-import { forwardRef, useEffect, useMemo } from "react";
+import { forwardRef, useMemo } from "react";
 import { BaseFormStep } from "./BaseFormStep";
 import { convertFormRowsToData } from "@/app/utils/formFieldUtils";
 import type { StepHandle } from "./types/StepHandle";
 import { STEP_CONFIG } from "./stepConfig";
-import { fetchDropdownOptions } from "@/app/store/dropdowns/dropdownThunks";
-import { useAppSelector, useAppDispatch } from "@/app/store/hooks";
+import { useAppSelector } from "@/app/store/hooks";
 
 interface Props {
   stepKey: string;
@@ -13,17 +12,10 @@ interface Props {
 
 export const DynamicStep = forwardRef<StepHandle, Props>(
   ({ stepKey, contractData }, ref) => {
-    const dispatch = useAppDispatch();
 
     const step = STEP_CONFIG.find((s) => s.key === stepKey);
    const { list, loading } = useAppSelector((s) => s.dropdownOptions);
 
-    // 🔥 fetch once (or per step if needed)
-    useEffect(() => {
-      dispatch(fetchDropdownOptions({active: true}));
-    }, [dispatch]);
-
-    // 🔥 group by type
     const optionsByType = useMemo(() => {
       const map: Record<string, any[]> = {};
 
