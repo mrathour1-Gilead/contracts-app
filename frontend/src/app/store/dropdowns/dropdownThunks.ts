@@ -49,10 +49,11 @@ export const updateDropdownOption = createAsyncThunk(
 // TOGGLE ACTIVE
 export const toggleDropdownOption = createAsyncThunk(
   "dropdownOptions/toggle",
-  async (id: number, { rejectWithValue }) => {
+  async (id: number, { rejectWithValue, dispatch }) => {
     try {
       const res = await apiClient.patch(`/dropdownOptions/toggle/${id}`);
-      return res.data;
+      await dispatch(fetchDropdownOptions({ type: res.data.type }))
+      return res.data.type;
     } catch (err: any) {
       return rejectWithValue(err.response?.data?.message || "Toggle failed");
     }

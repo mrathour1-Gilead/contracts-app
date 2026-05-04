@@ -79,7 +79,7 @@ export const BaseFormStep = forwardRef<StepHandle, BaseFormStepProps>(
           width: 220,
           render: (value, record) => {
             /* SELECT */
-            if (record.options || selectOptions[record.key]?.length) {
+            if (record.type === "select") {
               return (
                 <Select
                   value={value || undefined}

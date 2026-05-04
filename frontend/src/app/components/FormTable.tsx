@@ -16,7 +16,7 @@ export interface FormFieldRow {
   sno: number;
   placeholder?: string;
   options?: { value: string; label: string }[];
-  type?: "text" | "number" | "date";
+  type?: "text" | "number" | "date" | "select";
   step?: string;
 }
 

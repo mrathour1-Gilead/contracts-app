@@ -5,7 +5,6 @@ import {
   createDropdownOption,
   updateDropdownOption,
   toggleDropdownOption,
-  fetchDropdownOptions,
 } from "@/app/store/dropdowns/dropdownThunks";
 import { EditTwoTone } from "@ant-design/icons";
 

@@ -5,7 +5,16 @@ import { DropdownManagementPage } from "./DropdownManagementPage";
 import { useAppDispatch } from "@/app/store/hooks";
 import { fetchDropdownOptions } from "@/app/store/dropdowns/dropdownThunks";
 
-const TYPES = [{ key: "territory", label: "Territory" }];
+const TYPES = [
+  { key: "territory", label: "Territory" },
+  { key: "typeOfAgreement", label: "Type of Agreement" },
+  { key: "initialTerm", label: "Initial Term" },
+  { key: "autoRenewTerms", label: "Auto Renew Terms" },
+  { key: "paymentTerms", label: "Payment Terms" },
+  { key: "deliveryTermsG2S", label: "Delivery Terms (Gilead → Supplier)" },
+  { key: "deliveryTermsS2G", label: "Delivery Terms (Supplier → Gilead)" },
+];
+
 
 export const DropdownPage = memo(() => {
   const dispatch = useAppDispatch();
@@ -14,10 +23,9 @@ export const DropdownPage = memo(() => {
 
   useEffect(() => {
     dispatch(fetchDropdownOptions({ type }));
-  }, [type]);
+  }, [type, dispatch]);
 
   const handleBack = () => {
-    // same behavior as contracts
     window.history.back();
   };
 
@@ -39,7 +47,6 @@ export const DropdownPage = memo(() => {
           <div className="stepper-content-area flex flex-col flex-1">
             <DropdownManagementPage type={type} />
           </div>
-
         </div>
       </div>
     </>

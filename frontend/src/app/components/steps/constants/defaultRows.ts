@@ -74,6 +74,7 @@ export const CMO_DEFAULT_ROWS = buildRows([
     field: "Territory",
     sno: 11,
     placeholder: "Select territory",
+    type: "select",
     options: [
       { value: "North America", label: "North America" },
       { value: "Europe", label: "Europe" },
@@ -101,20 +102,23 @@ export const COMMENTS_DEFAULT_ROWS = buildRows([
  */
 export const DELIVERY_DEFAULT_ROWS = buildRows([
   {
-    key: "deliveryTermsGileadToSupplier",
+    key: "deliveryTermsG2S",
     field: "Delivery Terms-Gilead to Supplier (Shipping Term)",
     sno: 1,
-    placeholder: "Enter Delivery Terms - Gilead to Supplier",
+    type: "select",
+    placeholder: "Select Delivery Terms - Gilead to Supplier",
   },
   {
-    key: "deliveryTermsSupplierToGilead",
+    key: "deliveryTermsS2G",
     field: "Delivery Terms-Supplier to Gilead (Shipping Term)",
     sno: 2,
-    placeholder: "Enter Delivery Terms - Supplier to Gilead",
+    type: "select",
+    placeholder: "Select Delivery Terms - Supplier to Gilead",
   },
   {
     key: "productStoragePeriod",
     field: "Gilead Product Storage Period at Supplier Site",
+    type: "select",
     sno: 3,
     placeholder: "Select Value",
     options: [
@@ -152,6 +156,7 @@ export const STATUS_UPDATE_DEFAULT_ROWS = buildRows([
     field: "QAG Approval?",
     sno: 4,
     placeholder: "Enter QAG Approval?",
+    type: "select",
     options: [
       { value: "Yes", label: "Yes" },
       { value: "No", label: "No" },
@@ -337,11 +342,6 @@ export const OTHERS_DEFAULT_ROWS = buildRows([
   {
     key: "informationSecurityExhibitIncluded",
     field: "Information Security Exhibit Included",
-    value: "No",
-    options: [
-      { value: "Yes", label: "Yes" },
-      { value: "No", label: "No" },
-    ],
     sno: 1,
     placeholder: "Select option",
   },
@@ -366,6 +366,7 @@ export const GENERAL_TERMS_DEFAULT_ROWS = buildRows([
   {
     key: "typeOfAgreement",
     field: "Type of Agreement",
+    type: "select",
     sno: 1,
     placeholder: "Select agreement type",
   },
@@ -379,8 +380,9 @@ export const GENERAL_TERMS_DEFAULT_ROWS = buildRows([
   {
     key: "initialTerm",
     field: "Initial Term",
+    type: "select",
     sno: 3,
-    placeholder: "Enter initial term",
+    placeholder: "EnSelecter initial term",
   },
   {
     key: "expirationDateOfContract",
@@ -405,8 +407,9 @@ export const GENERAL_TERMS_DEFAULT_ROWS = buildRows([
   {
     key: "autoRenewTerms",
     field: "Auto Renew Terms",
+    type: "select",
     sno: 7,
-    placeholder: "Enter auto-renew terms",
+    placeholder: "Select auto-renew terms",
   },
   {
     key: "renewActionOrNotificationDate",
@@ -418,8 +421,9 @@ export const GENERAL_TERMS_DEFAULT_ROWS = buildRows([
   {
     key: "paymentTerms",
     field: "Payment terms",
+    type: "select",
     sno: 9,
-    placeholder: "Enter payment terms",
+    placeholder: "Select payment terms",
   },
 ]);
 
@@ -463,10 +467,6 @@ export const FORECAST_ORDERING_DEFAULT_ROWS = buildRows([
     sno: 6,
     type: "number",
     placeholder: "Enter lead time (days)",
-    options: [
-      { value: "Yes", label: "Yes" },
-      { value: "No", label: "No" },
-    ],
   },
   {
     key: "poDeadline",

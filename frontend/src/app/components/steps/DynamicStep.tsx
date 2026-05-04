@@ -50,6 +50,12 @@ export const DynamicStep = forwardRef<StepHandle, Props>(
         existingRows={contractData?.[step.key]}
         selectOptions={{
           territory: optionsByType.territory || [],
+          typeOfAgreement: optionsByType.typeOfAgreement || [],
+          initialTerm: optionsByType.initialTerm || [],
+          autoRenewTerms: optionsByType.autoRenewTerms || [],
+          paymentTerms: optionsByType.paymentTerms || [],
+          deliveryTermsG2S: optionsByType.deliveryTermsG2S || [],
+          deliveryTermsS2G: optionsByType.deliveryTermsS2G || [],
         }}
         transformData={(rows) => ({
           [step.key]: convertFormRowsToData(rows),
