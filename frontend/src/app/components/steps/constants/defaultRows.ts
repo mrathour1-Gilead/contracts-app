@@ -382,7 +382,7 @@ export const GENERAL_TERMS_DEFAULT_ROWS = buildRows([
     field: "Initial Term",
     type: "select",
     sno: 3,
-    placeholder: "EnSelecter initial term",
+    placeholder: "select initial term",
   },
   {
     key: "expirationDateOfContract",
@@ -400,7 +400,7 @@ export const GENERAL_TERMS_DEFAULT_ROWS = buildRows([
   },
   {
     key: "notificationTime",
-    field: "Renew/Termination Notification Time ",
+    field: "Renew/Termination Notification Time",
     sno: 6,
     placeholder: "Enter notification period",
   },

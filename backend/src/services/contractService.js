@@ -7,7 +7,7 @@ const SEARCH_CONFIG = {
   cmoDetails: ["cmoName", "relationshipOwner"],
   generalTerms: [
     "autoRenewTerms",
-    "currentExpirationDate",
+    // "currentExpirationDate",
     "notificationTime",
     "paymentTerms",
     "typeOfAgreement",
@@ -167,7 +167,7 @@ export const updateContract = async (id, data, auth) => {
     const safeBody = {};
     for (const key of allowedFields) {
       if (key in data) {
-        safeBody[key] = data[key];
+        safeBody[key] = data[key] || null;
       }
     }
 

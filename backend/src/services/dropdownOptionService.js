@@ -1,8 +1,44 @@
 import db from "../models/index.js";
 import { Op } from "sequelize";
 
+const validateDuplicateDropdownOption = async ({
+  id,
+  label,
+  value,
+  type,
+}) => {
+  const where = {
+    type,
+    [Op.or]: [
+      { label: { [Op.iLike]: label } },
+      { value: { [Op.iLike]: value } },
+    ],
+  };
+
+  // Exclude current record during update
+  if (id) {
+    where.id = {
+      [Op.ne]: id,
+    };
+  }
+
+  const existingItem = await db.DropdownOption.findOne({
+    where,
+  });
+
+  if (existingItem) {
+    throw new Error("Dropdown option already exists");
+  }
+};
+
 export const createDropdownOption = async (data, auth) => {
   const now = new Date();
+
+  await validateDuplicateDropdownOption({
+    label: data.label,
+    value: data.value,
+    type: data.type,
+  });
 
   const item = await db.DropdownOption.create({
     label: data.label,
@@ -16,7 +52,6 @@ export const createDropdownOption = async (data, auth) => {
   return { id: item.id };
 };
 
-
 export const updateDropdownOption = async (id, data, auth) => {
   const item = await db.DropdownOption.findByPk(id);
 
@@ -24,16 +59,24 @@ export const updateDropdownOption = async (id, data, auth) => {
     throw new Error("Dropdown option not found");
   }
 
-  await item.update({
+  const updatedData = {
     label: data.label ?? item.label,
     value: data.value ?? item.value,
     type: data.type ?? item.type,
+  };
+
+  await validateDuplicateDropdownOption({
+    id,
+    ...updatedData,
+  });
+
+  await item.update({
+    ...updatedData,
     updatedAt: new Date(),
   });
 
   return { id };
 };
-
 
 export const fetchDropdownOption = async ({
   type,
@@ -62,7 +105,6 @@ export const fetchDropdownOption = async ({
 
   return items;
 };
-
 
 export const toggleDropdownOptiontatus = async (id) => {
   const item = await db.DropdownOption.findByPk(id);
