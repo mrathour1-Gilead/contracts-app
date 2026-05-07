@@ -1,4 +1,12 @@
-import { Drawer, Table, ConfigProvider, Avatar, Space, Tooltip } from "antd";
+import {
+  Drawer,
+  Table,
+  ConfigProvider,
+  Avatar,
+  Space,
+  Tooltip,
+  Empty,
+} from "antd";
 import type { ColumnsType } from "antd/es/table";
 import { useEffect } from "react";
 import { useAppDispatch, useAppSelector } from "../store/hooks";
@@ -13,7 +21,7 @@ const PROPERTY_LABEL_MAP: Record<string, string> = {
   termDetail: "Term Detail",
   sectionInContract: "Section In Contract",
   furtherDetails: "Further Details",
-}
+};
 
 interface AuditLogDrawerProps {
   onClose: () => void;
@@ -52,7 +60,7 @@ const AuditLogDrawer = ({ onClose, contractId }: AuditLogDrawerProps) => {
     }
   }, [contractId]);
 
-  const history: any = auditLogs; // ✅ already sorted from backend
+  const history: any = auditLogs || [];
 
   const columns: ColumnsType<TableRow> = [
     {
@@ -80,9 +88,6 @@ const AuditLogDrawer = ({ onClose, contractId }: AuditLogDrawerProps) => {
       ellipsis: true,
       render: renderWithTooltip,
       width: 220,
-      // onCell: () => ({
-      //   style: { backgroundColor: "#fff1f0" },
-      // }),
     },
     {
       title: "To",
@@ -90,9 +95,6 @@ const AuditLogDrawer = ({ onClose, contractId }: AuditLogDrawerProps) => {
       ellipsis: true,
       render: renderWithTooltip,
       width: 220,
-      // onCell: () => ({
-      //   style: { backgroundColor: "#f6ffed" },
-      // }),
     },
   ];
 
@@ -111,80 +113,96 @@ const AuditLogDrawer = ({ onClose, contractId }: AuditLogDrawerProps) => {
         open
         onClose={onClose}
       >
-        {history.map((versionItem: any) => {
-          const sectionKey = versionItem.changes?.[0]?.section;
+        {!loading.auditLogs && history.length === 0 ? (
+          <div
+            style={{
+              height: "60vh",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            <Empty description="No amendment history available" />
+          </div>
+        ) : (
+          history.map((versionItem: any) => {
+            const sectionKey = versionItem.changes?.[0]?.section;
 
-          const sectionLabel =
-            STEP_CONFIG.find((s) => s.key === sectionKey)?.title ||
-            sectionKey;
+            const sectionLabel =
+              STEP_CONFIG.find((s) => s.key === sectionKey)?.title ||
+              sectionKey;
 
-          const tableData: any = versionItem.changes.flatMap((c: any, idx: any) =>
-            Object.keys(c.changes).map((key, subIdx) => {
-              const val = c.changes[key];
+            const tableData: any = versionItem.changes.flatMap(
+              (c: any, idx: any) =>
+                Object.keys(c.changes).map((key, subIdx) => {
+                  const val = c.changes[key];
 
-              return {
-                key: `${idx}-${subIdx}`,
-                sno: idx + subIdx + 1,
+                  return {
+                    key: `${idx}-${subIdx}`,
+                    sno: idx + subIdx + 1,
 
-                field:
-                  FIELD_LABEL_MAP[
-                  c.section as keyof typeof FIELD_LABEL_MAP
-                  ]?.[c.field as string] || c.field,
+                    field:
+                      FIELD_LABEL_MAP[
+                        c.section as keyof typeof FIELD_LABEL_MAP
+                      ]?.[c.field as string] || c.field,
 
-                property: PROPERTY_LABEL_MAP[key] || key,
+                    property: PROPERTY_LABEL_MAP[key] || key,
 
-                from: val?.from ?? "",
-                to: val?.to ?? "",
-              };
-            })
-          );
+                    from: val?.from ?? "",
+                    to: val?.to ?? "",
+                  };
+                }),
+            );
 
-          return (
-            <div key={versionItem.version} style={{ marginBottom: 28 }}>
-              {/* Header */}
-              <Space align="start" style={{ marginBottom: 16 }}>
-                <Avatar style={{ backgroundColor: "#306e9a" }}>
-                  {getInitials(versionItem.UpdatedBy?.name || "Unknown User")}
-                </Avatar>
+            return (
+              <div key={versionItem.version} style={{ marginBottom: 28 }}>
+                {/* Header */}
+                <Space align="start" style={{ marginBottom: 16 }}>
+                  <Avatar style={{ backgroundColor: "#306e9a" }}>
+                    {getInitials(versionItem.UpdatedBy?.name || "Unknown User")}
+                  </Avatar>
 
-                <div>
-                  <div style={{ fontWeight: 600 }}>
-                    {versionItem.UpdatedBy?.name || "Unknown User"}
+                  <div>
+                    <div style={{ fontWeight: 600 }}>
+                      {versionItem.UpdatedBy?.name || "Unknown User"}
+                    </div>
+
+                    <div
+                      style={{
+                        color: "#888",
+                        fontSize: 13,
+                      }}
+                    >
+                      {new Date(versionItem.createdAt).toLocaleString()}
+                    </div>
+
+                    <div
+                      style={{
+                        color: "#306e9a",
+                        fontSize: 13,
+                        marginTop: 2,
+                        fontWeight: 500,
+                      }}
+                    >
+                      Section: {sectionLabel}
+                    </div>
                   </div>
+                </Space>
 
-                  <div style={{ color: "#888", fontSize: 13 }}>
-                    {/* Version {versionItem.version} •{" "} */}
-                    {new Date(
-                      versionItem.createdAt
-                    ).toLocaleString()}
-                  </div>
-
-                  <div
-                    style={{
-                      color: "#306e9a",
-                      fontSize: 13,
-                      marginTop: 2,
-                      fontWeight: 500,
-                    }}
-                  >
-                    Section: {sectionLabel}
-                  </div>
+                {/* Table */}
+                <div className="audit-logs">
+                  <Table
+                    columns={columns}
+                    dataSource={tableData}
+                    pagination={false}
+                    size="small"
+                    rowKey="key"
+                  />
                 </div>
-              </Space>
-
-              {/* Table */}
-              <div className="audit-logs">
-                <Table
-                  columns={columns}
-                  dataSource={tableData}
-                  pagination={false}
-                  size="small"
-                  rowKey="key"
-                />
               </div>
-            </div>
-          );
-        })}
+            );
+          })
+        )}
 
         <style>{`
           .audit-logs .ant-table-thead > tr > th {

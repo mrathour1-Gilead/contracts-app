@@ -1,13 +1,13 @@
-import { Button, Tooltip } from "antd"
-import { EditTwoTone, EyeTwoTone } from "@ant-design/icons"
-import type { TableColumnsType } from "antd"
-import type { TableActionHandlers } from "../types"
-import type { Contract } from "@/app/store/contracts/contracts.types"
+import { Button, Tooltip } from "antd";
+import { EditTwoTone, EyeTwoTone } from "@ant-design/icons";
+import type { TableColumnsType } from "antd";
+import type { TableActionHandlers } from "../types";
+import type { Contract } from "@/app/store/contracts/contracts.types";
 
 const renderEllipsis = (value: any) => {
-  if (value === null || value === undefined) return ""
+  if (value === null || value === undefined) return "";
 
-  if (typeof value === "object") return ""
+  if (typeof value === "object") return "";
 
   return (
     <div
@@ -20,22 +20,22 @@ const renderEllipsis = (value: any) => {
     >
       {value}
     </div>
-  )
-}
+  );
+};
 
 const headerNoWrap = {
   whiteSpace: "nowrap" as const,
-}
+};
 
 export const getContractColumns = (
-  handlers: TableActionHandlers
+  handlers: TableActionHandlers,
 ): TableColumnsType<Contract> => [
   {
     dataIndex: "cmoName",
     key: "cmoName",
     title: "CMO Name",
     width: 180,
-    sorter: (a, b) => a.cmoName.localeCompare(b.cmoName),
+    sorter: (a, b) => (a.cmoName || "").localeCompare(b.cmoName || ""),
     render: renderEllipsis,
     onHeaderCell: () => ({ style: headerNoWrap }),
   },
@@ -45,7 +45,7 @@ export const getContractColumns = (
     title: "Relationship Owner",
     width: 200,
     sorter: (a, b) =>
-      a.relationshipOwner.localeCompare(b.relationshipOwner),
+      (a.relationshipOwner || "").localeCompare(b.relationshipOwner || ""),
     render: renderEllipsis,
     onHeaderCell: () => ({ style: headerNoWrap }),
   },
@@ -55,7 +55,7 @@ export const getContractColumns = (
     title: "Type Of Agreement",
     width: 160,
     sorter: (a, b) =>
-      a.typeOfAgreement.localeCompare(b.typeOfAgreement),
+      (a.typeOfAgreement || "").localeCompare(b.typeOfAgreement || ""),
     render: renderEllipsis,
     onHeaderCell: () => ({ style: headerNoWrap }),
   },
@@ -65,7 +65,7 @@ export const getContractColumns = (
     title: "Auto Renew Terms",
     width: 160,
     sorter: (a, b) =>
-      a.autoRenewTerms.localeCompare(b.autoRenewTerms),
+      (a.autoRenewTerms || "").localeCompare(b.autoRenewTerms || ""),
     render: renderEllipsis,
     onHeaderCell: () => ({ style: headerNoWrap }),
   },
@@ -75,7 +75,9 @@ export const getContractColumns = (
     title: "Current Expiration Date",
     width: 200,
     sorter: (a, b) =>
-      a.currentExpirationDate.localeCompare(b.currentExpirationDate),
+      (a.currentExpirationDate || "").localeCompare(
+        b.currentExpirationDate || "",
+      ),
     render: renderEllipsis,
     onHeaderCell: () => ({ style: headerNoWrap }),
   },
@@ -85,7 +87,7 @@ export const getContractColumns = (
     title: "Notification Time",
     width: 180,
     sorter: (a, b) =>
-      a.notificationTime.localeCompare(b.notificationTime),
+      (a.notificationTime || "").localeCompare(b.notificationTime || ""),
     render: renderEllipsis,
     onHeaderCell: () => ({ style: headerNoWrap }),
   },
@@ -122,35 +124,33 @@ export const getContractColumns = (
     onHeaderCell: () => ({ style: headerNoWrap }),
     render: (_: unknown, record: Contract) => (
       <div className="flex items-center gap-2">
-       <Tooltip title="Edit">
-         <Button
-          type="text"
-          icon={<EditTwoTone twoToneColor="#306e9a" />}
-          style={{color: "#306e9a"}}
-          onClick={(e) => {
-            e.stopPropagation()
-            handlers.onEdit(record)
-          }}
-        >
-          Edit
-          </Button>
-       </Tooltip>
-        {record.version > 0 && (
-          <Tooltip title="View Amendment History">
-            <Button
+        <Tooltip title="Edit">
+          <Button
             type="text"
-            style={{color: "#306e9a"}}
+            icon={<EditTwoTone twoToneColor="#306e9a" />}
+            style={{ color: "#306e9a" }}
+            onClick={(e) => {
+              e.stopPropagation();
+              handlers.onEdit(record);
+            }}
+          >
+            Edit
+          </Button>
+        </Tooltip>
+        <Tooltip title="View Amendment History">
+          <Button
+            type="text"
+            style={{ color: "#306e9a" }}
             icon={<EyeTwoTone twoToneColor="#306e9a" />}
             onClick={(e) => {
-              e.stopPropagation()
-              handlers.showAuditLogClick(record)
+              e.stopPropagation();
+              handlers.showAuditLogClick(record);
             }}
           >
             View
-            </Button>
-          </Tooltip>
-        )}
+          </Button>
+        </Tooltip>
       </div>
     ),
   },
-]
+];
