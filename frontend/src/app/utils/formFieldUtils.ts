@@ -11,10 +11,7 @@ export function convertFormRowsToData<T>(
       field: row.field,
       value: row.value,
       termDetail: row.termDetail,
-      sectionInContract: row.sectionInContract,
       furtherDetails: row.furtherDetails,
-      meetsBaseline: row.meetsBaseline,
-      baselineTerms: row.baselineTerms,
       sno: row.sno,
     };
 

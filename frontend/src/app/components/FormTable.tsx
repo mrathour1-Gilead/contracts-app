@@ -7,10 +7,7 @@ export interface FormFieldRow {
   field: string;
   value: string;
   termDetail: string;
-  sectionInContract: string;
   furtherDetails: string;
-  meetsBaseline: string;
-  baselineTerms: string;
   required?: boolean;
   error: boolean;
   sno: number;
@@ -25,10 +22,7 @@ export interface FormView {
   field: string;
   value: string;
   termDetail: string;
-  sectionInContract: string;
   furtherDetails: string;
-  meetsBaseline: string;
-  baselineTerms: string;
 }
 
 interface FormTableProps<T = FormFieldRow>

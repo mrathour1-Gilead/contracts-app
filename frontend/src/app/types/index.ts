@@ -41,10 +41,7 @@ export interface CommonFieldData {
   field: string;
   value: string;
   termDetail: string;
-  sectionInContract: string;
   furtherDetails: string;
-  meetsBaseline: string;
-  baselineTerms: string;
   sno: number;
 }
 

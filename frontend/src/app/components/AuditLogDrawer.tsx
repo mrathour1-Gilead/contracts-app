@@ -16,10 +16,7 @@ import { FIELD_LABEL_MAP } from "./steps/constants/defaultRows";
 
 const PROPERTY_LABEL_MAP: Record<string, string> = {
   value: "Value",
-  meetsBaseline: "Meets Baseline",
-  baselineTerms: "Baseline Terms",
   termDetail: "Term Detail",
-  sectionInContract: "Section In Contract",
   furtherDetails: "Further Details",
 };
 

@@ -1,10 +1,7 @@
 const commonValue = {
   value: "",
   termDetail: "",
-  sectionInContract: "",
   furtherDetails: "",
-  meetsBaseline: "Yes",
-  baselineTerms: "",
   required: true,
   error: false,
 };

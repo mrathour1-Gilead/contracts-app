@@ -50,10 +50,7 @@ const REQUIRED_HEADERS = [
   "Field",
   "Value",
   "Term Detail",
-  "Section in Contract",
   "Further details or Comments",
-  "Meets baseline (Yes/No)",
-  "Baseline Terms",
 ];
 
 const buildTemplateData = async () => {
@@ -70,10 +67,7 @@ const buildTemplateData = async () => {
         Field: field.field,
         Value: "",
         "Term Detail": "",
-        "Section in Contract": "",
         "Further details or Comments": "",
-        "Meets baseline (Yes/No)": "",
-        "Baseline Terms": "",
       });
     });
   });
@@ -92,10 +86,7 @@ const generateErrorFile = async (errorSheets: Record<string, any[]>) => {
       { header: "Field", key: "Field", width: 35 },
       { header: "Value", key: "Value", width: 25 },
       { header: "Term Detail", key: "Term Detail", width: 30 },
-      { header: "Section in Contract", key: "Section in Contract", width: 30 },
       { header: "Further details or Comments", key: "Further details or Comments", width: 40 },
-      { header: "Meets baseline (Yes/No)", key: "Meets baseline (Yes/No)", width: 25 },
-      { header: "Baseline Terms", key: "Baseline Terms", width: 30 },
       { header: "Error", key: "Error", width: 50 },
     ];
 
@@ -260,10 +251,7 @@ const BulkUploadModal: React.FC<{ onClose: () => void }> = ({ onClose }) => {
             Field: row.getCell(2).text,
             Value: row.getCell(3).text,
             "Term Detail": row.getCell(4).text,
-            "Section in Contract": row.getCell(5).text,
             "Further details or Comments": row.getCell(6).text,
-            "Meets baseline (Yes/No)": row.getCell(7).text,
-            "Baseline Terms": row.getCell(8).text,
           });
         });
 
@@ -275,7 +263,6 @@ const BulkUploadModal: React.FC<{ onClose: () => void }> = ({ onClose }) => {
 
           const sectionName = row["Section"]?.trim()?.toLowerCase();
           const fieldName = row["Field"]?.trim()?.toLowerCase();
-          const raw = row["Meets baseline (Yes/No)"];
 
           let errors: string[] = [];
 
@@ -284,18 +271,6 @@ const BulkUploadModal: React.FC<{ onClose: () => void }> = ({ onClose }) => {
 
           if (!section) errors.push("Invalid section");
           if (!fieldEntry) errors.push("Invalid field");
-
-          let meetsBaseline =
-            typeof raw === "string" ? raw.trim().toLowerCase() : "";
-
-          if (meetsBaseline && meetsBaseline !== "yes" && meetsBaseline !== "no") {
-            errors.push("Meets baseline must be Yes or No");
-          }
-
-          if (meetsBaseline) {
-            meetsBaseline =
-              meetsBaseline.charAt(0).toUpperCase() + meetsBaseline.slice(1);
-          }
 
           if (errors.length) {
             errorMap.set(rowNumber, errors);
@@ -311,10 +286,7 @@ const BulkUploadModal: React.FC<{ onClose: () => void }> = ({ onClose }) => {
             ...restConfig,
             value: row["Value"] ?? "",
             termDetail: row["Term Detail"] ?? "",
-            sectionInContract: row["Section in Contract"] ?? "",
             furtherDetails: row["Further details or Comments"] ?? "",
-            meetsBaseline,
-            baselineTerms: row["Baseline Terms"] ?? "",
           };
         });
 

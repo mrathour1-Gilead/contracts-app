@@ -207,25 +207,6 @@ export const BaseFormStep = forwardRef<StepHandle, BaseFormStepProps>(
           ),
         },
         {
-          title: "Section in Contract",
-          dataIndex: "sectionInContract",
-          width: 180,
-          render: (value, record) => (
-            <Input
-              value={value}
-              placeholder="Enter section in contract"
-              className="w-full"
-              onChange={(e) =>
-                handleValueChange(
-                  record.key,
-                  "sectionInContract",
-                  e.target.value,
-                )
-              }
-            />
-          ),
-        },
-        {
           title: "Further Details / Comments",
           dataIndex: "furtherDetails",
           width: 220,
@@ -237,38 +218,6 @@ export const BaseFormStep = forwardRef<StepHandle, BaseFormStepProps>(
               className="w-full"
               onChange={(e) =>
                 handleValueChange(record.key, "furtherDetails", e.target.value)
-              }
-            />
-          ),
-        },
-        {
-          title: "Meets Baseline",
-          dataIndex: "meetsBaseline",
-          width: 150,
-          render: (value, record) => (
-            <Select
-              value={value}
-              className="w-full"
-              options={[
-                { value: "Yes", label: "Yes" },
-                { value: "No", label: "No" },
-              ]}
-              onChange={(v) =>
-                handleValueChange(record.key, "meetsBaseline", v)
-              }
-            />
-          ),
-        },
-        {
-          title: "Baseline Terms",
-          dataIndex: "baselineTerms",
-          width: 200,
-          render: (value, record) => (
-            <Input
-              value={value}
-              placeholder="Enter baseline terms"
-              onChange={(e) =>
-                handleValueChange(record.key, "baselineTerms", e.target.value)
               }
             />
           ),

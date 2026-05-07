@@ -28,16 +28,10 @@ export function CommonDataView({ data, title, dataKey }: CommonDataViewProps) {
 
         return {
           key: row.key,
-
           field: row.field,
-
           value: apiRow.value ?? "",
           termDetail: apiRow.termDetail ?? "",
-          sectionInContract: apiRow.sectionInContract ?? "",
           furtherDetails: apiRow.furtherDetails ?? "",
-          meetsBaseline: apiRow.meetsBaseline ?? "",
-          baselineTerms: apiRow.baselineTerms ?? "",
-
           type: row.type,
           sno: row.sno,
         };
@@ -88,12 +82,6 @@ export function CommonDataView({ data, title, dataKey }: CommonDataViewProps) {
         render: renderValue,
       },
       {
-        title: "Section in Contract",
-        dataIndex: "sectionInContract",
-        width: 180,
-        render: renderValue,
-      },
-      {
         title: "Further Details / Comments",
         dataIndex: "furtherDetails",
         width: 220,
@@ -102,18 +90,6 @@ export function CommonDataView({ data, title, dataKey }: CommonDataViewProps) {
             {renderValue(value, row)}
           </div>
         ),
-      },
-      {
-        title: "Meets Baseline",
-        dataIndex: "meetsBaseline",
-        width: 150,
-        render: renderValue,
-      },
-      {
-        title: "Baseline Terms",
-        dataIndex: "baselineTerms",
-        width: 180,
-        render: renderValue,
       },
     ],
     [renderValue]

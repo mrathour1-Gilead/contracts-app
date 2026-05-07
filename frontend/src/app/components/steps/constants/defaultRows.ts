@@ -386,7 +386,7 @@ export const GENERAL_TERMS_DEFAULT_ROWS = buildRows([
   },
   {
     key: "expirationDateOfContract",
-    field: "Expiration date of contract",
+    field: "Expiration Date of Original Contract",
     type: "date",
     sno: 4,
     placeholder: "Select expiration date",

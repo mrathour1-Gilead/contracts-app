@@ -1,4 +1,3 @@
-export type MeetsBaseline = "Yes" | "No";
 
 /* =====================================================
    CMO DETAILS (FORM STRUCTURE)
@@ -7,9 +6,7 @@ export type MeetsBaseline = "Yes" | "No";
 export interface CMODetailItem {
   value: string | number;
   termDetail?: string;
-  sectionInContract?: string;
   comments?: string;
-  meetsBaseline: MeetsBaseline;
 }
 
 export interface CMODetails {
