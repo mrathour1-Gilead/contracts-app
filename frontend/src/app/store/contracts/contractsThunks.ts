@@ -154,6 +154,7 @@ export const bulkUploadContracts = createAsyncThunk<
   async (data, { dispatch, getState, rejectWithValue }) => {
     try {
       const { page } = getState().contracts;
+      console.log(JSON.stringify(data).length);
 
       await apiClient.post("/contracts/bulk-upload", data);
 

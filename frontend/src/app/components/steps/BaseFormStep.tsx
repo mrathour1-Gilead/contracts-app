@@ -1,6 +1,6 @@
 import { Input, Select, Card, App, InputNumber, DatePicker } from "antd";
-import type { TableColumnsType } from "antd";
-import dayjs from "dayjs"
+import type { SelectProps, TableColumnsType } from "antd";
+import dayjs from "dayjs";
 import {
   useState,
   useCallback,
@@ -22,10 +22,35 @@ interface BaseFormStepProps {
 const isEmptyObject = (obj?: object | null) =>
   !obj || Object.keys(obj).length === 0;
 export const BaseFormStep = forwardRef<StepHandle, BaseFormStepProps>(
-  ({ title, defaultRows, existingRows, transformData, selectOptions , optionLoading}, ref) => {
+  (
+    {
+      title,
+      defaultRows,
+      existingRows,
+      transformData,
+      selectOptions,
+      optionLoading,
+    },
+    ref,
+  ) => {
     const { notification } = App.useApp();
-    const [dataSource, setDataSource] =
-      useState<FormFieldRow[]>(defaultRows);
+    const [dataSource, setDataSource] = useState<FormFieldRow[]>(defaultRows);
+
+    const sharedProps: SelectProps = useMemo(
+      () => ({
+        // maxTagCount: "responsive",
+
+        maxTagPlaceholder: (omittedValues) => {
+          const labels = omittedValues
+            .map((v) => v.label)
+            .filter(Boolean)
+            .join(", ");
+
+          return <span title={labels}>+{omittedValues.length}</span>;
+        },
+      }),
+      [],
+    );
     /* -----------------------------
        CREATE vs EDIT hydration
     ------------------------------ */
@@ -37,7 +62,7 @@ export const BaseFormStep = forwardRef<StepHandle, BaseFormStepProps>(
           defaultRows.map((row) => ({
             ...row,
             ...existingRows?.[row.key],
-          }))
+          })),
         );
       }
     }, [defaultRows, existingRows]);
@@ -48,11 +73,11 @@ export const BaseFormStep = forwardRef<StepHandle, BaseFormStepProps>(
       (key: string, field: keyof FormFieldRow, value: string) => {
         setDataSource((prev) =>
           prev.map((row) =>
-            row.key === key ? { ...row, [field]: value } : row
-          )
+            row.key === key ? { ...row, [field]: value } : row,
+          ),
         );
       },
-      []
+      [],
     );
 
     /* -----------------------------
@@ -67,9 +92,7 @@ export const BaseFormStep = forwardRef<StepHandle, BaseFormStepProps>(
           render: (text, record) => (
             <span className="font-medium">
               {text}
-              {record.required && (
-                <span className="text-red-500 ml-1">*</span>
-              )}
+              {record.required && <span className="text-red-500 ml-1">*</span>}
             </span>
           ),
         },
@@ -86,9 +109,20 @@ export const BaseFormStep = forwardRef<StepHandle, BaseFormStepProps>(
                   options={selectOptions[record.key] || record.options}
                   placeholder={record.placeholder}
                   className="w-full"
-                  onChange={(v) =>
-                    handleValueChange(record.key, "value", v)
-                  }
+                  onChange={(v) => handleValueChange(record.key, "value", v)}
+                />
+              );
+            } else if (record.type === "multi-select") {
+              return (
+                <Select
+                  value={value || undefined}
+                  mode="multiple"
+                  {...sharedProps}
+                  options={selectOptions[record.key] || record.options}
+                  maxTagCount="responsive"
+                  placeholder={record.placeholder}
+                  className="w-full"
+                  onChange={(v) => handleValueChange(record.key, "value", v)}
                 />
               );
             }
@@ -101,11 +135,7 @@ export const BaseFormStep = forwardRef<StepHandle, BaseFormStepProps>(
                   // controls={false}
                   placeholder={record.placeholder}
                   onChange={(v) =>
-                    handleValueChange(
-                      record.key,
-                      "value",
-                      String(v ?? "")
-                    )
+                    handleValueChange(record.key, "value", String(v ?? ""))
                   }
                 />
               );
@@ -114,13 +144,13 @@ export const BaseFormStep = forwardRef<StepHandle, BaseFormStepProps>(
             if (record.type === "date") {
               return (
                 <DatePicker
-                value={value ? dayjs(value) : undefined}
+                  value={value ? dayjs(value) : undefined}
                   className="w-full"
                   onChange={(date, dateString) =>
                     handleValueChange(
                       record.key,
                       "value",
-                     date ? date.format("YYYY-MM-DD") : ""
+                      date ? date.format("YYYY-MM-DD") : "",
                     )
                   }
                 />
@@ -134,11 +164,7 @@ export const BaseFormStep = forwardRef<StepHandle, BaseFormStepProps>(
                 placeholder={record.placeholder}
                 className="w-full"
                 onChange={(e) =>
-                  handleValueChange(
-                    record.key,
-                    "value",
-                    e.target.value
-                  )
+                  handleValueChange(record.key, "value", e.target.value)
                 }
               />
             );
@@ -154,11 +180,7 @@ export const BaseFormStep = forwardRef<StepHandle, BaseFormStepProps>(
               placeholder="Enter term detail"
               className="w-full"
               onChange={(e) =>
-                handleValueChange(
-                  record.key,
-                  "termDetail",
-                  e.target.value
-                )
+                handleValueChange(record.key, "termDetail", e.target.value)
               }
             />
           ),
@@ -176,7 +198,7 @@ export const BaseFormStep = forwardRef<StepHandle, BaseFormStepProps>(
                 handleValueChange(
                   record.key,
                   "sectionInContract",
-                  e.target.value
+                  e.target.value,
                 )
               }
             />
@@ -193,11 +215,7 @@ export const BaseFormStep = forwardRef<StepHandle, BaseFormStepProps>(
               placeholder="Enter further details / comments"
               className="w-full"
               onChange={(e) =>
-                handleValueChange(
-                  record.key,
-                  "furtherDetails",
-                  e.target.value
-                )
+                handleValueChange(record.key, "furtherDetails", e.target.value)
               }
             />
           ),
@@ -215,11 +233,7 @@ export const BaseFormStep = forwardRef<StepHandle, BaseFormStepProps>(
                 { value: "No", label: "No" },
               ]}
               onChange={(v) =>
-                handleValueChange(
-                  record.key,
-                  "meetsBaseline",
-                  v
-                )
+                handleValueChange(record.key, "meetsBaseline", v)
               }
             />
           ),
@@ -233,24 +247,28 @@ export const BaseFormStep = forwardRef<StepHandle, BaseFormStepProps>(
               value={value}
               placeholder="Enter baseline terms"
               onChange={(e) =>
-                handleValueChange(
-                  record.key,
-                  "baselineTerms",
-                  e.target.value
-                )
+                handleValueChange(record.key, "baselineTerms", e.target.value)
               }
             />
           ),
         },
       ],
-      [handleValueChange]
+      [handleValueChange],
     );
     /* -----------------------------
        Validation
     ------------------------------ */
     const validate = useCallback(() => {
       const missingFields = dataSource
-        .filter((row) => row.required && !row.value?.trim())
+        .filter((row) => {
+          if (!row.required) return false;
+
+          if (row.type === "multi-select") {
+            return !row.value || row.value.length === 0;
+          }
+
+          return !row.value?.trim();
+        })
         .map((row) => row.field);
       if (missingFields.length > 0) {
         notification.error({
@@ -276,9 +294,13 @@ export const BaseFormStep = forwardRef<StepHandle, BaseFormStepProps>(
     }));
     return (
       <Card title={title} style={{ height: "100%" }}>
-        <FormTable dataSource={dataSource} columns={columns} loading={optionLoading} />
+        <FormTable
+          dataSource={dataSource}
+          columns={columns}
+          loading={optionLoading}
+        />
       </Card>
     );
-  }
+  },
 );
 BaseFormStep.displayName = "BaseFormStep";

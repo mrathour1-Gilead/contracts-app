@@ -49,18 +49,21 @@ export function CommonDataView({ data, title, dataKey }: CommonDataViewProps) {
 
 
   const renderValue = useCallback(
-    (value: any, row?: any) => {
-      if (!value) return value;
+  (value: any, row?: any) => {
+    if (row?.type === "multi-select" && Array.isArray(value) && value.length) {
+      return value.join(", ")
+    }
 
-      // date formatting
-      if (row?.type === "date" && isValidDate(value)) {
-        return dayjs(value).format("MMM DD YYYY");
-      }
+    if (!value) return value;
 
-      return value;
-    },
-    [isValidDate]
-  );
+    if (row?.type === "date" && isValidDate(value)) {
+      return dayjs(value).format("MMM DD YYYY");
+    }
+
+    return value;
+  },
+  [isValidDate]
+);
 
   const columns: TableColumnsType<FormView> = useMemo(
     () => [

@@ -25,6 +25,7 @@ export const DynamicStep = forwardRef<StepHandle, Props>(
         map[item.type].push({
           value: item.value,
           label: item.label,
+          id: item.id,
         });
       });
 

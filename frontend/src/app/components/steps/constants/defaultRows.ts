@@ -74,7 +74,7 @@ export const CMO_DEFAULT_ROWS = buildRows([
     field: "Territory",
     sno: 11,
     placeholder: "Select territory",
-    type: "select",
+    type: "multi-select",
     options: [
       { value: "North America", label: "North America" },
       { value: "Europe", label: "Europe" },
