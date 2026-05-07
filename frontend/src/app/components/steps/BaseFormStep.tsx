@@ -1,4 +1,12 @@
-import { Input, Select, Card, App, InputNumber, DatePicker } from "antd";
+import {
+  Input,
+  Select,
+  Card,
+  App,
+  InputNumber,
+  DatePicker,
+  Tooltip,
+} from "antd";
 import type { SelectProps, TableColumnsType } from "antd";
 import dayjs from "dayjs";
 import {
@@ -113,13 +121,26 @@ export const BaseFormStep = forwardRef<StepHandle, BaseFormStepProps>(
                 />
               );
             } else if (record.type === "multi-select") {
+              // console.log("selectOptions[record.key]", selectOptions[record.key])
               return (
                 <Select
                   value={value || undefined}
                   mode="multiple"
-                  {...sharedProps}
-                  options={selectOptions[record.key] || record.options}
+                  options={selectOptions?.[record.key] || record.options || []}
                   maxTagCount="responsive"
+                  maxTagPlaceholder={(omittedValues) => (
+                    <Tooltip
+                      title={
+                        <div className="flex flex-col">
+                          {omittedValues.map((item) => (
+                            <span key={item.value}>{item.label}</span>
+                          ))}
+                        </div>
+                      }
+                    >
+                      <span>+{omittedValues.length}</span>
+                    </Tooltip>
+                  )}
                   placeholder={record.placeholder}
                   className="w-full"
                   onChange={(v) => handleValueChange(record.key, "value", v)}
@@ -253,7 +274,7 @@ export const BaseFormStep = forwardRef<StepHandle, BaseFormStepProps>(
           ),
         },
       ],
-      [handleValueChange],
+      [handleValueChange, selectOptions],
     );
     /* -----------------------------
        Validation
