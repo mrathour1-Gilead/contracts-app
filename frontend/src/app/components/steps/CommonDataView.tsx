@@ -4,6 +4,7 @@ import { useMemo, useCallback } from "react";
 import { FormTable, FormView } from "../FormTable";
 import { STEP_CONFIG } from "../steps/stepConfig";
 import dayjs from "dayjs";
+import { isValidDate } from "@/app/config";
 
 interface CommonDataViewProps {
   data: any;
@@ -38,8 +39,6 @@ export function CommonDataView({ data, title, dataKey }: CommonDataViewProps) {
       })
       .sort((a: any, b: any) => (a.sno || 0) - (b.sno || 0));
   }, [data, stepFields]);
-
-  const isValidDate = useCallback((value: any) => dayjs(value).isValid(), []);
 
 
   const renderValue = useCallback(

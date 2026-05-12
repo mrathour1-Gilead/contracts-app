@@ -3,6 +3,9 @@ import { EditTwoTone, EyeTwoTone } from "@ant-design/icons";
 import type { TableColumnsType } from "antd";
 import type { TableActionHandlers } from "../types";
 import type { Contract } from "@/app/store/contracts/contracts.types";
+import dayjs from "dayjs";
+
+export const isValidDate = (value: any) => dayjs(value).isValid();
 
 const renderEllipsis = (value: any) => {
   if (value === null || value === undefined) return "";
@@ -74,11 +77,27 @@ export const getContractColumns = (
     key: "currentExpirationDate",
     title: "Current Expiration Date",
     width: 200,
-    sorter: (a, b) =>
-      (a.currentExpirationDate || "").localeCompare(
-        b.currentExpirationDate || "",
-      ),
-    render: renderEllipsis,
+
+    sorter: (a, b) => {
+      const dateA = isValidDate(a.currentExpirationDate)
+        ? dayjs(a.currentExpirationDate).valueOf()
+        : 0;
+
+      const dateB = isValidDate(b.currentExpirationDate)
+        ? dayjs(b.currentExpirationDate).valueOf()
+        : 0;
+
+      return dateA - dateB;
+    },
+
+    render: (value) => {
+      const formatted = isValidDate(value)
+        ? dayjs(value).format("MMM DD YYYY")
+        : value;
+
+      return renderEllipsis(formatted);
+    },
+
     onHeaderCell: () => ({ style: headerNoWrap }),
   },
   {

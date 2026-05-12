@@ -2,7 +2,6 @@ import db from "../models/index.js";
 import { generateAuditChanges } from "../utils/audit.js";
 import { Op } from "sequelize";
 
-
 const SEARCH_CONFIG = {
   cmoDetails: ["cmoName", "relationshipOwner"],
   generalTerms: [
@@ -28,9 +27,7 @@ const flattenContractData = (data, existing = {}) => {
   Object.entries(SEARCH_CONFIG).forEach(([section, fields]) => {
     fields.forEach((field) => {
       result[field] =
-        data?.[section]?.[field]?.value ??
-        existing?.[field] ??
-        null;
+        data?.[section]?.[field]?.value ?? existing?.[field] ?? null;
     });
   });
 
@@ -39,7 +36,6 @@ const flattenContractData = (data, existing = {}) => {
 
 const buildSearchString = (flat) =>
   Object.values(flat).filter(Boolean).map(normalize).join(" ");
-
 
 export const bulkUploadContracts = async (data, auth) => {
   const now = new Date();
@@ -68,7 +64,6 @@ export const bulkUploadContracts = async (data, auth) => {
   });
 };
 
-
 export const createContract = async (data, auth) => {
   const now = new Date();
 
@@ -88,13 +83,12 @@ export const createContract = async (data, auth) => {
         createdById: auth.user.id,
         updatedById: auth.user.id,
       },
-      { transaction: t }
+      { transaction: t },
     );
 
     return { id: contract.id };
   });
 };
-
 
 export const updateContract = async (id, data, auth) => {
   return await db.sequelize.transaction(async (t) => {
@@ -131,10 +125,9 @@ export const updateContract = async (id, data, auth) => {
           updatedById: auth.user.id,
           createdAt: new Date(),
         },
-        { transaction: t }
+        { transaction: t },
       );
     }
-
 
     const flat = flattenContractData(data, contract);
 
@@ -181,19 +174,14 @@ export const updateContract = async (id, data, auth) => {
         updatedById: auth.user.id,
         updatedAt: new Date(),
       },
-      { transaction: t }
+      { transaction: t },
     );
 
     return { id, version };
   });
 };
 
-
-export const fetchContracts = async ({
-  search = "",
-  page = 1,
-  limit = 25,
-}) => {
+export const fetchContracts = async ({ search = "", page = 1, limit = 25 }) => {
   const where = search
     ? { searchString: { [Op.iLike]: `%${search.toLowerCase()}%` } }
     : {};
@@ -205,22 +193,32 @@ export const fetchContracts = async ({
     order: [["updatedAt", "DESC"]],
   });
 
+  const data = rows.map((row) => {
+    const plain = row.toJSON();
+
+    return {
+      ...plain,
+      currentExpirationDate: plain.generalTerms?.currentExpirationDate?.value,
+    };
+  });
+
   return {
-    items: rows,
+    items: data,
     totalCount: count,
     page,
   };
 };
 
-
 export const getAuditLogs = async (id) => {
   return await db.AuditLog.findAll({
     where: { contractId: id },
-    include:[{
-      model: db.User,
-      as: "UpdatedBy",
-      attributes: ["id", "name"]
-    }],
+    include: [
+      {
+        model: db.User,
+        as: "UpdatedBy",
+        attributes: ["id", "name"],
+      },
+    ],
     order: [["createdAt", "ASC"]],
   });
 };
